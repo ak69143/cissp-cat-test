@@ -107,7 +107,7 @@
           </div>
         </div>
 
-        <div class="sidebar-block">
+        <div class="sidebar-block" id="accuracy-block">
           <div class="sidebar-label">正答率</div>
           <div class="sidebar-value"><span id="accuracy-display">—</span></div>
         </div>
@@ -221,7 +221,7 @@
           <button class="preset-btn" data-preset="exam">
             <span class="preset-icon">🎯</span>
             <span class="preset-name">本番試験モード</span>
-            <span class="preset-desc">スコア・ヒント・解説なし</span>
+            <span class="preset-desc">スコア・正答率・ヒント・解説なし</span>
           </button>
           <button class="preset-btn" data-preset="custom">
             <span class="preset-icon">⚙️</span>
@@ -262,6 +262,16 @@
             </span>
             <div class="toggle-switch">
               <input type="checkbox" id="opt-explanation" checked>
+              <span class="toggle-track"></span>
+            </div>
+          </label>
+          <label class="toggle-row">
+            <span class="toggle-label">
+              <span class="toggle-name">正答率を表示</span>
+              <span class="toggle-desc">サイドバーに正答率をリアルタイム表示</span>
+            </span>
+            <div class="toggle-switch">
+              <input type="checkbox" id="opt-accuracy" checked>
               <span class="toggle-track"></span>
             </div>
           </label>

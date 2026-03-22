@@ -175,15 +175,19 @@ function applyPreset(preset) {
   const optHint = document.getElementById('opt-hint');
   const optExp = document.getElementById('opt-explanation');
 
+  const optAccuracy = document.getElementById('opt-accuracy');
+
   if (preset === 'study') {
     optScore.checked = true;
     optHint.checked = true;
     optExp.checked = true;
+    optAccuracy.checked = true;
     customOptions.classList.add('hidden');
   } else if (preset === 'exam') {
     optScore.checked = false;
     optHint.checked = false;
     optExp.checked = false;
+    optAccuracy.checked = false;
     customOptions.classList.add('hidden');
   } else {
     // カスタム：現在値を維持、設定UIを表示
@@ -196,6 +200,7 @@ function readModalSettings() {
     showScore: document.getElementById('opt-score').checked,
     showHints: document.getElementById('opt-hint').checked,
     showExplanation: document.getElementById('opt-explanation').checked,
+    showAccuracy: document.getElementById('opt-accuracy').checked,
   };
 }
 
@@ -233,6 +238,11 @@ function startCatExam(settings = { showScore: true, showHints: true, showExplana
   const scoreBlock = document.getElementById('score-block');
   if (settings.showScore) scoreBlock.classList.remove('hidden');
   else scoreBlock.classList.add('hidden');
+
+  // 正答率表示制御
+  const accuracyBlock = document.getElementById('accuracy-block');
+  if (settings.showAccuracy !== false) accuracyBlock.classList.remove('hidden');
+  else accuracyBlock.classList.add('hidden');
 
   document.getElementById('btn-abort').onclick = () => {
     if (confirm('試験を中断して結果を見ますか？')) finishSession('abort');
@@ -474,10 +484,10 @@ function selectAnswer(selectedIndex) {
   // 統計保存
   saveAnswerToStats(q.domainIndex, isCorrect);
 
-  // スコア更新
-  const s = session.settings || { showScore: true };
+  // スコア・正答率更新
+  const s = session.settings || { showScore: true, showAccuracy: true };
   if (session.mode === 'cat' && s.showScore) updateScoreDisplay();
-  updateAccuracyDisplay();
+  if (s.showAccuracy !== false) updateAccuracyDisplay();
 
   // 正誤表示
   const accDisplay = document.getElementById('accuracy-display');
