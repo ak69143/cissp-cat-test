@@ -134,6 +134,11 @@
 
           <div class="options-list" id="options-list"></div>
 
+          <div class="hint-area" id="hint-area">
+            <button id="btn-hint" class="btn-hint hidden">💡 ヒントを見る</button>
+            <div id="hint-text" class="hint-text hidden"></div>
+          </div>
+
           <div class="explanation-box hidden" id="explanation-box">
             <div class="explanation-result" id="explanation-result"></div>
             <div class="explanation-text" id="explanation-text"></div>
@@ -191,6 +196,77 @@
       <div id="review-section" class="review-section hidden">
         <h3>間違えた問題一覧</h3>
         <div id="review-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 試験開始モーダル -->
+  <div id="exam-modal-overlay" class="modal-overlay hidden">
+    <div class="modal-box">
+      <h2 class="modal-title">試験設定</h2>
+
+      <!-- プリセット -->
+      <div class="modal-section">
+        <div class="modal-section-label">モードを選択</div>
+        <div class="preset-buttons">
+          <button class="preset-btn active" data-preset="study">
+            <span class="preset-icon">📚</span>
+            <span class="preset-name">学習モード</span>
+            <span class="preset-desc">スコア・ヒント・解説あり</span>
+          </button>
+          <button class="preset-btn" data-preset="exam">
+            <span class="preset-icon">🎯</span>
+            <span class="preset-name">本番試験モード</span>
+            <span class="preset-desc">スコア・ヒント・解説なし</span>
+          </button>
+          <button class="preset-btn" data-preset="custom">
+            <span class="preset-icon">⚙️</span>
+            <span class="preset-name">カスタム</span>
+            <span class="preset-desc">個別に設定する</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 個別設定（カスタム時のみ表示） -->
+      <div class="modal-section hidden" id="custom-options">
+        <div class="modal-section-label">詳細設定</div>
+        <div class="toggle-list">
+          <label class="toggle-row">
+            <span class="toggle-label">
+              <span class="toggle-name">推定スコアを表示</span>
+              <span class="toggle-desc">解答ごとにスコアをリアルタイム更新</span>
+            </span>
+            <div class="toggle-switch">
+              <input type="checkbox" id="opt-score" checked>
+              <span class="toggle-track"></span>
+            </div>
+          </label>
+          <label class="toggle-row">
+            <span class="toggle-label">
+              <span class="toggle-name">ヒントボタンを表示</span>
+              <span class="toggle-desc">1問につき1回、誤答を1つ除外</span>
+            </span>
+            <div class="toggle-switch">
+              <input type="checkbox" id="opt-hint" checked>
+              <span class="toggle-track"></span>
+            </div>
+          </label>
+          <label class="toggle-row">
+            <span class="toggle-label">
+              <span class="toggle-name">解説を表示</span>
+              <span class="toggle-desc">回答後に解説・正誤を表示</span>
+            </span>
+            <div class="toggle-switch">
+              <input type="checkbox" id="opt-explanation" checked>
+              <span class="toggle-track"></span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="modal-cancel" class="btn-secondary">キャンセル</button>
+        <button id="modal-start" class="btn-primary">試験を開始する →</button>
       </div>
     </div>
   </div>

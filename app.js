@@ -121,7 +121,7 @@ function renderStats() {
 }
 
 function bindHomeEvents() {
-  document.getElementById('btn-cat-exam').addEventListener('click', () => startCatExam());
+  document.getElementById('btn-cat-exam').addEventListener('click', () => openExamModal());
   document.getElementById('btn-practice').addEventListener('click', () => {
     document.getElementById('domain-selector').classList.toggle('hidden');
   });
@@ -131,6 +131,72 @@ function bindHomeEvents() {
       renderStats();
     }
   });
+  bindModalEvents();
+}
+
+// ===== 試験開始モーダル =====
+function openExamModal() {
+  // デフォルトを学習モードに設定
+  applyPreset('study');
+  document.getElementById('exam-modal-overlay').classList.remove('hidden');
+}
+
+function closeExamModal() {
+  document.getElementById('exam-modal-overlay').classList.add('hidden');
+}
+
+function bindModalEvents() {
+  // プリセットボタン
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      applyPreset(btn.dataset.preset);
+    });
+  });
+
+  // キャンセル・開始
+  document.getElementById('modal-cancel').addEventListener('click', closeExamModal);
+  document.getElementById('modal-start').addEventListener('click', () => {
+    const settings = readModalSettings();
+    closeExamModal();
+    startCatExam(settings);
+  });
+
+  // モーダル外クリックで閉じる
+  document.getElementById('exam-modal-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('exam-modal-overlay')) closeExamModal();
+  });
+}
+
+function applyPreset(preset) {
+  const customOptions = document.getElementById('custom-options');
+  const optScore = document.getElementById('opt-score');
+  const optHint = document.getElementById('opt-hint');
+  const optExp = document.getElementById('opt-explanation');
+
+  if (preset === 'study') {
+    optScore.checked = true;
+    optHint.checked = true;
+    optExp.checked = true;
+    customOptions.classList.add('hidden');
+  } else if (preset === 'exam') {
+    optScore.checked = false;
+    optHint.checked = false;
+    optExp.checked = false;
+    customOptions.classList.add('hidden');
+  } else {
+    // カスタム：現在値を維持、設定UIを表示
+    customOptions.classList.remove('hidden');
+  }
+}
+
+function readModalSettings() {
+  return {
+    showScore: document.getElementById('opt-score').checked,
+    showHints: document.getElementById('opt-hint').checked,
+    showExplanation: document.getElementById('opt-explanation').checked,
+  };
 }
 
 // ===== セッション管理 =====
@@ -150,16 +216,27 @@ function createSession(mode, questionPool) {
 }
 
 // ===== CAT試験開始 =====
-function startCatExam() {
+function startCatExam(settings = { showScore: true, showHints: true, showExplanation: true }) {
   const pool = buildCatPool();
   session = createSession('cat', pool);
-  session.remaining = CAT_EXAM_QUESTIONS_TARGET;
+  session.settings = settings;
 
   showScreen('question');
-  document.getElementById('sidebar-mode-label').textContent = '模擬試験（CAT）';
+
+  const modeLabel = settings.showScore === false && settings.showHints === false && settings.showExplanation === false
+    ? '本番試験モード（CAT）' : '模擬試験（CAT）';
+  document.getElementById('sidebar-mode-label').textContent = modeLabel;
   document.getElementById('q-total').textContent = `${CAT_MIN_QUESTIONS}〜${CAT_MAX_QUESTIONS}`;
   document.getElementById('timer-block').classList.remove('hidden');
-  document.getElementById('score-block').classList.remove('hidden');
+
+  // 推定スコア表示制御
+  const scoreBlock = document.getElementById('score-block');
+  if (settings.showScore) scoreBlock.classList.remove('hidden');
+  else scoreBlock.classList.add('hidden');
+
+  document.getElementById('btn-abort').onclick = () => {
+    if (confirm('試験を中断して結果を見ますか？')) finishSession('abort');
+  };
 
   startTimer(CAT_EXAM_SECONDS);
   renderDomainMiniList();
@@ -191,12 +268,17 @@ function startPractice(domainIndex) {
 
   pool = shuffle([...pool]);
   session = createSession('practice', pool);
+  session.settings = { showScore: false, showHints: true, showExplanation: true };
 
   showScreen('question');
   document.getElementById('sidebar-mode-label').textContent = `練習: D${domainMeta[domainIndex].domain}`;
   document.getElementById('q-total').textContent = pool.length;
   document.getElementById('timer-block').classList.add('hidden');
   document.getElementById('score-block').classList.add('hidden');
+
+  document.getElementById('btn-abort').onclick = () => {
+    if (confirm('練習を中断して結果を見ますか？')) finishSession('abort');
+  };
 
   renderDomainMiniList();
   renderNextQuestion();
@@ -332,8 +414,22 @@ function renderNextQuestion() {
   document.getElementById('btn-next').classList.add('hidden');
   document.getElementById('btn-finish').classList.add('hidden');
 
+  // ヒントボタン制御
+  const settings = session.settings || { showHints: true, showExplanation: true };
+  const btnHint = document.getElementById('btn-hint');
+  const hintText = document.getElementById('hint-text');
+  hintText.classList.add('hidden');
+  if (settings.showHints) {
+    btnHint.classList.remove('hidden');
+    btnHint.disabled = false;
+    btnHint.textContent = '💡 ヒントを見る';
+    btnHint.onclick = () => showHint(q);
+  } else {
+    btnHint.classList.add('hidden');
+  }
+
   // スコア更新
-  if (session.mode === 'cat') updateScoreDisplay();
+  if (session.mode === 'cat' && settings.showScore) updateScoreDisplay();
 
   renderDomainMiniList();
 }
@@ -351,13 +447,21 @@ function selectAnswer(selectedIndex) {
     if (i === selectedIndex && !isCorrect) btn.classList.add('incorrect');
   });
 
-  // 解説表示
+  // ヒントボタンを無効化
+  document.getElementById('btn-hint').disabled = true;
+
+  // 解説表示（設定に応じて）
+  const settings = session.settings || { showExplanation: true };
   const expBox = document.getElementById('explanation-box');
-  expBox.classList.remove('hidden');
-  const expResult = document.getElementById('explanation-result');
-  expResult.textContent = isCorrect ? '✓ 正解！' : '✗ 不正解';
-  expResult.className = `explanation-result ${isCorrect ? 'correct' : 'incorrect'}`;
-  document.getElementById('explanation-text').textContent = q.explanation;
+  if (settings.showExplanation) {
+    expBox.classList.remove('hidden');
+    const expResult = document.getElementById('explanation-result');
+    expResult.textContent = isCorrect ? '✓ 正解！' : '✗ 不正解';
+    expResult.className = `explanation-result ${isCorrect ? 'correct' : 'incorrect'}`;
+    document.getElementById('explanation-text').textContent = q.explanation;
+  } else {
+    expBox.classList.add('hidden');
+  }
 
   // 記録
   session.answered.push({ question: q, selectedIndex, isCorrect });
@@ -371,7 +475,8 @@ function selectAnswer(selectedIndex) {
   saveAnswerToStats(q.domainIndex, isCorrect);
 
   // スコア更新
-  if (session.mode === 'cat') updateScoreDisplay();
+  const s = session.settings || { showScore: true };
+  if (session.mode === 'cat' && s.showScore) updateScoreDisplay();
   updateAccuracyDisplay();
 
   // 正誤表示
@@ -424,6 +529,31 @@ function renderDomainMiniList() {
     `;
     list.appendChild(item);
   });
+}
+
+// ===== ヒント =====
+function showHint(q) {
+  const btn = document.getElementById('btn-hint');
+  const hintText = document.getElementById('hint-text');
+
+  // 正解以外の選択肢をランダムに1つ選んで除外ヒントを表示
+  const wrongIndices = q.options
+    .map((_, i) => i)
+    .filter(i => i !== q.answer);
+  const eliminated = wrongIndices[Math.floor(Math.random() * wrongIndices.length)];
+  const label = ['A', 'B', 'C', 'D'][eliminated];
+
+  hintText.textContent = `💡 ヒント：選択肢 ${label} は正解ではありません。`;
+  hintText.classList.remove('hidden');
+
+  btn.textContent = 'ヒント使用済み';
+  btn.disabled = true;
+
+  // 除外された選択肢を薄く表示
+  const optBtns = document.querySelectorAll('.option-btn');
+  if (optBtns[eliminated]) {
+    optBtns[eliminated].style.opacity = '0.35';
+  }
 }
 
 // ===== タイマー =====
@@ -530,10 +660,6 @@ function showResultScreen(reason) {
     renderReview();
   };
 
-  // 中断ボタン
-  document.getElementById('btn-abort').onclick = () => {
-    if (confirm('試験を中断して結果を見ますか？')) finishSession('abort');
-  };
 }
 
 function renderDomainResults() {
