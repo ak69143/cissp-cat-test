@@ -1,10 +1,14 @@
 # CISSP CAT 模擬試験システム
 
+> ⚠️ **注意：この問題集はAI（Claude Code）によって自動生成されています。**
+> 内容に誤りが含まれる可能性があります。学習の参考としてご利用ください。
+> 正確な情報はISC²の公式資料・テキストをご確認ください。
+
 ISC² CISSP の本番試験形式（CAT：Computerized Adaptive Testing）に対応した模擬試験Webアプリです。
 
 ## 🌐 オンラインで使う（推奨）
 
-**→ https://ak69143.github.io/cissp-cat-test/**
+**→ [https://ak69143.github.io/cissp-cat-test/](https://ak69143.github.io/cissp-cat-test/)**
 
 インストール不要。ブラウザからすぐに使えます。
 
@@ -24,7 +28,7 @@ ISC² CISSP の本番試験形式（CAT：Computerized Adaptive Testing）に対
 ## 試験仕様（ISC² 公式準拠 / 2024年4月更新版）
 
 | 項目 | 内容 |
-|---|---|
+| --- | --- |
 | 試験形式 | CAT（Computerized Adaptive Testing） |
 | 問題数 | 100〜150問 |
 | 制限時間 | 3時間 |
@@ -34,7 +38,7 @@ ISC² CISSP の本番試験形式（CAT：Computerized Adaptive Testing）に対
 ### ドメイン別出題比率
 
 | # | ドメイン | 比率 | 問題数 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | 1 | セキュリティとリスク管理 | 16% | 48問 |
 | 2 | 資産のセキュリティ | 10% | 30問 |
 | 3 | セキュリティアーキテクチャとエンジニアリング | 13% | 39問 |
