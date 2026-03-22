@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CISSP 模擬試験</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ホーム画面 -->
+  <div id="screen-home" class="screen active">
+    <div class="home-container">
+      <div class="home-header">
+        <div class="logo">CISSP</div>
+        <h1>模擬試験システム</h1>
+        <p class="subtitle">ISC² CISSP CAT形式対応 | 全300問</p>
+      </div>
+
+      <div class="mode-cards">
+        <div class="mode-card" id="btn-cat-exam">
+          <div class="mode-icon">🎯</div>
+          <h2>模擬試験（CATシミュレーション）</h2>
+          <p>本番試験に近い形式で挑戦。アダプティブアルゴリズムが能力に応じて問題を選択します。</p>
+          <ul class="mode-details">
+            <li>問題数：100〜150問</li>
+            <li>制限時間：3時間</li>
+            <li>合格ライン：700点（1000点満点）</li>
+            <li>ドメイン比率に沿った出題</li>
+          </ul>
+          <button class="btn-primary">試験を開始する</button>
+        </div>
+
+        <div class="mode-card" id="btn-practice">
+          <div class="mode-icon">📚</div>
+          <h2>ドメイン別練習</h2>
+          <p>特定のドメインに絞って練習。苦手な分野を集中的に学習できます。</p>
+          <ul class="mode-details">
+            <li>時間制限なし</li>
+            <li>回答後に解説を表示</li>
+            <li>ドメインを自由に選択</li>
+            <li>進捗を記録・管理</li>
+          </ul>
+          <button class="btn-secondary">ドメインを選ぶ</button>
+        </div>
+      </div>
+
+      <!-- ドメイン選択（練習モード） -->
+      <div id="domain-selector" class="domain-selector hidden">
+        <h3>練習するドメインを選択</h3>
+        <div class="domain-grid" id="domain-grid"></div>
+        <div class="domain-actions">
+          <label class="difficulty-label">難易度フィルター：</label>
+          <select id="difficulty-filter">
+            <option value="0">すべて</option>
+            <option value="1">Easy のみ</option>
+            <option value="2">Medium のみ</option>
+            <option value="3">Hard のみ</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 成績サマリー -->
+      <div class="stats-section" id="stats-section">
+        <h3>学習記録</h3>
+        <div class="stats-grid" id="stats-grid"></div>
+        <button id="btn-reset-stats" class="btn-danger btn-sm">記録をリセット</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 問題画面 -->
+  <div id="screen-question" class="screen">
+    <div class="question-layout">
+
+      <!-- サイドバー -->
+      <aside class="sidebar">
+        <div class="sidebar-mode" id="sidebar-mode-label">模擬試験</div>
+
+        <div class="sidebar-block">
+          <div class="sidebar-label">問題数</div>
+          <div class="sidebar-value"><span id="q-current">1</span> / <span id="q-total">—</span></div>
+        </div>
+
+        <div class="sidebar-block" id="timer-block">
+          <div class="sidebar-label">残り時間</div>
+          <div class="sidebar-value timer" id="timer">3:00:00</div>
+        </div>
+
+        <div class="sidebar-block" id="score-block">
+          <div class="sidebar-label">推定スコア</div>
+          <div class="estimated-score">
+            <div class="score-value" id="score-display">—</div>
+            <div class="score-bar-wrap">
+              <div class="score-bar-bg">
+                <div class="score-bar-fill" id="score-bar"></div>
+                <div class="score-bar-pass-line" title="合格ライン 700点"></div>
+              </div>
+              <div class="score-bar-labels">
+                <span>0</span><span class="pass-label">700</span><span>1000</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-block">
+          <div class="sidebar-label">正答率</div>
+          <div class="sidebar-value"><span id="accuracy-display">—</span></div>
+        </div>
+
+        <div class="sidebar-block">
+          <div class="sidebar-label">ドメイン</div>
+          <div class="domain-mini-list" id="domain-mini-list"></div>
+        </div>
+
+        <button id="btn-abort" class="btn-abort">試験を中断</button>
+      </aside>
+
+      <!-- メインコンテンツ -->
+      <main class="question-main">
+        <div class="question-header">
+          <div class="question-meta">
+            <span class="q-number">Q.<span id="q-num">1</span></span>
+            <span class="q-domain-badge" id="q-domain-badge">Domain 1</span>
+            <span class="q-difficulty-badge" id="q-difficulty-badge">Medium</span>
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" id="progress-bar"></div>
+          </div>
+        </div>
+
+        <div class="question-body">
+          <div class="question-text" id="question-text"></div>
+
+          <div class="options-list" id="options-list"></div>
+
+          <div class="explanation-box hidden" id="explanation-box">
+            <div class="explanation-result" id="explanation-result"></div>
+            <div class="explanation-text" id="explanation-text"></div>
+          </div>
+
+          <div class="question-actions">
+            <button id="btn-next" class="btn-primary hidden">次の問題へ →</button>
+            <button id="btn-finish" class="btn-primary hidden">結果を見る</button>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- 結果画面 -->
+  <div id="screen-result" class="screen">
+    <div class="result-container">
+      <div class="result-header" id="result-header">
+        <div class="result-verdict" id="result-verdict"></div>
+        <div class="result-score" id="result-score"></div>
+        <div class="result-detail" id="result-detail"></div>
+      </div>
+
+      <div class="result-stats">
+        <div class="stat-card">
+          <div class="stat-label">回答問題数</div>
+          <div class="stat-value" id="res-total-q"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">正解数</div>
+          <div class="stat-value" id="res-correct"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">正答率</div>
+          <div class="stat-value" id="res-accuracy"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">所要時間</div>
+          <div class="stat-value" id="res-time"></div>
+        </div>
+      </div>
+
+      <div class="result-domains">
+        <h3>ドメイン別成績</h3>
+        <div class="domain-results-grid" id="domain-results-grid"></div>
+      </div>
+
+      <div class="result-actions">
+        <button id="btn-retry" class="btn-primary">もう一度挑戦</button>
+        <button id="btn-home" class="btn-secondary">ホームへ戻る</button>
+        <button id="btn-review" class="btn-outline">間違えた問題を確認</button>
+      </div>
+
+      <!-- 復習画面 -->
+      <div id="review-section" class="review-section hidden">
+        <h3>間違えた問題一覧</h3>
+        <div id="review-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ローディング -->
+  <div id="loading-overlay" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">問題を読み込んでいます...</div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
