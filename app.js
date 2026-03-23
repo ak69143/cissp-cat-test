@@ -238,6 +238,25 @@ function bindModalEvents() {
   document.getElementById('exam-modal-overlay').addEventListener('click', e => {
     if (e.target === document.getElementById('exam-modal-overlay')) closeExamModal();
   });
+
+  // 中断確認モーダル
+  document.getElementById('abort-cancel').addEventListener('click', closeAbortModal);
+  document.getElementById('abort-confirm').addEventListener('click', () => {
+    closeAbortModal();
+    finishSession('abort');
+  });
+  document.getElementById('abort-modal-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('abort-modal-overlay')) closeAbortModal();
+  });
+}
+
+function showAbortModal(message) {
+  document.getElementById('abort-modal-message').textContent = message;
+  document.getElementById('abort-modal-overlay').classList.remove('hidden');
+}
+
+function closeAbortModal() {
+  document.getElementById('abort-modal-overlay').classList.add('hidden');
 }
 
 function applyPreset(preset) {
@@ -317,9 +336,7 @@ function startCatExam(settings = { showScore: true, showHints: true, showExplana
   if (settings.showAccuracy !== false) accuracyBlock.classList.remove('hidden');
   else accuracyBlock.classList.add('hidden');
 
-  document.getElementById('btn-abort').onclick = () => {
-    if (confirm('試験を中断して結果を見ますか？')) finishSession('abort');
-  };
+  document.getElementById('btn-abort').onclick = () => showAbortModal('試験を中断して結果を見ますか？');
 
   startTimer(CAT_EXAM_SECONDS);
   renderDomainMiniList();
@@ -359,9 +376,7 @@ function startPractice(domainIndex) {
   document.getElementById('timer-block').classList.add('hidden');
   document.getElementById('score-block').classList.add('hidden');
 
-  document.getElementById('btn-abort').onclick = () => {
-    if (confirm('練習を中断して結果を見ますか？')) finishSession('abort');
-  };
+  document.getElementById('btn-abort').onclick = () => showAbortModal('練習を中断して結果を見ますか？');
 
   renderDomainMiniList();
   renderNextQuestion();
@@ -389,9 +404,7 @@ function startTermsTest(domainIndex) {
   document.getElementById('score-block').classList.add('hidden');
   document.getElementById('accuracy-block').classList.remove('hidden');
 
-  document.getElementById('btn-abort').onclick = () => {
-    if (confirm('用語テストを中断して結果を見ますか？')) finishSession('abort');
-  };
+  document.getElementById('btn-abort').onclick = () => showAbortModal('用語テストを中断して結果を見ますか？');
 
   renderDomainMiniList();
   renderNextQuestion();

@@ -322,6 +322,18 @@
     </div>
   </div>
 
+  <!-- 中断確認モーダル -->
+  <div id="abort-modal-overlay" class="modal-overlay hidden">
+    <div class="modal-box abort-modal-box">
+      <h2 class="modal-title">中断しますか？</h2>
+      <p id="abort-modal-message" class="abort-modal-message">試験を中断して結果を見ますか？</p>
+      <div class="modal-actions">
+        <button id="abort-cancel" class="btn-secondary">続ける</button>
+        <button id="abort-confirm" class="btn-danger">中断する</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ローディング -->
   <div id="loading-overlay" class="loading-overlay">
     <div class="loading-spinner"></div>

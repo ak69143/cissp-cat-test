@@ -893,6 +893,14 @@ select {
   border-top: 1px solid var(--border);
 }
 
+/* 中断確認モーダル */
+.abort-modal-box { max-width: 400px; }
+.abort-modal-message {
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
 /* ===== ヒント ===== */
 .hint-area { margin-bottom: 16px; }
 
