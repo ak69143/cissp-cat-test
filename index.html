@@ -22,17 +22,16 @@
       </div>
 
       <div class="mode-cards">
-        <div class="mode-card" id="btn-cat-exam">
-          <div class="mode-icon">🎯</div>
-          <h2>模擬試験（CATシミュレーション）</h2>
-          <p>本番試験に近い形式で挑戦。アダプティブアルゴリズムが能力に応じて問題を選択します。</p>
+        <div class="mode-card" id="btn-terms">
+          <div class="mode-icon">📖</div>
+          <h2>用語テストモード</h2>
+          <p>CISSPの重要用語を一問一答形式でチェック。全ドメイン横断またはドメイン別に学習できます。</p>
           <ul class="mode-details">
-            <li>問題数：100〜150問</li>
-            <li>制限時間：3時間</li>
-            <li>合格ライン：700点（1000点満点）</li>
-            <li>ドメイン比率に沿った出題</li>
+            <li>時間制限なし・常に解説表示</li>
+            <li>全ドメイン or ドメイン別に選択</li>
+            <li>約280用語収録</li>
           </ul>
-          <button class="btn-primary">試験を開始する</button>
+          <button class="btn-outline">用語テストを始める</button>
         </div>
 
         <div class="mode-card" id="btn-practice">
@@ -46,37 +45,34 @@
             <li>進捗を記録・管理</li>
           </ul>
           <button class="btn-secondary">ドメインを選ぶ</button>
-        </div>
 
-        <div class="mode-card terms-mode-card" id="btn-terms">
-          <div class="terms-mode-inner">
-            <div class="mode-icon">📖</div>
-            <div class="terms-mode-text">
-              <h2>用語テストモード</h2>
-              <p>CISSPの重要用語を一問一答形式でチェック。全ドメイン横断またはドメイン別に学習できます。</p>
-              <ul class="mode-details">
-                <li>時間制限なし・常に解説表示</li>
-                <li>全ドメイン or ドメイン別に選択</li>
-                <li>約280用語収録</li>
-              </ul>
+          <!-- ドメイン選択（カード内でロールカーテン展開） -->
+          <div id="domain-selector" class="domain-selector">
+            <h3>練習するドメインを選択</h3>
+            <div class="domain-grid" id="domain-grid"></div>
+            <div class="domain-actions">
+              <label class="difficulty-label">難易度フィルター：</label>
+              <select id="difficulty-filter">
+                <option value="0">すべて</option>
+                <option value="1">Easy のみ</option>
+                <option value="2">Medium のみ</option>
+                <option value="3">Hard のみ</option>
+              </select>
             </div>
-            <button class="btn-outline terms-mode-btn">用語テストを始める</button>
           </div>
         </div>
-      </div>
 
-      <!-- ドメイン選択（練習モード） -->
-      <div id="domain-selector" class="domain-selector">
-        <h3>練習するドメインを選択</h3>
-        <div class="domain-grid" id="domain-grid"></div>
-        <div class="domain-actions">
-          <label class="difficulty-label">難易度フィルター：</label>
-          <select id="difficulty-filter">
-            <option value="0">すべて</option>
-            <option value="1">Easy のみ</option>
-            <option value="2">Medium のみ</option>
-            <option value="3">Hard のみ</option>
-          </select>
+        <div class="mode-card" id="btn-cat-exam">
+          <div class="mode-icon">🎯</div>
+          <h2>模擬試験（CATシミュレーション）</h2>
+          <p>本番試験に近い形式で挑戦。アダプティブアルゴリズムが能力に応じて問題を選択します。</p>
+          <ul class="mode-details">
+            <li>問題数：100〜150問</li>
+            <li>制限時間：3時間</li>
+            <li>合格ライン：700点（1000点満点）</li>
+            <li>ドメイン比率に沿った出題</li>
+          </ul>
+          <button class="btn-primary">試験を開始する</button>
         </div>
       </div>
 

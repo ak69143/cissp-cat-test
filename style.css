@@ -159,7 +159,7 @@ html, body {
 /* モードカード */
 .mode-cards {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 24px;
   margin-bottom: 48px;
 }
@@ -210,23 +210,23 @@ html, body {
 
 /* ドメイン選択 */
 .domain-selector {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  margin-bottom: 32px;
   overflow: hidden;
   max-height: 0;
   opacity: 0;
+  margin: 0 -32px -32px;
   transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1),
               opacity 0.3s ease,
               padding 0.3s ease;
   padding: 0 32px;
+  border-top: 0px solid var(--border);
 }
 
 .domain-selector.open {
   max-height: 800px;
   opacity: 1;
-  padding: 32px;
+  padding: 24px 32px 32px;
+  border-top-width: 1px;
+  margin-top: 24px;
 }
 
 .domain-selector h3 {
@@ -963,47 +963,6 @@ select {
 }
 
 /* ===== 用語テストモードカード ===== */
-.terms-mode-card {
-  grid-column: span 2;
-}
-
-.terms-mode-inner {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-
-.terms-mode-inner .mode-icon {
-  font-size: 48px;
-  margin-bottom: 0;
-  flex-shrink: 0;
-}
-
-.terms-mode-text {
-  flex: 1;
-}
-
-.terms-mode-text h2 {
-  font-size: 20px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: var(--text-primary);
-}
-
-.terms-mode-text p {
-  color: var(--text-secondary);
-  font-size: 14px;
-  margin-bottom: 12px;
-}
-
-.terms-mode-text .mode-details {
-  margin-bottom: 0;
-}
-
-.terms-mode-btn {
-  flex-shrink: 0;
-  white-space: nowrap;
-}
 
 /* ===== レポートセクション ===== */
 .report-section {
@@ -1099,8 +1058,8 @@ select {
 /* ===== レスポンシブ ===== */
 @media (max-width: 768px) {
   .mode-cards { grid-template-columns: 1fr; }
-  .terms-mode-card { grid-column: span 1; }
-  .terms-mode-inner { flex-direction: column; align-items: flex-start; }
+  .domain-selector { margin: 0 -20px -20px; }
+  .domain-selector.open { padding: 20px; }
   .question-layout { flex-direction: column; }
   .question-main { padding: 20px 16px; }
   .result-stats { grid-template-columns: repeat(2, 1fr); }
