@@ -971,7 +971,18 @@ function renderReview() {
 }
 
 // ===== 詳細レポート =====
+const REPORT_MIN_QUESTIONS = 100;
+
 function renderReport() {
+  const total = session.answered.length;
+
+  if (total < REPORT_MIN_QUESTIONS) {
+    document.getElementById('report-weakness-list').innerHTML =
+      `<div class="report-insufficient">分析には最低 ${REPORT_MIN_QUESTIONS} 問の回答が必要です（現在 ${total} 問）。<br>模擬試験を最後まで解くか、より多くの問題に取り組んでから確認してください。</div>`;
+    document.getElementById('report-souhyou').textContent = '';
+    return;
+  }
+
   const { domainAnalysis, souhyou } = generateReport();
 
   // 弱点分析

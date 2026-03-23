@@ -1009,6 +1009,15 @@ select {
   gap: 16px;
 }
 
+.report-insufficient {
+  padding: 20px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--warning);
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
 .report-domain-row {
   padding: 16px;
   background: var(--bg-secondary);
