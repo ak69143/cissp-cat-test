@@ -304,20 +304,20 @@ function bindHomeEvents() {
   });
   document.getElementById('btn-reset-stats').addEventListener('click', () => {
     if (statsActiveTab === 'practice') {
-      showConfirmModal('ドメイン別練習の記録をリセットしますか？', () => {
+      showConfirmModal('ドメイン別練習の記録をリセットします。この操作は取り消せません。', () => {
         const stats = loadStats();
         stats.practice = { domains: {} };
         localStorage.setItem('cissp_stats', JSON.stringify(stats));
         renderStats();
-      });
+      }, { title: '記録をリセット', confirmText: 'リセットする', cancelText: 'やめる' });
     } else {
-      showConfirmModal('模擬試験の記録をリセットしますか？', () => {
+      showConfirmModal('模擬試験の記録をリセットします。この操作は取り消せません。', () => {
         const stats = loadStats();
         stats.exam = { domains: {} };
         localStorage.setItem('cissp_stats', JSON.stringify(stats));
         localStorage.removeItem('cissp_exam_history');
         renderStats();
-      });
+      }, { title: '記録をリセット', confirmText: 'リセットする', cancelText: 'やめる' });
     }
   });
   bindModalEvents();
@@ -379,9 +379,12 @@ function bindModalEvents() {
 
 let _confirmCallback = null;
 
-function showConfirmModal(message, onConfirm) {
+function showConfirmModal(message, onConfirm, { confirmText = '中断する', cancelText = '続ける', title = '中断しますか？' } = {}) {
   _confirmCallback = onConfirm;
+  document.getElementById('abort-modal-title').textContent = title;
   document.getElementById('abort-modal-message').textContent = message;
+  document.getElementById('abort-confirm').textContent = confirmText;
+  document.getElementById('abort-cancel').textContent = cancelText;
   document.getElementById('abort-modal-overlay').classList.remove('hidden');
 }
 
