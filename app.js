@@ -193,8 +193,8 @@ function bindHomeEvents() {
     document.getElementById('terms-domain-selector').classList.add('hidden');
   });
   document.getElementById('btn-terms').addEventListener('click', () => {
-    document.getElementById('terms-domain-selector').classList.toggle('hidden');
     document.getElementById('domain-selector').classList.add('hidden');
+    startTermsTest(-1);
   });
   document.getElementById('btn-reset-stats').addEventListener('click', () => {
     if (confirm('学習記録をすべてリセットしますか？')) {
