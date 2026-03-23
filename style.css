@@ -187,7 +187,6 @@ html, body {
   box-shadow: var(--shadow);
 }
 
-.mode-icon { font-size: 36px; margin-bottom: 16px; }
 
 .mode-card h2 {
   font-size: 20px;
