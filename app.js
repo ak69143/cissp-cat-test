@@ -120,7 +120,6 @@ function renderDomainGrid() {
     btn.className = 'domain-btn';
     btn.innerHTML = `
       <div class="domain-btn-name">Domain ${d.domain}: ${d.domainName}</div>
-      <div class="domain-btn-count">${d.count}問</div>
       <span class="domain-btn-weight">${d.weight}%</span>
     `;
     btn.style.borderLeft = `3px solid ${d.color}`;
@@ -293,11 +292,11 @@ function renderTermsDomainGrid() {
 
 function bindHomeEvents() {
   document.getElementById('btn-cat-exam').addEventListener('click', () => openExamModal());
-  document.getElementById('btn-practice').addEventListener('click', () => {
+  document.querySelector('#btn-practice .btn-secondary').addEventListener('click', e => {
+    e.stopPropagation();
     const isOpen = document.getElementById('domain-selector').classList.toggle('open');
     document.getElementById('btn-practice').classList.toggle('expanded', isOpen);
   });
-  document.getElementById('domain-selector').addEventListener('click', e => e.stopPropagation());
   document.getElementById('btn-terms').addEventListener('click', () => {
     document.getElementById('domain-selector').classList.remove('open');
     document.getElementById('btn-practice').classList.remove('expanded');
