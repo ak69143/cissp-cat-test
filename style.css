@@ -1067,6 +1067,93 @@ select {
   gap: 16px;
 }
 
+/* ===== 模擬試験履歴 ===== */
+.stats-exam-note {
+  grid-column: 1 / -1;
+  color: var(--danger);
+  font-size: 12px;
+  padding: 8px 12px;
+  background: rgba(239, 68, 68, 0.08);
+  border-radius: var(--radius-sm);
+  margin-bottom: 4px;
+}
+
+.exam-history-section {
+  grid-column: 1 / -1;
+  margin-top: 16px;
+}
+
+.exam-history-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.exam-history-empty {
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 8px 0;
+}
+
+.exam-history-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-align: left;
+  margin-bottom: 6px;
+  color: var(--text-primary);
+  transition: border-color 0.15s;
+}
+
+.exam-history-link:hover { border-color: var(--accent); }
+
+.exam-history-date { font-size: 12px; color: var(--text-muted); flex: 1; }
+
+.exam-history-verdict { font-weight: 700; font-size: 14px; min-width: 40px; }
+.exam-history-verdict.pass { color: var(--success); }
+.exam-history-verdict.fail { color: var(--danger); }
+
+.exam-history-num { font-size: 12px; color: var(--text-muted); min-width: 16px; }
+.exam-history-score { font-size: 14px; font-weight: 600; min-width: 60px; }
+.exam-history-arrow { font-size: 12px; color: var(--accent); margin-left: auto; white-space: nowrap; }
+
+/* 履歴詳細モーダル */
+.history-modal-box { max-width: 560px; max-height: 80vh; overflow-y: auto; }
+
+.history-result-header {
+  padding: 16px 20px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+  text-align: center;
+}
+.history-result-header.pass { background: rgba(34, 197, 94, 0.12); }
+.history-result-header.fail { background: rgba(239, 68, 68, 0.12); }
+
+.history-result-verdict { font-size: 28px; font-weight: 800; }
+.history-result-header.pass .history-result-verdict { color: var(--success); }
+.history-result-header.fail .history-result-verdict { color: var(--danger); }
+
+.history-result-score { font-size: 20px; font-weight: 700; margin-top: 4px; }
+.history-result-meta { font-size: 12px; color: var(--text-secondary); margin-top: 6px; }
+
+.history-report-domains { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.history-report-souhyou {
+  padding: 14px 16px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+}
+
 .report-insufficient {
   padding: 20px;
   background: var(--bg-secondary);

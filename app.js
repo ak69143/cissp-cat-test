@@ -136,6 +136,13 @@ function renderStats() {
   const stats = loadStats();
   grid.innerHTML = '';
 
+  if (statsActiveTab === 'exam') {
+    const note = document.createElement('div');
+    note.className = 'stats-exam-note';
+    note.textContent = '⚠️ 学習モードの結果は履歴に反映されません。本番試験モードのみ記録されます。';
+    grid.appendChild(note);
+  }
+
   const bucket = stats[statsActiveTab] || { domains: {} };
 
   domainMeta.forEach((d, i) => {
@@ -162,6 +169,81 @@ function renderStats() {
     <div class="stats-item-detail">${total.correct}/${total.total} 正解</div>
   `;
   grid.appendChild(div);
+
+  if (statsActiveTab === 'exam') {
+    renderExamHistory(grid);
+  }
+}
+
+function renderExamHistory(container) {
+  const history = loadExamHistory();
+  const section = document.createElement('div');
+  section.className = 'exam-history-section';
+  section.innerHTML = '<div class="exam-history-title">過去の試験結果（本番試験モード）</div>';
+  if (history.length === 0) {
+    section.innerHTML += '<div class="exam-history-empty">まだ記録がありません</div>';
+  } else {
+    history.forEach((h, idx) => {
+      const date = new Date(h.date).toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+      const btn = document.createElement('button');
+      btn.className = 'exam-history-link';
+      btn.innerHTML = `
+        <span class="exam-history-num">${idx + 1}</span>
+        <span class="exam-history-date">${date}</span>
+        <span class="exam-history-verdict ${h.verdict === 'PASS' ? 'pass' : 'fail'}">${h.verdict}</span>
+        <span class="exam-history-score">${h.score}点</span>
+        <span class="exam-history-arrow">詳細レポート →</span>
+      `;
+      btn.addEventListener('click', () => showHistoryModal(h));
+      section.appendChild(btn);
+    });
+  }
+  container.appendChild(section);
+}
+
+function showHistoryModal(h) {
+  const date = new Date(h.date).toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+  const verdictClass = h.verdict === 'PASS' ? 'pass' : 'fail';
+  const content = document.getElementById('history-modal-content');
+
+  let reportHTML = '';
+  if (!h.reportData) {
+    reportHTML = `<div class="report-insufficient">分析には最低 ${REPORT_MIN_QUESTIONS} 問の回答が必要です（この回は ${h.total} 問）。</div>`;
+  } else {
+    const { domainAnalysis, souhyou } = h.reportData;
+    const domainRows = domainAnalysis.filter(da => da.pct !== null).map(da => {
+      const isWeak = da.pct < 70;
+      const topicRows = Object.entries(da.topicMap)
+        .filter(([, v]) => v.total >= 2)
+        .sort((a, b) => (a[1].correct / a[1].total) - (b[1].correct / b[1].total))
+        .slice(0, 3)
+        .map(([k, v]) => {
+          const pct = Math.round((v.correct / v.total) * 100);
+          const color = pct >= 70 ? 'var(--success)' : pct >= 50 ? 'var(--warning)' : 'var(--danger)';
+          return `<span style="color:${color}">${k}: ${pct}%</span>`;
+        }).join(' &nbsp;|&nbsp; ');
+      return `<div class="report-domain-row ${isWeak ? 'weak' : 'ok'}" style="border-left-color:${DOMAIN_COLORS[da.i]}">
+        <div class="report-domain-header">
+          <span class="report-domain-name" style="color:${DOMAIN_COLORS[da.i]}">D${da.d.domain}: ${da.d.domainName}</span>
+          <span class="report-domain-pct" style="color:${da.pct >= 70 ? 'var(--success)' : da.pct >= 50 ? 'var(--warning)' : 'var(--danger)'}">${da.pct}%</span>
+        </div>
+        ${topicRows ? `<div class="report-weakness-text">${topicRows}</div>` : ''}
+        ${da.weaknessText ? `<div class="report-weakness-text" style="margin-top:6px">${da.weaknessText}</div>` : ''}
+      </div>`;
+    }).join('');
+    reportHTML = `<div class="history-report-domains">${domainRows}</div>
+      <div class="history-report-souhyou">${souhyou}</div>`;
+  }
+
+  content.innerHTML = `
+    <div class="history-result-header ${verdictClass}">
+      <div class="history-result-verdict">${h.verdict}</div>
+      <div class="history-result-score">${h.score} / 1000</div>
+      <div class="history-result-meta">${date} &nbsp;|&nbsp; ${h.total}問 &nbsp;|&nbsp; 正答率 ${h.accuracy}% &nbsp;|&nbsp; ${formatTime(h.elapsed)}</div>
+    </div>
+    ${reportHTML}
+  `;
+  document.getElementById('history-modal-overlay').classList.remove('hidden');
 }
 
 function bindStatsEvents() {
@@ -272,6 +354,15 @@ function bindModalEvents() {
   document.getElementById('abort-modal-overlay').addEventListener('click', e => {
     if (e.target === document.getElementById('abort-modal-overlay')) closeConfirmModal();
   });
+
+  // 履歴詳細モーダル
+  document.getElementById('history-modal-close').addEventListener('click', () => {
+    document.getElementById('history-modal-overlay').classList.add('hidden');
+  });
+  document.getElementById('history-modal-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('history-modal-overlay'))
+      document.getElementById('history-modal-overlay').classList.add('hidden');
+  });
 }
 
 let _confirmCallback = null;
@@ -360,11 +451,11 @@ function startCatExam(settings = { showScore: true, showHints: true, showExplana
   const pool = buildCatPool();
   session = createSession('cat', pool);
   session.settings = settings;
+  session.isExamMode = !settings.showScore && !settings.showHints && !settings.showExplanation;
 
   showScreen('question');
 
-  const modeLabel = settings.showScore === false && settings.showHints === false && settings.showExplanation === false
-    ? '本番試験モード（CAT）' : '模擬試験（CAT）';
+  const modeLabel = session.isExamMode ? '本番試験モード（CAT）' : '模擬試験（CAT）';
   document.getElementById('sidebar-mode-label').textContent = modeLabel;
   document.getElementById('q-total').textContent = `${CAT_MIN_QUESTIONS}〜${CAT_MAX_QUESTIONS}`;
   document.getElementById('timer-block').classList.remove('hidden');
@@ -917,6 +1008,12 @@ function showResultScreen(reason) {
   // ドメイン別成績
   renderDomainResults();
 
+  // 本番試験モードの履歴保存
+  if (session.mode === 'cat' && session.isExamMode) {
+    const reportData = total >= REPORT_MIN_QUESTIONS ? generateReport() : null;
+    saveExamHistory({ date: new Date().toISOString(), score, verdict, total, correct, accuracy, elapsed, reportData });
+  }
+
   // ボタン
   document.getElementById('btn-retry').onclick = () => {
     if (session.mode === 'cat') startCatExam();
@@ -1155,6 +1252,7 @@ function loadStats() {
 
 function saveAnswerToStats(domainIndex, isCorrect, mode) {
   if (mode === 'terms') return; // 用語テストは記録しない
+  if (mode === 'cat' && !session.isExamMode) return; // 学習モードは記録しない
   const bucket = mode === 'cat' ? 'exam' : 'practice';
   const stats = loadStats();
   if (!stats[bucket]) stats[bucket] = { domains: {} };
@@ -1162,6 +1260,18 @@ function saveAnswerToStats(domainIndex, isCorrect, mode) {
   stats[bucket].domains[domainIndex].total++;
   if (isCorrect) stats[bucket].domains[domainIndex].correct++;
   localStorage.setItem('cissp_stats', JSON.stringify(stats));
+}
+
+function loadExamHistory() {
+  try { return JSON.parse(localStorage.getItem('cissp_exam_history')) || []; }
+  catch { return []; }
+}
+
+function saveExamHistory(snapshot) {
+  const history = loadExamHistory();
+  history.unshift(snapshot);
+  if (history.length > 3) history.length = 3;
+  localStorage.setItem('cissp_exam_history', JSON.stringify(history));
 }
 
 // ===== ユーティリティ =====
