@@ -162,7 +162,6 @@ html, body {
   gap: 24px;
   overflow: hidden;
   margin-bottom: 48px;
-  align-items: flex-start;
 }
 
 .mode-card {
@@ -238,6 +237,7 @@ html, body {
   overflow: hidden;
   opacity: 0;
   max-width: 0;
+  max-height: 0;
   transition: max-width 0.45s cubic-bezier(0.4, 0, 0.2, 1),
               opacity 0.3s ease,
               padding 0.3s ease;
@@ -247,6 +247,7 @@ html, body {
 
 .domain-selector.open {
   max-width: 9999px;
+  max-height: 9999px;
   opacity: 1;
   padding: 28px 32px 28px 24px;
   border-left-width: 1px;
@@ -1252,13 +1253,18 @@ body.mode-practice #domain-mini-block { display: none !important; }
   #btn-practice.expanded { width: 100%; }
   .practice-card { flex-direction: column; }
   .practice-main { padding: 24px 20px; max-width: none; }
+  body.mode-terms #domain-mini-block,
+  body.mode-exam #domain-mini-block,
+  body.mode-practice #domain-mini-block { display: none !important; }
   .domain-selector {
     max-width: none !important;
+    max-height: 0;
     border-left: none !important;
     padding: 0 !important;
     border-top: 0px solid var(--border);
   }
   .domain-selector.open {
+    max-height: 9999px;
     padding: 20px !important;
     border-top-width: 1px !important;
   }
