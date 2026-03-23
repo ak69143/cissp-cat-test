@@ -162,6 +162,7 @@ html, body {
   gap: 24px;
   overflow: hidden;
   margin-bottom: 48px;
+  align-items: flex-start;
 }
 
 .mode-card {
@@ -558,9 +559,10 @@ select {
 /* 本番試験モードはドメインバッジを非表示 */
 body.mode-exam .q-domain-badge { display: none; }
 
-/* 用語テスト・本番モードはドメインミニリストを非表示 */
+/* 用語テスト・本番・練習モードはドメインミニリストを非表示 */
 body.mode-terms #domain-mini-block,
-body.mode-exam #domain-mini-block { display: none; }
+body.mode-exam #domain-mini-block,
+body.mode-practice #domain-mini-block { display: none !important; }
 
 .q-domain-badge {
   background: rgba(79,142,247,0.15);

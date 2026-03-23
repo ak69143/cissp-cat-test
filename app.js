@@ -521,6 +521,7 @@ function startPractice(domainIndex) {
   session.settings = { showScore: false, showHints: true, showExplanation: true };
 
   showScreen('question');
+  document.body.classList.add('mode-practice');
   document.getElementById('sidebar-mode-label').textContent = `練習: D${domainMeta[domainIndex].domain}`;
   document.getElementById('q-total').textContent = pool.length;
   document.getElementById('timer-block').classList.add('hidden');
@@ -1301,6 +1302,7 @@ function showScreen(name) {
   if (name !== 'question') {
     document.body.classList.remove('mode-terms');
     document.body.classList.remove('mode-exam');
+    document.body.classList.remove('mode-practice');
   }
 }
 
