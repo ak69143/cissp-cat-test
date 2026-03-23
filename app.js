@@ -296,6 +296,7 @@ function bindHomeEvents() {
   document.getElementById('btn-practice').addEventListener('click', () => {
     document.getElementById('domain-selector').classList.toggle('open');
   });
+  document.getElementById('domain-selector').addEventListener('click', e => e.stopPropagation());
   document.getElementById('btn-terms').addEventListener('click', () => {
     document.getElementById('domain-selector').classList.remove('open');
     startTermsTest(-1);
