@@ -532,6 +532,9 @@ select {
   letter-spacing: 0.5px;
 }
 
+/* 本番試験モードはドメインバッジを非表示 */
+body.mode-exam .q-domain-badge { display: none; }
+
 .q-domain-badge {
   background: rgba(79,142,247,0.15);
   color: var(--accent);
@@ -1294,6 +1297,6 @@ select {
   /* フローティングテーマボタン非表示 */
   .floating-theme-btn { display: none; }
 
-  /* 用語テスト時はドメインバッジを非表示 */
+  /* 用語テスト時はドメインバッジを非表示（スマホのみ） */
   body.mode-terms .q-domain-badge { display: none; }
 }

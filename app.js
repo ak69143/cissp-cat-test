@@ -303,11 +303,22 @@ function bindHomeEvents() {
     startTermsTest(-1);
   });
   document.getElementById('btn-reset-stats').addEventListener('click', () => {
-    showConfirmModal('学習記録をすべてリセットしますか？', () => {
-      localStorage.removeItem('cissp_stats');
-      localStorage.removeItem('cissp_exam_history');
-      renderStats();
-    });
+    if (statsActiveTab === 'practice') {
+      showConfirmModal('ドメイン別練習の記録をリセットしますか？', () => {
+        const stats = loadStats();
+        stats.practice = { domains: {} };
+        localStorage.setItem('cissp_stats', JSON.stringify(stats));
+        renderStats();
+      });
+    } else {
+      showConfirmModal('模擬試験の記録をリセットしますか？', () => {
+        const stats = loadStats();
+        stats.exam = { domains: {} };
+        localStorage.setItem('cissp_stats', JSON.stringify(stats));
+        localStorage.removeItem('cissp_exam_history');
+        renderStats();
+      });
+    }
   });
   bindModalEvents();
 }
@@ -455,6 +466,7 @@ function startCatExam(settings = { showScore: true, showHints: true, showExplana
   session.isExamMode = !settings.showScore && !settings.showHints && !settings.showExplanation;
 
   showScreen('question');
+  if (session.isExamMode) document.body.classList.add('mode-exam');
 
   const modeLabel = session.isExamMode ? '本番試験モード（CAT）' : '模擬試験（CAT）';
   document.getElementById('sidebar-mode-label').textContent = modeLabel;
@@ -1283,7 +1295,10 @@ function saveExamHistory(snapshot) {
 function showScreen(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(`screen-${name}`).classList.add('active');
-  if (name !== 'question') document.body.classList.remove('mode-terms');
+  if (name !== 'question') {
+    document.body.classList.remove('mode-terms');
+    document.body.classList.remove('mode-exam');
+  }
 }
 
 function showLoading(show) {
