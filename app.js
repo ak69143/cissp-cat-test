@@ -303,6 +303,7 @@ function bindHomeEvents() {
   document.getElementById('btn-reset-stats').addEventListener('click', () => {
     showConfirmModal('学習記録をすべてリセットしますか？', () => {
       localStorage.removeItem('cissp_stats');
+      localStorage.removeItem('cissp_exam_history');
       renderStats();
     });
   });
