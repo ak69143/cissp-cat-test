@@ -904,6 +904,27 @@ select {
 /* ===== ヒント ===== */
 .hint-area { margin-bottom: 16px; }
 
+.hint-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.btn-abort-inline {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 13px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.btn-abort-inline:hover { color: var(--danger); border-color: var(--danger); }
+
 .btn-hint {
   background: rgba(243,156,18,0.1);
   border: 1px solid rgba(243,156,18,0.3);

@@ -270,6 +270,14 @@ function showAbortModal(message) {
   showConfirmModal(message, () => finishSession('abort'));
 }
 
+function setupAbortButtons(message) {
+  const handler = () => showAbortModal(message);
+  document.getElementById('btn-abort').onclick = handler;
+  const inlineBtn = document.getElementById('btn-abort-inline');
+  inlineBtn.onclick = handler;
+  inlineBtn.classList.remove('hidden');
+}
+
 function applyPreset(preset) {
   const customOptions = document.getElementById('custom-options');
   const optScore = document.getElementById('opt-score');
@@ -347,7 +355,7 @@ function startCatExam(settings = { showScore: true, showHints: true, showExplana
   if (settings.showAccuracy !== false) accuracyBlock.classList.remove('hidden');
   else accuracyBlock.classList.add('hidden');
 
-  document.getElementById('btn-abort').onclick = () => showAbortModal('試験を中断して結果を見ますか？');
+  setupAbortButtons('試験を中断して結果を見ますか？');
 
   startTimer(CAT_EXAM_SECONDS);
   renderDomainMiniList();
@@ -387,7 +395,7 @@ function startPractice(domainIndex) {
   document.getElementById('timer-block').classList.add('hidden');
   document.getElementById('score-block').classList.add('hidden');
 
-  document.getElementById('btn-abort').onclick = () => showAbortModal('練習を中断して結果を見ますか？');
+  setupAbortButtons('練習を中断して結果を見ますか？');
 
   renderDomainMiniList();
   renderNextQuestion();
@@ -415,7 +423,7 @@ function startTermsTest(domainIndex) {
   document.getElementById('score-block').classList.add('hidden');
   document.getElementById('accuracy-block').classList.remove('hidden');
 
-  document.getElementById('btn-abort').onclick = () => showAbortModal('用語テストを中断して結果を見ますか？');
+  setupAbortButtons('用語テストを中断して結果を見ますか？');
 
   renderDomainMiniList();
   renderNextQuestion();
