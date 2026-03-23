@@ -294,10 +294,12 @@ function renderTermsDomainGrid() {
 function bindHomeEvents() {
   document.getElementById('btn-cat-exam').addEventListener('click', () => openExamModal());
   document.getElementById('btn-practice').addEventListener('click', () => {
-    document.getElementById('domain-selector').classList.toggle('open');
+    const isOpen = document.getElementById('domain-selector').classList.toggle('open');
+    document.getElementById('btn-practice').classList.toggle('expanded', isOpen);
   });
   document.getElementById('btn-terms').addEventListener('click', () => {
     document.getElementById('domain-selector').classList.remove('open');
+    document.getElementById('btn-practice').classList.remove('expanded');
     startTermsTest(-1);
   });
   document.getElementById('btn-reset-stats').addEventListener('click', () => {

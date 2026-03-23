@@ -164,6 +164,10 @@ html, body {
   margin-bottom: 48px;
 }
 
+#btn-practice.expanded {
+  grid-column: 1 / -1;
+}
+
 .mode-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
