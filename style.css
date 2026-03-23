@@ -122,7 +122,7 @@ html, body {
 }
 
 .home-container {
-  max-width: 1100px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 48px 24px;
 }
@@ -160,23 +160,18 @@ html, body {
 .mode-cards {
   display: flex;
   gap: 24px;
-  overflow: hidden;
   margin-bottom: 48px;
+  align-items: stretch;
 }
 
 .mode-card {
-  flex: 0 0 auto;
-  width: calc((100% - 48px) / 3);
+  flex: 1;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 32px;
   cursor: pointer;
-  transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s;
-}
-
-#btn-practice.expanded {
-  width: calc((100% - 48px) / 3 * 2 + 24px);
+  transition: background 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 
 .mode-card:hover {
@@ -216,40 +211,33 @@ html, body {
 
 /* ドメイン選択 */
 .practice-card {
+  flex: 2; /* 他カードの2倍幅 */
   display: flex;
   flex-direction: row;
   align-items: stretch;
-  overflow: hidden;
-  padding: 0; /* 子要素で管理 */
+  padding: 0;
+  cursor: default;
 }
 
-#btn-practice.expanded {
-  grid-column: span 2;
+.practice-card:hover {
+  transform: none;
 }
 
 .practice-main {
-  flex: 0 0 auto;
+  flex: 0 0 44%;
   padding: 32px;
-  max-width: 260px;
+}
+
+/* デスクトップではボタン非表示（ドメイン一覧は常時表示） */
+.practice-main .btn-secondary {
+  display: none;
 }
 
 .domain-selector {
   flex: 1 1 auto;
   overflow-y: auto;
-  opacity: 0;
-  max-width: 0;
-  transition: max-width 0.45s cubic-bezier(0.4, 0, 0.2, 1),
-              opacity 0.3s ease,
-              padding 0.3s ease;
-  padding: 0;
-  border-left: 0px solid var(--border);
-}
-
-.domain-selector.open {
-  max-width: 9999px;
-  opacity: 1;
-  padding: 28px 32px 28px 24px;
-  border-left-width: 1px;
+  padding: 28px 24px 28px 20px;
+  border-left: 1px solid var(--border);
 }
 
 .domain-selector h3 {
@@ -1246,23 +1234,23 @@ body.mode-practice #domain-mini-block { display: none !important; }
 
 /* ===== レスポンシブ ===== */
 @media (max-width: 768px) {
-  .mode-cards { grid-template-columns: 1fr; }
-  .mode-cards { flex-direction: column; overflow: visible; }
-  .mode-card { width: 100%; }
-  #btn-practice.expanded { width: 100%; }
-  .practice-card { flex-direction: column; }
-  .practice-main { padding: 24px 20px; max-width: none; }
+  .mode-cards { flex-direction: column; }
+  .mode-card { width: 100%; flex: none; }
+  .practice-card { flex: none; flex-direction: column; cursor: pointer; }
+  .practice-card:hover { transform: translateY(-2px); }
+  .practice-main { flex: none; padding: 24px 20px; }
+  .practice-main .btn-secondary { display: inline-flex; }
   body.mode-terms #domain-mini-block,
   body.mode-exam #domain-mini-block,
   body.mode-practice #domain-mini-block { display: none !important; }
   .domain-selector {
-    max-width: none !important;
     max-height: 0;
-    border-left: none !important;
+    overflow: hidden;
     padding: 0 !important;
+    border-left: none !important;
     border-top: 0px solid var(--border);
+    opacity: 1;
     transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1),
-                opacity 0.3s ease,
                 padding 0.3s ease !important;
   }
   .domain-selector.open {
