@@ -213,23 +213,23 @@ html, body {
 .practice-card {
   display: flex;
   flex-direction: row;
-  align-items: stretch;
+  align-items: flex-start;
   padding: 0; /* 子要素で管理 */
 }
 
+#btn-practice.expanded {
+  grid-column: span 2;
+}
+
 .practice-main {
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   padding: 32px;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
 }
 
 .domain-selector {
-  flex: 0 0 auto;
+  flex: 1 1 auto;
   overflow: hidden;
   opacity: 0;
-  width: 0;
   max-width: 0;
   transition: max-width 0.45s cubic-bezier(0.4, 0, 0.2, 1),
               opacity 0.3s ease,
@@ -239,7 +239,7 @@ html, body {
 }
 
 .domain-selector.open {
-  max-width: 380px;
+  max-width: 9999px;
   opacity: 1;
   padding: 28px 32px 28px 24px;
   border-left-width: 1px;
@@ -250,7 +250,6 @@ html, body {
   font-weight: 600;
   margin-bottom: 12px;
   color: var(--text-secondary);
-  white-space: nowrap;
 }
 
 .domain-grid {
@@ -1233,17 +1232,17 @@ body.mode-exam .q-domain-badge { display: none; }
 /* ===== レスポンシブ ===== */
 @media (max-width: 768px) {
   .mode-cards { grid-template-columns: 1fr; }
+  #btn-practice.expanded { grid-column: span 1; }
   .practice-card { flex-direction: column; }
   .practice-main { padding: 24px 20px; }
   .domain-selector {
-    width: auto;
     max-width: none !important;
     border-left: none !important;
-    border-top: 0px solid var(--border);
     padding: 0 !important;
+    border-top: 0px solid var(--border);
   }
   .domain-selector.open {
-    padding: 20px 20px 20px !important;
+    padding: 20px !important;
     border-top-width: 1px !important;
   }
   .domain-grid { grid-template-columns: repeat(2, 1fr); }
