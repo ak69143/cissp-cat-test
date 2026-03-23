@@ -35,21 +35,23 @@
           <button class="btn-outline">用語テストを始める</button>
         </div>
 
-        <div class="mode-card" id="btn-practice">
-          <div class="mode-icon">📚</div>
-          <h2>ドメイン別練習</h2>
-          <p>特定のドメインに絞って練習。苦手な分野を集中的に学習できます。</p>
-          <ul class="mode-details">
-            <li>時間制限なし</li>
-            <li>回答後に解説を表示</li>
-            <li>ドメインを自由に選択</li>
-            <li>進捗を記録・管理</li>
-          </ul>
-          <button class="btn-secondary">ドメインを選ぶ</button>
+        <div class="mode-card practice-card" id="btn-practice">
+          <div class="practice-main">
+            <div class="mode-icon">📚</div>
+            <h2>ドメイン別練習</h2>
+            <p>特定のドメインに絞って練習。苦手な分野を集中的に学習できます。</p>
+            <ul class="mode-details">
+              <li>時間制限なし</li>
+              <li>回答後に解説を表示</li>
+              <li>ドメインを自由に選択</li>
+              <li>進捗を記録・管理</li>
+            </ul>
+            <button class="btn-secondary">ドメインを選ぶ</button>
+          </div>
 
-          <!-- ドメイン選択（カード内でロールカーテン展開） -->
+          <!-- ドメイン選択（右側にスライド展開） -->
           <div id="domain-selector" class="domain-selector">
-            <h3>練習するドメインを選択</h3>
+            <h3>ドメインを選択</h3>
             <div class="domain-grid" id="domain-grid"></div>
             <div class="domain-actions">
               <label class="difficulty-label">難易度フィルター：</label>

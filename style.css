@@ -164,9 +164,6 @@ html, body {
   margin-bottom: 48px;
 }
 
-#btn-practice.expanded {
-  grid-column: 1 / -1;
-}
 
 .mode-card {
   background: var(--bg-card);
@@ -213,36 +210,54 @@ html, body {
 .mode-details li::before { content: '✓ '; color: var(--success); }
 
 /* ドメイン選択 */
-.domain-selector {
+.practice-card {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0;
   overflow: hidden;
-  max-height: 0;
+}
+
+.practice-main {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.domain-selector {
+  flex: 0 0 0;
+  overflow: hidden;
   opacity: 0;
-  margin: 0 -32px -32px;
-  transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+  max-width: 0;
+  transition: flex-basis 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
               opacity 0.3s ease,
               padding 0.3s ease;
-  padding: 0 32px;
-  border-top: 0px solid var(--border);
+  padding: 0;
+  border-left: 0px solid var(--border);
 }
 
 .domain-selector.open {
-  max-height: 1000px;
+  flex: 1 1 auto;
+  max-width: 600px;
   opacity: 1;
-  padding: 24px 32px 32px;
-  border-top-width: 1px;
-  margin-top: 24px;
+  padding: 0 0 0 24px;
+  border-left-width: 1px;
 }
 
 .domain-selector h3 {
-  font-size: 18px;
-  margin-bottom: 20px;
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  white-space: nowrap;
 }
 
 .domain-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  margin-bottom: 20px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
 }
 
 .domain-btn {
@@ -1218,8 +1233,19 @@ body.mode-exam .q-domain-badge { display: none; }
 /* ===== レスポンシブ ===== */
 @media (max-width: 768px) {
   .mode-cards { grid-template-columns: 1fr; }
-  .domain-selector { margin: 0 -20px -20px; }
-  .domain-selector.open { padding: 20px; }
+  .practice-card { flex-direction: column; }
+  .domain-selector {
+    max-width: none;
+    border-left: none;
+    border-top: 0px solid var(--border);
+    padding: 0;
+  }
+  .domain-selector.open {
+    max-width: none;
+    padding: 20px 0 0;
+    border-left: none;
+    border-top-width: 1px;
+  }
   .domain-grid { grid-template-columns: repeat(2, 1fr); }
   .question-layout { flex-direction: column; }
   .question-main { padding: 20px 16px; }
