@@ -237,9 +237,7 @@ html, body {
   overflow: hidden;
   opacity: 0;
   max-width: 0;
-  max-height: 0;
   transition: max-width 0.45s cubic-bezier(0.4, 0, 0.2, 1),
-              max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1),
               opacity 0.3s ease,
               padding 0.3s ease;
   padding: 0;
@@ -248,7 +246,6 @@ html, body {
 
 .domain-selector.open {
   max-width: 9999px;
-  max-height: 800px;
   opacity: 1;
   padding: 28px 32px 28px 24px;
   border-left-width: 1px;
@@ -1268,7 +1265,7 @@ body.mode-practice #domain-mini-block { display: none !important; }
                 padding 0.3s ease !important;
   }
   .domain-selector.open {
-    max-height: 800px;
+    max-height: 600px;
     padding: 20px !important;
     border-top-width: 1px !important;
   }
