@@ -292,10 +292,76 @@ select {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 24px 32px;
+  overflow: hidden;
 }
 
-.stats-section h3 { font-size: 16px; margin-bottom: 16px; }
+/* アコーディオントリガー */
+.stats-accordion-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 32px;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+}
+
+.stats-accordion-trigger:hover { background: var(--bg-card-hover); }
+
+.stats-accordion-arrow {
+  font-size: 12px;
+  color: var(--text-muted);
+  transition: transform 0.3s ease;
+}
+
+.stats-accordion-arrow.open { transform: rotate(180deg); }
+
+/* アコーディオン本体 */
+.stats-accordion-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0 32px;
+}
+
+.stats-accordion-body.open {
+  max-height: 1200px;
+  padding: 0 32px 24px;
+}
+
+/* タブ */
+.stats-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0;
+}
+
+.stats-tab {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  cursor: pointer;
+  margin-bottom: -1px;
+  transition: all 0.15s;
+}
+
+.stats-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.stats-tab:hover:not(.active) { color: var(--text-secondary); }
 
 .stats-grid {
   display: grid;
@@ -1135,4 +1201,7 @@ select {
 
   /* フローティングテーマボタン非表示 */
   .floating-theme-btn { display: none; }
+
+  /* 用語テスト時はドメインバッジを非表示 */
+  body.mode-terms .q-domain-badge { display: none; }
 }

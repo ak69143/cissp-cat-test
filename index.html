@@ -79,9 +79,18 @@
 
       <!-- 成績サマリー -->
       <div class="stats-section" id="stats-section">
-        <h3>学習記録</h3>
-        <div class="stats-grid" id="stats-grid"></div>
-        <button id="btn-reset-stats" class="btn-danger btn-sm">記録をリセット</button>
+        <button class="stats-accordion-trigger" id="stats-toggle">
+          <span>学習記録</span>
+          <span class="stats-accordion-arrow">▼</span>
+        </button>
+        <div class="stats-accordion-body" id="stats-accordion-body">
+          <div class="stats-tabs">
+            <button class="stats-tab active" data-tab="practice">ドメイン別練習</button>
+            <button class="stats-tab" data-tab="exam">模擬試験</button>
+          </div>
+          <div class="stats-grid" id="stats-grid"></div>
+          <button id="btn-reset-stats" class="btn-danger btn-sm">記録をリセット</button>
+        </div>
       </div>
     </div>
   </div>

@@ -53,6 +53,7 @@ async function init() {
     renderTermsDomainGrid();
     renderStats();
     bindHomeEvents();
+    bindStatsEvents();
   } catch (e) {
     console.error('問題の読み込みに失敗しました:', e);
     document.querySelector('.loading-text').textContent = '問題の読み込みに失敗しました。ページを再読み込みしてください。';
@@ -128,13 +129,17 @@ function renderDomainGrid() {
   });
 }
 
+let statsActiveTab = 'practice';
+
 function renderStats() {
   const grid = document.getElementById('stats-grid');
   const stats = loadStats();
   grid.innerHTML = '';
 
+  const bucket = stats[statsActiveTab] || { domains: {} };
+
   domainMeta.forEach((d, i) => {
-    const s = stats.domains[i] || { correct: 0, total: 0 };
+    const s = bucket.domains[i] || { correct: 0, total: 0 };
     const pct = s.total > 0 ? Math.round((s.correct / s.total) * 100) : null;
     const div = document.createElement('div');
     div.className = 'stats-item';
@@ -147,8 +152,8 @@ function renderStats() {
     grid.appendChild(div);
   });
 
-  // 全体
-  const total = Object.values(stats.domains).reduce((a, b) => ({ correct: a.correct + b.correct, total: a.total + b.total }), { correct: 0, total: 0 });
+  // 全体合計
+  const total = Object.values(bucket.domains).reduce((a, b) => ({ correct: a.correct + b.correct, total: a.total + b.total }), { correct: 0, total: 0 });
   const div = document.createElement('div');
   div.className = 'stats-item';
   div.innerHTML = `
@@ -157,6 +162,26 @@ function renderStats() {
     <div class="stats-item-detail">${total.correct}/${total.total} 正解</div>
   `;
   grid.appendChild(div);
+}
+
+function bindStatsEvents() {
+  // アコーディオン
+  document.getElementById('stats-toggle').addEventListener('click', () => {
+    const body = document.getElementById('stats-accordion-body');
+    const arrow = document.querySelector('.stats-accordion-arrow');
+    body.classList.toggle('open');
+    arrow.classList.toggle('open');
+  });
+
+  // タブ
+  document.querySelectorAll('.stats-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.stats-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      statsActiveTab = btn.dataset.tab;
+      renderStats();
+    });
+  });
 }
 
 function renderTermsDomainGrid() {
@@ -414,6 +439,7 @@ function startTermsTest(domainIndex) {
   session.settings = { showScore: false, showHints: false, showExplanation: true, showAccuracy: true };
 
   showScreen('question');
+  document.body.classList.add('mode-terms');
   const label = domainIndex === -1 ? '用語テスト（全ドメイン）'
     : `用語テスト: D${termsDomainMeta[domainIndex].domain}`;
   document.getElementById('sidebar-mode-label').textContent = label;
@@ -648,7 +674,7 @@ function selectAnswer(selectedIndex) {
   updateTheta(isCorrect, q.difficulty);
 
   // 統計保存
-  saveAnswerToStats(q.domainIndex, isCorrect);
+  saveAnswerToStats(q.domainIndex, isCorrect, session.mode);
 
   // スコア・正答率更新
   const s = session.settings || { showScore: true, showAccuracy: true };
@@ -1117,15 +1143,24 @@ function generateReport() {
 // ===== 統計管理（localStorage）=====
 function loadStats() {
   const raw = localStorage.getItem('cissp_stats');
-  if (!raw) return { domains: {} };
-  try { return JSON.parse(raw); } catch { return { domains: {} }; }
+  const empty = { practice: { domains: {} }, exam: { domains: {} } };
+  if (!raw) return empty;
+  try {
+    const data = JSON.parse(raw);
+    // 旧フォーマット（domains直下）をpracticeに移行
+    if (data.domains && !data.practice) return { practice: { domains: data.domains }, exam: { domains: {} } };
+    return { ...empty, ...data };
+  } catch { return empty; }
 }
 
-function saveAnswerToStats(domainIndex, isCorrect) {
+function saveAnswerToStats(domainIndex, isCorrect, mode) {
+  if (mode === 'terms') return; // 用語テストは記録しない
+  const bucket = mode === 'cat' ? 'exam' : 'practice';
   const stats = loadStats();
-  if (!stats.domains[domainIndex]) stats.domains[domainIndex] = { correct: 0, total: 0 };
-  stats.domains[domainIndex].total++;
-  if (isCorrect) stats.domains[domainIndex].correct++;
+  if (!stats[bucket]) stats[bucket] = { domains: {} };
+  if (!stats[bucket].domains[domainIndex]) stats[bucket].domains[domainIndex] = { correct: 0, total: 0 };
+  stats[bucket].domains[domainIndex].total++;
+  if (isCorrect) stats[bucket].domains[domainIndex].correct++;
   localStorage.setItem('cissp_stats', JSON.stringify(stats));
 }
 
@@ -1133,6 +1168,7 @@ function saveAnswerToStats(domainIndex, isCorrect) {
 function showScreen(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(`screen-${name}`).classList.add('active');
+  if (name !== 'question') document.body.classList.remove('mode-terms');
 }
 
 function showLoading(show) {
