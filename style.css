@@ -218,7 +218,8 @@ html, body {
 .practice-card {
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
+  align-items: stretch;
+  overflow: hidden;
   padding: 0; /* 子要素で管理 */
 }
 
@@ -234,7 +235,7 @@ html, body {
 
 .domain-selector {
   flex: 1 1 auto;
-  overflow: hidden;
+  overflow-y: auto;
   opacity: 0;
   max-width: 0;
   transition: max-width 0.45s cubic-bezier(0.4, 0, 0.2, 1),
