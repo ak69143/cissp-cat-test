@@ -12,6 +12,17 @@ const DOMAIN_FILES = [
   'questions/domain8.json',
 ];
 
+const TERMS_FILES = [
+  'questions/terms1.json',
+  'questions/terms2.json',
+  'questions/terms3.json',
+  'questions/terms4.json',
+  'questions/terms5.json',
+  'questions/terms6.json',
+  'questions/terms7.json',
+  'questions/terms8.json',
+];
+
 const DOMAIN_COLORS = [
   '#4f8ef7', '#2ecc71', '#9b59b6', '#e67e22',
   '#1abc9c', '#e74c3c', '#3498db', '#f39c12',
@@ -27,6 +38,8 @@ const CONFIDENCE_THRESHOLD = 1.0; // CAT停止の信頼区間閾値
 // ===== 状態管理 =====
 let allQuestions = []; // 全問題フラット配列（domainオブジェクト付き）
 let domainMeta = [];   // ドメインメタ情報
+let allTerms = [];     // 用語テスト問題
+let termsDomainMeta = [];
 
 let session = null; // 現在のセッション
 
@@ -35,7 +48,9 @@ async function init() {
   showLoading(true);
   try {
     await loadAllQuestions();
+    await loadAllTerms();
     renderDomainGrid();
+    renderTermsDomainGrid();
     renderStats();
     bindHomeEvents();
   } catch (e) {
@@ -69,6 +84,30 @@ async function loadAllQuestions() {
       allQuestions.push({ ...q, domainIndex: i, domainName: data.domainName, weight: data.weight });
     });
   });
+}
+
+// ===== 用語テスト読み込み =====
+async function loadAllTerms() {
+  try {
+    const results = await Promise.all(
+      TERMS_FILES.map(f => fetch(f).then(r => r.json()))
+    );
+    allTerms = [];
+    termsDomainMeta = [];
+    results.forEach((data, i) => {
+      termsDomainMeta.push({
+        domain: data.domain,
+        domainName: data.domainName,
+        color: DOMAIN_COLORS[i],
+        count: data.questions.length,
+      });
+      data.questions.forEach(q => {
+        allTerms.push({ ...q, domainIndex: i, domainName: data.domainName });
+      });
+    });
+  } catch (e) {
+    console.warn('用語データの読み込みに失敗しました:', e);
+  }
 }
 
 // ===== ホーム画面 =====
@@ -120,10 +159,42 @@ function renderStats() {
   grid.appendChild(div);
 }
 
+function renderTermsDomainGrid() {
+  const grid = document.getElementById('terms-domain-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  const allBtn = document.createElement('button');
+  allBtn.className = 'domain-btn domain-btn-all';
+  allBtn.innerHTML = `
+    <div class="domain-btn-name">🌐 全ドメイン</div>
+    <div class="domain-btn-count">${allTerms.length}用語</div>
+  `;
+  allBtn.addEventListener('click', () => startTermsTest(-1));
+  grid.appendChild(allBtn);
+
+  termsDomainMeta.forEach((d, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'domain-btn';
+    btn.innerHTML = `
+      <div class="domain-btn-name">Domain ${d.domain}: ${d.domainName}</div>
+      <div class="domain-btn-count">${d.count}用語</div>
+    `;
+    btn.style.borderLeft = `3px solid ${d.color}`;
+    btn.addEventListener('click', () => startTermsTest(i));
+    grid.appendChild(btn);
+  });
+}
+
 function bindHomeEvents() {
   document.getElementById('btn-cat-exam').addEventListener('click', () => openExamModal());
   document.getElementById('btn-practice').addEventListener('click', () => {
     document.getElementById('domain-selector').classList.toggle('hidden');
+    document.getElementById('terms-domain-selector').classList.add('hidden');
+  });
+  document.getElementById('btn-terms').addEventListener('click', () => {
+    document.getElementById('terms-domain-selector').classList.toggle('hidden');
+    document.getElementById('domain-selector').classList.add('hidden');
   });
   document.getElementById('btn-reset-stats').addEventListener('click', () => {
     if (confirm('学習記録をすべてリセットしますか？')) {
@@ -288,6 +359,36 @@ function startPractice(domainIndex) {
 
   document.getElementById('btn-abort').onclick = () => {
     if (confirm('練習を中断して結果を見ますか？')) finishSession('abort');
+  };
+
+  renderDomainMiniList();
+  renderNextQuestion();
+}
+
+// ===== 用語テスト開始 =====
+function startTermsTest(domainIndex) {
+  let pool;
+  if (domainIndex === -1) {
+    pool = shuffle([...allTerms]);
+  } else {
+    pool = shuffle(allTerms.filter(q => q.domainIndex === domainIndex));
+  }
+  if (pool.length === 0) { alert('用語データがありません。'); return; }
+
+  session = createSession('terms', pool);
+  session.settings = { showScore: false, showHints: false, showExplanation: true, showAccuracy: true };
+
+  showScreen('question');
+  const label = domainIndex === -1 ? '用語テスト（全ドメイン）'
+    : `用語テスト: D${termsDomainMeta[domainIndex].domain}`;
+  document.getElementById('sidebar-mode-label').textContent = label;
+  document.getElementById('q-total').textContent = pool.length;
+  document.getElementById('timer-block').classList.add('hidden');
+  document.getElementById('score-block').classList.add('hidden');
+  document.getElementById('accuracy-block').classList.remove('hidden');
+
+  document.getElementById('btn-abort').onclick = () => {
+    if (confirm('用語テストを中断して結果を見ますか？')) finishSession('abort');
   };
 
   renderDomainMiniList();
@@ -495,7 +596,7 @@ function selectAnswer(selectedIndex) {
   setTimeout(() => { accDisplay.style.color = ''; }, 800);
 
   // 次へボタン
-  const isLast = session.mode === 'practice' && session.currentIndex >= session.questions.length;
+  const isLast = (session.mode === 'practice' || session.mode === 'terms') && session.currentIndex >= session.questions.length;
   const catShouldStop = session.mode === 'cat' && shouldStopCat();
 
   if (isLast || catShouldStop) {
@@ -624,6 +725,9 @@ function showResultScreen(reason) {
   } else if (session.mode === 'practice') {
     verdict = '練習完了';
     headerClass = accuracy >= 70 ? 'pass' : 'fail';
+  } else if (session.mode === 'terms') {
+    verdict = '用語テスト完了';
+    headerClass = accuracy >= 80 ? 'pass' : 'fail';
   } else {
     if (score >= PASSING_SCORE) {
       verdict = 'PASS';
@@ -658,6 +762,7 @@ function showResultScreen(reason) {
   // ボタン
   document.getElementById('btn-retry').onclick = () => {
     if (session.mode === 'cat') startCatExam();
+    else if (session.mode === 'terms') { session = null; renderStats(); showScreen('home'); }
     else location.reload();
   };
   document.getElementById('btn-home').onclick = () => {
@@ -666,10 +771,25 @@ function showResultScreen(reason) {
     showScreen('home');
   };
   document.getElementById('btn-review').onclick = () => {
+    document.getElementById('report-section').classList.add('hidden');
     document.getElementById('review-section').classList.toggle('hidden');
     renderReview();
   };
 
+  // 詳細レポートボタン（CAT模擬試験のみ表示）
+  const btnReport = document.getElementById('btn-report');
+  if (session.mode === 'cat') {
+    btnReport.classList.remove('hidden');
+    btnReport.onclick = () => {
+      document.getElementById('review-section').classList.add('hidden');
+      document.getElementById('report-section').classList.toggle('hidden');
+      if (!document.getElementById('report-section').classList.contains('hidden')) {
+        renderReport();
+      }
+    };
+  } else {
+    btnReport.classList.add('hidden');
+  }
 }
 
 function renderDomainResults() {
@@ -723,6 +843,132 @@ function renderReview() {
     `;
     list.appendChild(item);
   });
+}
+
+// ===== 詳細レポート =====
+function renderReport() {
+  const { domainAnalysis, souhyou } = generateReport();
+
+  // 弱点分析
+  const weaknessList = document.getElementById('report-weakness-list');
+  weaknessList.innerHTML = '';
+
+  domainAnalysis.forEach(da => {
+    if (da.pct === null) return;
+    const row = document.createElement('div');
+    const isWeak = da.pct < 70;
+    row.className = `report-domain-row ${isWeak ? 'weak' : 'ok'}`;
+    row.style.borderLeftColor = DOMAIN_COLORS[da.i];
+
+    const topicRows = Object.entries(da.topicMap)
+      .filter(([, v]) => v.total >= 2)
+      .sort((a, b) => (a[1].correct / a[1].total) - (b[1].correct / b[1].total))
+      .slice(0, 3)
+      .map(([k, v]) => {
+        const pct = Math.round((v.correct / v.total) * 100);
+        const color = pct >= 70 ? 'var(--success)' : pct >= 50 ? 'var(--warning)' : 'var(--danger)';
+        return `<span style="color:${color}">${k}: ${pct}%</span>`;
+      }).join(' &nbsp;|&nbsp; ');
+
+    row.innerHTML = `
+      <div class="report-domain-header">
+        <span class="report-domain-name" style="color:${DOMAIN_COLORS[da.i]}">D${da.d.domain}: ${da.d.domainName}</span>
+        <span class="report-domain-pct" style="color:${da.pct >= 70 ? 'var(--success)' : da.pct >= 50 ? 'var(--warning)' : 'var(--danger)'}">${da.pct}%</span>
+      </div>
+      ${topicRows ? `<div class="report-weakness-text">${topicRows}</div>` : ''}
+      ${da.weaknessText ? `<div class="report-weakness-text" style="margin-top:6px">${da.weaknessText}</div>` : ''}
+    `;
+    weaknessList.appendChild(row);
+  });
+
+  // 総評
+  document.getElementById('report-souhyou').textContent = souhyou;
+}
+
+function generateReport() {
+  const score = thetaToScore(session.theta);
+
+  const domainAnalysis = domainMeta.map((d, i) => {
+    const domainAnswered = session.answered.filter(a => a.question.domainIndex === i);
+    const domainCorrect = domainAnswered.filter(a => a.isCorrect).length;
+    const pct = domainAnswered.length > 0 ? Math.round((domainCorrect / domainAnswered.length) * 100) : null;
+
+    // トピック別集計
+    const topicMap = {};
+    domainAnswered.forEach(a => {
+      const topic = a.question.topic || '一般';
+      if (!topicMap[topic]) topicMap[topic] = { correct: 0, total: 0 };
+      topicMap[topic].total++;
+      if (a.isCorrect) topicMap[topic].correct++;
+    });
+
+    // 難易度別の誤答分析
+    const easyWrong = domainAnswered.filter(a => !a.isCorrect && a.question.difficulty === 1).length;
+    const medWrong = domainAnswered.filter(a => !a.isCorrect && a.question.difficulty === 2).length;
+    const hardWrong = domainAnswered.filter(a => !a.isCorrect && a.question.difficulty === 3).length;
+
+    let weaknessText = '';
+    if (pct !== null && pct < 70) {
+      const weakTopics = Object.entries(topicMap)
+        .filter(([, v]) => v.total >= 2 && v.correct / v.total < 0.5)
+        .map(([k]) => k);
+      if (weakTopics.length > 0) {
+        weaknessText = `特に「${weakTopics.join('」「')}」の理解強化が必要です。`;
+      } else if (easyWrong >= 2) {
+        weaknessText = '基礎概念の理解を固めることが先決です。用語テストモードで確認しましょう。';
+      } else if (medWrong > hardWrong) {
+        weaknessText = '実践的な状況判断が課題です。シナリオ問題で「最初にすべきこと」を意識して練習しましょう。';
+      } else {
+        weaknessText = '複合的なシナリオへの対応力強化が必要です。管理職視点での意思決定を練習しましょう。';
+      }
+    }
+
+    return { d, i, domainAnswered, domainCorrect, pct, topicMap, weaknessText };
+  });
+
+  // 強い・弱いドメインの特定
+  const analyzed = domainAnalysis.filter(da => da.pct !== null);
+  const weakDomains = analyzed.filter(da => da.pct < 60).sort((a, b) => a.pct - b.pct);
+  const strongDomains = analyzed.filter(da => da.pct >= 80).sort((a, b) => b.pct - a.pct);
+  const best = analyzed.sort((a, b) => b.pct - a.pct)[0];
+  const worst = [...analyzed].sort((a, b) => a.pct - b.pct)[0];
+
+  // 総評生成
+  let souhyou = '';
+  const total = session.answered.length;
+  const correct = session.answered.filter(a => a.isCorrect).length;
+  const accuracy = Math.round((correct / total) * 100);
+
+  if (score >= 800) {
+    souhyou = `非常に優秀な結果です（推定スコア ${score}点、正答率 ${accuracy}%）。CISSP試験の本番でも十分に合格が期待できるレベルです。`;
+    if (strongDomains.length > 0) {
+      souhyou += `特に${strongDomains.slice(0, 2).map(da => `Domain ${da.d.domain}（${da.d.domainName}）`).join('、')}は高い習熟度を示しています。`;
+    }
+    if (weakDomains.length > 0) {
+      souhyou += `さらなる向上のため、${weakDomains.map(da => `Domain ${da.d.domain}`).join('・')}の復習を推奨します。`;
+    } else {
+      souhyou += '全ドメインで合格水準を超えており、バランスの取れた知識を持っています。';
+    }
+  } else if (score >= 700) {
+    souhyou = `合格圏内の成績です（推定スコア ${score}点、正答率 ${accuracy}%）。`;
+    if (best) souhyou += `${best.d.domainName}が最も得意なドメインです（${best.pct}%）。`;
+    if (weakDomains.length > 0) {
+      souhyou += `合格を確実にするため、${weakDomains.slice(0, 3).map(da => `Domain ${da.d.domain}（${da.d.domainName}）`).join('、')}の重点学習を推奨します。`;
+    }
+    souhyou += 'マネジメント視点の問題を意識的に練習することで、さらにスコアが安定します。';
+  } else if (score >= 550) {
+    souhyou = `あと一歩で合格圏内です（推定スコア ${score}点、正答率 ${accuracy}%）。`;
+    if (weakDomains.length > 0) {
+      souhyou += `特に${weakDomains.slice(0, 3).map(da => `Domain ${da.d.domain}（${da.d.domainName}）`).join('・')}での得点向上が合格への鍵です。`;
+    }
+    souhyou += 'CISSPは「最初に何をすべきか」「最も適切な対応は」という管理職視点の判断力が試されます。技術的な正しさより、ビジネスリスクと組織ガバナンスを優先する考え方を身につけましょう。';
+  } else {
+    souhyou = `基礎の強化が必要な段階です（推定スコア ${score}点、正答率 ${accuracy}%）。焦らず、ドメインごとに体系的に学習しましょう。`;
+    if (worst) souhyou += `特にDomain ${worst.d.domain}（${worst.d.domainName}）を優先的に取り組むことを推奨します。`;
+    souhyou += '用語テストモードで基礎用語を固めた後、ドメイン別練習でシナリオ型問題に取り組むと効果的です。';
+  }
+
+  return { domainAnalysis, souhyou };
 }
 
 // ===== 統計管理（localStorage）=====

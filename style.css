@@ -841,9 +841,136 @@ select {
   color: var(--warning);
 }
 
+/* ===== 用語テストモードカード ===== */
+.terms-mode-card {
+  grid-column: span 2;
+}
+
+.terms-mode-inner {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.terms-mode-inner .mode-icon {
+  font-size: 48px;
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+
+.terms-mode-text {
+  flex: 1;
+}
+
+.terms-mode-text h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.terms-mode-text p {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.terms-mode-text .mode-details {
+  margin-bottom: 0;
+}
+
+.terms-mode-btn {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* ===== レポートセクション ===== */
+.report-section {
+  margin-top: 32px;
+  border-top: 1px solid var(--border);
+  padding-top: 32px;
+}
+
+.report-section h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: var(--text-primary);
+}
+
+.report-block {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.report-block h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+}
+
+.report-weakness-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.report-domain-row {
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--border);
+}
+
+.report-domain-row.weak {
+  border-left-color: var(--danger);
+}
+
+.report-domain-row.ok {
+  border-left-color: var(--success);
+}
+
+.report-domain-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.report-domain-name {
+  font-size: 14px;
+  font-weight: 600;
+  flex: 1;
+}
+
+.report-domain-pct {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.report-weakness-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.report-souhyou {
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--text-primary);
+}
+
 /* ===== レスポンシブ ===== */
 @media (max-width: 768px) {
   .mode-cards { grid-template-columns: 1fr; }
+  .terms-mode-card { grid-column: span 1; }
+  .terms-mode-inner { flex-direction: column; align-items: flex-start; }
   .question-layout { flex-direction: column; }
   .sidebar { width: 100%; height: auto; position: static; flex-direction: row; flex-wrap: wrap; }
   .question-main { padding: 20px 16px; }

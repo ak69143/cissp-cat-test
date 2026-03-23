@@ -47,6 +47,22 @@
           </ul>
           <button class="btn-secondary">ドメインを選ぶ</button>
         </div>
+
+        <div class="mode-card terms-mode-card" id="btn-terms">
+          <div class="terms-mode-inner">
+            <div class="mode-icon">📖</div>
+            <div class="terms-mode-text">
+              <h2>用語テストモード</h2>
+              <p>CISSPの重要用語を一問一答形式でチェック。全ドメイン横断またはドメイン別に学習できます。</p>
+              <ul class="mode-details">
+                <li>時間制限なし・常に解説表示</li>
+                <li>全ドメイン or ドメイン別に選択</li>
+                <li>約280用語収録</li>
+              </ul>
+            </div>
+            <button class="btn-outline terms-mode-btn">用語テストを始める</button>
+          </div>
+        </div>
       </div>
 
       <!-- ドメイン選択（練習モード） -->
@@ -62,6 +78,12 @@
             <option value="3">Hard のみ</option>
           </select>
         </div>
+      </div>
+
+      <!-- ドメイン選択（用語テストモード） -->
+      <div id="terms-domain-selector" class="domain-selector hidden">
+        <h3>テストするドメインを選択</h3>
+        <div class="domain-grid" id="terms-domain-grid"></div>
       </div>
 
       <!-- 成績サマリー -->
@@ -193,7 +215,23 @@
       <div class="result-actions">
         <button id="btn-retry" class="btn-primary">もう一度挑戦</button>
         <button id="btn-home" class="btn-secondary">ホームへ戻る</button>
+        <button id="btn-report" class="btn-outline hidden">📊 詳細レポートを見る</button>
         <button id="btn-review" class="btn-outline">間違えた問題を確認</button>
+      </div>
+
+      <!-- 詳細レポート -->
+      <div id="report-section" class="report-section hidden">
+        <h3>📊 詳細分析レポート</h3>
+
+        <div class="report-block">
+          <h4>ドメイン別弱点分析</h4>
+          <div id="report-weakness-list" class="report-weakness-list"></div>
+        </div>
+
+        <div class="report-block">
+          <h4>総評</h4>
+          <div id="report-souhyou" class="report-souhyou"></div>
+        </div>
       </div>
 
       <!-- 復習画面 -->
