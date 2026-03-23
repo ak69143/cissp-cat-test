@@ -222,7 +222,7 @@ html, body {
 }
 
 .domain-selector.open {
-  max-height: 800px;
+  max-height: 1000px;
   opacity: 1;
   padding: 24px 32px 32px;
   border-top-width: 1px;
@@ -236,7 +236,7 @@ html, body {
 
 .domain-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
   margin-bottom: 20px;
 }
@@ -1213,6 +1213,7 @@ select {
   .mode-cards { grid-template-columns: 1fr; }
   .domain-selector { margin: 0 -20px -20px; }
   .domain-selector.open { padding: 20px; }
+  .domain-grid { grid-template-columns: repeat(2, 1fr); }
   .question-layout { flex-direction: column; }
   .question-main { padding: 20px 16px; }
   .result-stats { grid-template-columns: repeat(2, 1fr); }
