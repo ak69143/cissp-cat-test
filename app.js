@@ -189,11 +189,10 @@ function renderTermsDomainGrid() {
 function bindHomeEvents() {
   document.getElementById('btn-cat-exam').addEventListener('click', () => openExamModal());
   document.getElementById('btn-practice').addEventListener('click', () => {
-    document.getElementById('domain-selector').classList.toggle('hidden');
-    document.getElementById('terms-domain-selector').classList.add('hidden');
+    document.getElementById('domain-selector').classList.toggle('open');
   });
   document.getElementById('btn-terms').addEventListener('click', () => {
-    document.getElementById('domain-selector').classList.add('hidden');
+    document.getElementById('domain-selector').classList.remove('open');
     startTermsTest(-1);
   });
   document.getElementById('btn-reset-stats').addEventListener('click', () => {
