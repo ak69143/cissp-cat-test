@@ -555,17 +555,21 @@ function renderNextQuestion() {
     btnHint.classList.add('hidden');
   }
 
-  // 戻るボタン制御
+  // 戻るボタン制御（非試験モードでは常時表示）
   const btnBack = document.getElementById('btn-back');
-  if (canGoBack()) {
+  const s2 = session.settings || {};
+  const isExamMode = s2.showScore === false && s2.showHints === false &&
+                     s2.showExplanation === false && s2.showAccuracy === false;
+  if (isExamMode) {
+    btnBack.classList.add('hidden');
+  } else {
     btnBack.classList.remove('hidden');
+    btnBack.disabled = session.answered.length === 0;
     btnBack.onclick = () => {
       session.reviewing = true;
       session.reviewIndex = session.answered.length - 1;
       renderReviewQuestion();
     };
-  } else {
-    btnBack.classList.add('hidden');
   }
 
   // スコア更新
@@ -577,7 +581,7 @@ function renderNextQuestion() {
 function selectAnswer(selectedIndex) {
   if (session.finished) return;
   const q = session.currentQuestion;
-  document.getElementById('btn-back').classList.add('hidden');
+  document.getElementById('btn-back').disabled = true;
   const isCorrect = selectedIndex === q.answer;
 
   // ボタンを無効化・色付け
@@ -1117,5 +1121,32 @@ function hexToRgba(hex, alpha) {
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
+// ===== テーマ管理 =====
+const THEMES = ['dark', 'light', 'auto'];
+const THEME_LABELS = { dark: '🌙', light: '☀️', auto: '🌓' };
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('cissp_theme', theme);
+  document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
+    btn.textContent = THEME_LABELS[theme];
+    btn.title = theme === 'dark' ? 'ダークモード' : theme === 'light' ? 'ライトモード' : 'ブラウザデフォルト';
+  });
+}
+
+function cycleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  const next = THEMES[(THEMES.indexOf(current) + 1) % THEMES.length];
+  applyTheme(next);
+}
+
+function initTheme() {
+  const saved = localStorage.getItem('cissp_theme') || 'dark';
+  applyTheme(saved);
+  document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', cycleTheme);
+  });
+}
+
 // ===== 起動 =====
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', () => { initTheme(); init(); });
