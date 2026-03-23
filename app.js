@@ -176,24 +176,27 @@ function renderExamHistory(container) {
   const history = loadExamHistory();
   const section = document.createElement('div');
   section.className = 'exam-history-section';
-  section.innerHTML = '<div class="exam-history-title">過去の試験結果（本番試験モード）</div>';
   if (history.length === 0) {
-    section.innerHTML += '<div class="exam-history-empty">まだ記録がありません</div>';
+    section.innerHTML = '<div class="exam-history-empty">まだ記録がありません</div>';
   } else {
+    const cards = document.createElement('div');
+    cards.className = 'exam-history-cards';
     history.forEach((h, idx) => {
-      const date = new Date(h.date).toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
-      const btn = document.createElement('button');
-      btn.className = 'exam-history-link';
-      btn.innerHTML = `
-        <span class="exam-history-num">${idx + 1}</span>
-        <span class="exam-history-date">${date}</span>
-        <span class="exam-history-verdict ${h.verdict === 'PASS' ? 'pass' : 'fail'}">${h.verdict}</span>
-        <span class="exam-history-score">${h.score}点</span>
-        <span class="exam-history-arrow">詳細レポート →</span>
+      const date = new Date(h.date).toLocaleDateString('ja-JP', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+      const isPass = h.verdict === 'PASS';
+      const card = document.createElement('button');
+      card.className = `exam-history-card ${isPass ? 'pass' : 'fail'}`;
+      card.innerHTML = `
+        <div class="ehc-num">${idx + 1}回目</div>
+        <div class="ehc-verdict">${h.verdict}</div>
+        <div class="ehc-score">${h.score}<span class="ehc-unit">点</span></div>
+        <div class="ehc-date">${date}</div>
+        <div class="ehc-report">詳細レポート →</div>
       `;
-      btn.addEventListener('click', () => showHistoryModal(h));
-      section.appendChild(btn);
+      card.addEventListener('click', () => showHistoryModal(h));
+      cards.appendChild(card);
     });
+    section.appendChild(cards);
   }
   container.appendChild(section);
 }
@@ -749,13 +752,16 @@ function selectAnswer(selectedIndex) {
   document.getElementById('btn-back').disabled = true;
   const isCorrect = selectedIndex === q.answer;
 
-  // ボタンを無効化（本番モードは色付けしない）
+  // ボタンを無効化
   const buttons = document.querySelectorAll('.option-btn');
   buttons.forEach((btn, i) => {
     btn.disabled = true;
     if (!session.isExamMode) {
       if (i === q.answer) btn.classList.add('correct');
       if (i === selectedIndex && !isCorrect) btn.classList.add('incorrect');
+    } else {
+      // 本番モード：正誤は表示しないが選択肢はハイライト
+      if (i === selectedIndex) btn.classList.add('selected');
     }
   });
 
@@ -1291,7 +1297,7 @@ function loadExamHistory() {
 function saveExamHistory(snapshot) {
   const history = loadExamHistory();
   history.unshift(snapshot);
-  if (history.length > 3) history.length = 3;
+  if (history.length > 5) history.length = 5;
   localStorage.setItem('cissp_exam_history', JSON.stringify(history));
 }
 

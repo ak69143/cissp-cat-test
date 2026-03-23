@@ -551,8 +551,9 @@ select {
   letter-spacing: 0.5px;
 }
 
-/* 本番試験モードはドメインバッジを非表示 */
-body.mode-exam .q-domain-badge { display: none; }
+/* 本番試験モードはドメイン・難易度バッジを非表示 */
+body.mode-exam .q-domain-badge,
+body.mode-exam .q-difficulty-badge { display: none; }
 
 /* 用語テスト・本番・練習モードはドメインミニリストを非表示 */
 body.mode-terms #domain-mini-block,
@@ -1098,7 +1099,47 @@ body.mode-practice #domain-mini-block { display: none !important; }
   gap: 16px;
 }
 
-/* ===== 模擬試験履歴 ===== */
+/* ===== 模擬試験履歴カード ===== */
+.exam-history-cards {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.exam-history-card {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  padding: 12px 8px;
+  text-align: center;
+  transition: border-color 0.15s, transform 0.15s;
+  color: var(--text-primary);
+}
+
+.exam-history-card:hover { transform: translateY(-2px); }
+.exam-history-card.pass { border-color: rgba(46,204,113,0.5); background: rgba(46,204,113,0.05); }
+.exam-history-card.fail { border-color: rgba(231,76,60,0.5); background: rgba(231,76,60,0.05); }
+
+.ehc-num { font-size: 11px; color: var(--text-muted); }
+.ehc-verdict { font-size: 18px; font-weight: 800; letter-spacing: 2px; }
+.exam-history-card.pass .ehc-verdict { color: var(--success); }
+.exam-history-card.fail .ehc-verdict { color: var(--danger); }
+.ehc-score { font-size: 20px; font-weight: 700; }
+.ehc-unit { font-size: 12px; font-weight: 400; }
+.ehc-date { font-size: 10px; color: var(--text-muted); }
+.ehc-report { font-size: 11px; color: var(--accent); margin-top: 4px; }
+
+.exam-history-section { margin-top: 8px; }
+
+/* ===== 模擬試験履歴（旧・未使用） ===== */
 .stats-exam-note {
   grid-column: 1 / -1;
   color: var(--danger);
