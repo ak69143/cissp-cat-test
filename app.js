@@ -141,6 +141,8 @@ function renderStats() {
     note.className = 'stats-exam-note';
     note.textContent = '⚠️ 学習モードの結果は履歴に反映されません。本番試験モードのみ記録されます。';
     grid.appendChild(note);
+    renderExamHistory(grid);
+    return;
   }
 
   const bucket = stats[statsActiveTab] || { domains: {} };
@@ -169,10 +171,6 @@ function renderStats() {
     <div class="stats-item-detail">${total.correct}/${total.total} 正解</div>
   `;
   grid.appendChild(div);
-
-  if (statsActiveTab === 'exam') {
-    renderExamHistory(grid);
-  }
 }
 
 function renderExamHistory(container) {
@@ -732,12 +730,14 @@ function selectAnswer(selectedIndex) {
   document.getElementById('btn-back').disabled = true;
   const isCorrect = selectedIndex === q.answer;
 
-  // ボタンを無効化・色付け
+  // ボタンを無効化（本番モードは色付けしない）
   const buttons = document.querySelectorAll('.option-btn');
   buttons.forEach((btn, i) => {
     btn.disabled = true;
-    if (i === q.answer) btn.classList.add('correct');
-    if (i === selectedIndex && !isCorrect) btn.classList.add('incorrect');
+    if (!session.isExamMode) {
+      if (i === q.answer) btn.classList.add('correct');
+      if (i === selectedIndex && !isCorrect) btn.classList.add('incorrect');
+    }
   });
 
   // ヒントボタンを無効化
@@ -772,10 +772,12 @@ function selectAnswer(selectedIndex) {
   if (session.mode === 'cat' && s.showScore) updateScoreDisplay();
   if (s.showAccuracy !== false) updateAccuracyDisplay();
 
-  // 正誤表示
-  const accDisplay = document.getElementById('accuracy-display');
-  accDisplay.style.color = isCorrect ? 'var(--success)' : 'var(--danger)';
-  setTimeout(() => { accDisplay.style.color = ''; }, 800);
+  // 正誤フラッシュ（本番モードはスキップ）
+  if (!session.isExamMode) {
+    const accDisplay = document.getElementById('accuracy-display');
+    accDisplay.style.color = isCorrect ? 'var(--success)' : 'var(--danger)';
+    setTimeout(() => { accDisplay.style.color = ''; }, 800);
+  }
 
   // 次へボタン
   const isLast = (session.mode === 'practice' || session.mode === 'terms') && session.currentIndex >= session.questions.length;
