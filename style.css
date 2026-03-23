@@ -158,20 +158,25 @@ html, body {
 
 /* モードカード */
 .mode-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
   gap: 24px;
+  overflow: hidden;
   margin-bottom: 48px;
 }
 
-
 .mode-card {
+  flex: 0 0 auto;
+  width: calc((100% - 48px) / 3);
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 32px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+#btn-practice.expanded {
+  width: calc((100% - 48px) / 3 * 2 + 24px);
 }
 
 .mode-card:hover {
@@ -224,6 +229,7 @@ html, body {
 .practice-main {
   flex: 0 0 auto;
   padding: 32px;
+  max-width: 260px;
 }
 
 .domain-selector {
@@ -263,11 +269,14 @@ html, body {
   background: var(--bg-secondary);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 16px;
+  padding: 10px 14px;
   cursor: pointer;
   text-align: left;
   transition: all 0.15s;
   color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .domain-btn:hover {
@@ -275,7 +284,7 @@ html, body {
   background: var(--bg-card-hover);
 }
 
-.domain-btn-name { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+.domain-btn-name { font-size: 12px; font-weight: 600; flex: 1; line-height: 1.4; }
 .domain-btn-count { font-size: 12px; color: var(--text-muted); }
 .domain-btn-weight {
   display: inline-block;
@@ -548,6 +557,10 @@ select {
 
 /* 本番試験モードはドメインバッジを非表示 */
 body.mode-exam .q-domain-badge { display: none; }
+
+/* 用語テスト・本番モードはドメインミニリストを非表示 */
+body.mode-terms #domain-mini-block,
+body.mode-exam #domain-mini-block { display: none; }
 
 .q-domain-badge {
   background: rgba(79,142,247,0.15);
@@ -1232,9 +1245,11 @@ body.mode-exam .q-domain-badge { display: none; }
 /* ===== レスポンシブ ===== */
 @media (max-width: 768px) {
   .mode-cards { grid-template-columns: 1fr; }
-  #btn-practice.expanded { grid-column: span 1; }
+  .mode-cards { flex-direction: column; overflow: visible; }
+  .mode-card { width: 100%; }
+  #btn-practice.expanded { width: 100%; }
   .practice-card { flex-direction: column; }
-  .practice-main { padding: 24px 20px; }
+  .practice-main { padding: 24px 20px; max-width: none; }
   .domain-selector {
     max-width: none !important;
     border-left: none !important;

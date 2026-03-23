@@ -119,7 +119,7 @@ function renderDomainGrid() {
     const btn = document.createElement('button');
     btn.className = 'domain-btn';
     btn.innerHTML = `
-      <div class="domain-btn-name">Domain ${d.domain}: ${d.domainName}</div>
+      <div class="domain-btn-name">D${d.domain}: ${d.domainName}</div>
       <span class="domain-btn-weight">${d.weight}%</span>
     `;
     btn.style.borderLeft = `3px solid ${d.color}`;
