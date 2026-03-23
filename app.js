@@ -278,7 +278,7 @@ function readModalSettings() {
 // ===== セッション管理 =====
 function createSession(mode, questionPool) {
   return {
-    mode,             // 'cat' | 'practice'
+    mode,             // 'cat' | 'practice' | 'terms'
     questions: questionPool,
     answered: [],     // { question, selectedIndex, isCorrect }
     currentIndex: 0,
@@ -288,6 +288,8 @@ function createSession(mode, questionPool) {
     startTime: Date.now(),
     timerInterval: null,
     finished: false,
+    reviewing: false,  // レビューモード中かどうか
+    reviewIndex: 0,    // レビュー中の問題インデックス
   };
 }
 
@@ -468,8 +470,22 @@ function shouldStopCat() {
   return scoreGap > confidenceInterval;
 }
 
+// ===== 前の問題に戻れるか判定 =====
+function canGoBack() {
+  if (!session || session.answered.length === 0) return false;
+  const s = session.settings || {};
+  const isExamMode = s.showScore === false && s.showHints === false &&
+                     s.showExplanation === false && s.showAccuracy === false;
+  return !isExamMode;
+}
+
 // ===== 問題レンダリング =====
 function renderNextQuestion() {
+  if (session && session.reviewing) {
+    renderReviewQuestion();
+    return;
+  }
+
   let q;
 
   if (session.mode === 'cat') {
@@ -539,6 +555,19 @@ function renderNextQuestion() {
     btnHint.classList.add('hidden');
   }
 
+  // 戻るボタン制御
+  const btnBack = document.getElementById('btn-back');
+  if (canGoBack()) {
+    btnBack.classList.remove('hidden');
+    btnBack.onclick = () => {
+      session.reviewing = true;
+      session.reviewIndex = session.answered.length - 1;
+      renderReviewQuestion();
+    };
+  } else {
+    btnBack.classList.add('hidden');
+  }
+
   // スコア更新
   if (session.mode === 'cat' && settings.showScore) updateScoreDisplay();
 
@@ -548,6 +577,7 @@ function renderNextQuestion() {
 function selectAnswer(selectedIndex) {
   if (session.finished) return;
   const q = session.currentQuestion;
+  document.getElementById('btn-back').classList.add('hidden');
   const isCorrect = selectedIndex === q.answer;
 
   // ボタンを無効化・色付け
@@ -640,6 +670,73 @@ function renderDomainMiniList() {
     `;
     list.appendChild(item);
   });
+}
+
+// ===== 前の問題レビュー =====
+function renderReviewQuestion() {
+  const record = session.answered[session.reviewIndex];
+  const q = record.question;
+
+  document.getElementById('q-num').textContent = session.reviewIndex + 1;
+  document.getElementById('q-current').textContent = session.reviewIndex + 1;
+  document.getElementById('question-text').textContent = q.question;
+
+  const domainBadge = document.getElementById('q-domain-badge');
+  domainBadge.textContent = `D${q.domainIndex + 1}: ${q.domainName}`;
+  domainBadge.style.background = hexToRgba(DOMAIN_COLORS[q.domainIndex], 0.15);
+  domainBadge.style.color = DOMAIN_COLORS[q.domainIndex];
+
+  const diffBadge = document.getElementById('q-difficulty-badge');
+  const diffLabels = { 1: 'Easy', 2: 'Medium', 3: 'Hard' };
+  diffBadge.textContent = diffLabels[q.difficulty];
+  diffBadge.className = `q-difficulty-badge ${['', 'easy', 'medium', 'hard'][q.difficulty]}`;
+
+  // 選択肢（読み取り専用・正誤表示）
+  const optionsList = document.getElementById('options-list');
+  optionsList.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.disabled = true;
+    if (i === q.answer) btn.classList.add('correct');
+    if (i === record.selectedIndex && !record.isCorrect) btn.classList.add('incorrect');
+    btn.innerHTML = `<span class="option-label">${opt.charAt(0)}</span><span>${opt.slice(3)}</span>`;
+    optionsList.appendChild(btn);
+  });
+
+  // 解説表示
+  document.getElementById('explanation-box').classList.remove('hidden');
+  const expResult = document.getElementById('explanation-result');
+  expResult.textContent = record.isCorrect ? '✓ 正解！' : '✗ 不正解';
+  expResult.className = `explanation-result ${record.isCorrect ? 'correct' : 'incorrect'}`;
+  document.getElementById('explanation-text').textContent = q.explanation;
+
+  // ヒント非表示
+  document.getElementById('btn-hint').classList.add('hidden');
+  document.getElementById('hint-text').classList.add('hidden');
+
+  // 戻るボタン
+  const btnBack = document.getElementById('btn-back');
+  if (session.reviewIndex > 0) {
+    btnBack.classList.remove('hidden');
+    btnBack.onclick = () => { session.reviewIndex--; renderReviewQuestion(); };
+  } else {
+    btnBack.classList.add('hidden');
+  }
+
+  // 進むボタン
+  const btnNext = document.getElementById('btn-next');
+  const btnFinish = document.getElementById('btn-finish');
+  btnFinish.classList.add('hidden');
+  btnNext.classList.remove('hidden');
+
+  if (session.reviewIndex < session.answered.length - 1) {
+    btnNext.textContent = '次の問題を確認 →';
+    btnNext.onclick = () => { session.reviewIndex++; renderReviewQuestion(); };
+  } else {
+    btnNext.textContent = '現在の問題へ →';
+    btnNext.onclick = () => { session.reviewing = false; renderNextQuestion(); };
+  }
 }
 
 // ===== ヒント =====
