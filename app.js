@@ -197,10 +197,10 @@ function bindHomeEvents() {
     startTermsTest(-1);
   });
   document.getElementById('btn-reset-stats').addEventListener('click', () => {
-    if (confirm('学習記録をすべてリセットしますか？')) {
+    showConfirmModal('学習記録をすべてリセットしますか？', () => {
       localStorage.removeItem('cissp_stats');
       renderStats();
-    }
+    });
   });
   bindModalEvents();
 }
@@ -239,24 +239,35 @@ function bindModalEvents() {
     if (e.target === document.getElementById('exam-modal-overlay')) closeExamModal();
   });
 
-  // 中断確認モーダル
-  document.getElementById('abort-cancel').addEventListener('click', closeAbortModal);
+  // 確認モーダル（汎用）
+  document.getElementById('abort-cancel').addEventListener('click', closeConfirmModal);
   document.getElementById('abort-confirm').addEventListener('click', () => {
-    closeAbortModal();
-    finishSession('abort');
+    const cb = closeConfirmModal();
+    if (cb) cb();
   });
   document.getElementById('abort-modal-overlay').addEventListener('click', e => {
-    if (e.target === document.getElementById('abort-modal-overlay')) closeAbortModal();
+    if (e.target === document.getElementById('abort-modal-overlay')) closeConfirmModal();
   });
 }
 
-function showAbortModal(message) {
+let _confirmCallback = null;
+
+function showConfirmModal(message, onConfirm) {
+  _confirmCallback = onConfirm;
   document.getElementById('abort-modal-message').textContent = message;
   document.getElementById('abort-modal-overlay').classList.remove('hidden');
 }
 
-function closeAbortModal() {
+function closeConfirmModal() {
   document.getElementById('abort-modal-overlay').classList.add('hidden');
+  const cb = _confirmCallback;
+  _confirmCallback = null;
+  return cb;
+}
+
+// 後方互換
+function showAbortModal(message) {
+  showConfirmModal(message, () => finishSession('abort'));
 }
 
 function applyPreset(preset) {
