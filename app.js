@@ -81,7 +81,9 @@ async function init() {
     return;
   }
   showLoading(false);
-  showScreen('home');
+  if (!restoreSessionFromStorage()) {
+    showScreen('home');
+  }
 }
 
 // ===== 問題読み込み =====
@@ -485,6 +487,112 @@ function createSession(mode, questionPool) {
   };
 }
 
+// ===== セッション永続化 =====
+const SESSION_STORAGE_KEY = 'cissp_active_session';
+
+function saveSessionToStorage() {
+  if (!session || session.finished) return;
+  try {
+    const elapsed = Math.floor((Date.now() - session.startTime) / 1000);
+    const data = {
+      mode: session.mode,
+      modeLabel: document.getElementById('sidebar-mode-label').textContent,
+      questionIds: session.questions.map(q => q.id),
+      currentIndex: session.currentIndex,
+      answered: session.answered.map(a => ({
+        questionId: a.question.id,
+        selectedIndex: a.selectedIndex,
+        isCorrect: a.isCorrect,
+      })),
+      theta: session.theta,
+      confidence: session.confidence,
+      domainCounts: session.domainCounts,
+      startTime: session.startTime,
+      elapsedSeconds: elapsed,
+      settings: session.settings,
+      isExamMode: session.isExamMode || false,
+    };
+    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(data));
+  } catch (e) { /* localStorage 使用不可の場合は無視 */ }
+}
+
+function clearSessionStorage() {
+  localStorage.removeItem(SESSION_STORAGE_KEY);
+}
+
+function restoreSessionFromStorage() {
+  try {
+    const raw = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+
+    const questionMap = new Map([...allQuestions, ...allTerms].map(q => [q.id, q]));
+    const questions = data.questionIds.map(id => questionMap.get(id)).filter(Boolean);
+    if (questions.length === 0) return false;
+
+    const answered = data.answered.map(a => {
+      const question = questionMap.get(a.questionId);
+      if (!question) return null;
+      return { question, selectedIndex: a.selectedIndex, isCorrect: a.isCorrect };
+    }).filter(Boolean);
+
+    session = {
+      mode: data.mode,
+      questions,
+      answered,
+      currentIndex: data.currentIndex,
+      theta: data.theta ?? 0,
+      confidence: data.confidence ?? 0,
+      domainCounts: data.domainCounts ?? new Array(8).fill(0),
+      startTime: data.startTime ?? Date.now(),
+      timerInterval: null,
+      finished: false,
+      reviewing: false,
+      reviewIndex: 0,
+      settings: data.settings,
+      isExamMode: data.isExamMode ?? false,
+    };
+
+    // UI復元
+    showScreen('question');
+    if (session.mode === 'terms') document.body.classList.add('mode-terms');
+    if (session.mode === 'practice') document.body.classList.add('mode-practice');
+    if (session.isExamMode) document.body.classList.add('mode-exam');
+
+    document.getElementById('sidebar-mode-label').textContent = data.modeLabel || '';
+    document.getElementById('q-total').textContent =
+      session.mode === 'cat' ? `${CAT_MIN_QUESTIONS}〜${CAT_MAX_QUESTIONS}` : session.questions.length;
+
+    const timerBlock = document.getElementById('timer-block');
+    const scoreBlock = document.getElementById('score-block');
+    const accuracyBlock = document.getElementById('accuracy-block');
+    if (session.mode === 'cat') {
+      timerBlock.classList.remove('hidden');
+      const remainingSeconds = Math.max(0, CAT_EXAM_SECONDS - (data.elapsedSeconds || 0));
+      startTimer(remainingSeconds);
+      if (session.settings?.showScore) scoreBlock.classList.remove('hidden');
+      else scoreBlock.classList.add('hidden');
+    } else {
+      timerBlock.classList.add('hidden');
+      scoreBlock.classList.add('hidden');
+    }
+    if (session.settings?.showAccuracy !== false) accuracyBlock.classList.remove('hidden');
+    else accuracyBlock.classList.add('hidden');
+
+    const abortMsg =
+      session.mode === 'cat' ? '試験を中断して結果を見ますか？' :
+      session.mode === 'terms' ? '用語テストを中断して結果を見ますか？' :
+      '練習を中断して結果を見ますか？';
+    setupAbortButtons(abortMsg);
+    renderDomainMiniList();
+    renderNextQuestion();
+    return true;
+  } catch (e) {
+    clearSessionStorage();
+    return false;
+  }
+}
+
 // ===== CAT試験開始 =====
 function startCatExam(settings = { showScore: true, showHints: true, showExplanation: true }) {
   const pool = buildCatPool();
@@ -709,6 +817,7 @@ function renderNextQuestion() {
   const diffLabels = { 1: 'Easy', 2: 'Medium', 3: 'Hard' };
   diffBadge.textContent = diffLabels[q.difficulty];
   diffBadge.className = `q-difficulty-badge ${['', 'easy', 'medium', 'hard'][q.difficulty]}`;
+  diffBadge.style.display = session.mode === 'terms' ? 'none' : '';
 
   // 進捗バー
   const maxQ = session.mode === 'cat' ? CAT_MAX_QUESTIONS : session.questions.length;
@@ -765,6 +874,7 @@ function renderNextQuestion() {
   if (session.mode === 'cat' && settings.showScore) updateScoreDisplay();
 
   renderDomainMiniList();
+  saveSessionToStorage();
 }
 
 function selectAnswer(selectedIndex) {
@@ -898,6 +1008,7 @@ function renderReviewQuestion() {
   const diffLabels = { 1: 'Easy', 2: 'Medium', 3: 'Hard' };
   diffBadge.textContent = diffLabels[q.difficulty];
   diffBadge.className = `q-difficulty-badge ${['', 'easy', 'medium', 'hard'][q.difficulty]}`;
+  diffBadge.style.display = session.mode === 'terms' ? 'none' : '';
 
   // 選択肢（読み取り専用・正誤表示）
   const optionsList = document.getElementById('options-list');
@@ -1014,6 +1125,7 @@ function finishSession(reason) {
 }
 
 function showResultScreen(reason) {
+  clearSessionStorage();
   showScreen('result');
 
   const total = session.answered.length;
@@ -1076,11 +1188,12 @@ function showResultScreen(reason) {
   // ボタン
   document.getElementById('btn-retry').onclick = () => {
     if (session.mode === 'cat') startCatExam();
-    else if (session.mode === 'terms') { session = null; renderStats(); showScreen('home'); }
+    else if (session.mode === 'terms') { session = null; clearSessionStorage(); renderStats(); showScreen('home'); }
     else location.reload();
   };
   document.getElementById('btn-home').onclick = () => {
     session = null;
+    clearSessionStorage();
     renderStats();
     showScreen('home');
   };
@@ -1148,7 +1261,7 @@ function renderReview() {
       <div class="review-item-header">
         <span>Q${idx + 1}</span>
         <span style="color:${DOMAIN_COLORS[q.domainIndex]}">D${q.domainIndex + 1}: ${q.domainName}</span>
-        <span class="q-difficulty-badge ${['','easy','medium','hard'][q.difficulty]}">${['','Easy','Medium','Hard'][q.difficulty]}</span>
+        ${session.mode !== 'terms' ? `<span class="q-difficulty-badge ${['','easy','medium','hard'][q.difficulty]}">${['','Easy','Medium','Hard'][q.difficulty]}</span>` : ''}
       </div>
       <div class="review-item-q">${q.question}</div>
       <div class="review-item-answer">あなたの回答: ${q.options[a.selectedIndex]}</div>
