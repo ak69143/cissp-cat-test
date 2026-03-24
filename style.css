@@ -815,9 +815,9 @@ body.mode-practice #domain-mini-block { display: none !important; }
 .dr-pct { font-weight: 600; font-size: 13px; }
 
 .result-actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
-  justify-content: center;
   margin-bottom: 32px;
 }
 
