@@ -43,6 +43,27 @@ let termsDomainMeta = [];
 
 let session = null; // 現在のセッション
 
+// ===== BRUTAL MODE（コナミコマンド）=====
+let brutalMode = false;
+const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+let konamiIdx = 0;
+document.addEventListener('keydown', e => {
+  if (document.getElementById('screen-home') && !document.getElementById('screen-home').classList.contains('active')) {
+    konamiIdx = 0;
+    return;
+  }
+  if (e.key === KONAMI[konamiIdx]) {
+    konamiIdx++;
+    if (konamiIdx === KONAMI.length) {
+      konamiIdx = 0;
+      brutalMode = !brutalMode;
+      document.body.classList.toggle('brutal-mode', brutalMode);
+    }
+  } else {
+    konamiIdx = 0;
+  }
+});
+
 // ===== 初期化 =====
 async function init() {
   showLoading(true);
@@ -792,6 +813,14 @@ function selectAnswer(selectedIndex) {
   // 統計保存
   saveAnswerToStats(q.domainIndex, isCorrect, session.mode);
 
+  // BRUTAL MODE: 不正解で即終了
+  if (session.isExamMode && brutalMode && !isCorrect) {
+    session.finished = true;
+    session.endTime = Date.now();
+    setTimeout(() => showResultScreen('brutal'), 600);
+    return;
+  }
+
   // スコア・正答率更新
   const s = session.settings || { showScore: true, showAccuracy: true };
   if (session.mode === 'cat' && s.showScore) updateScoreDisplay();
@@ -995,7 +1024,10 @@ function showResultScreen(reason) {
 
   // 合否判定
   let verdict, headerClass;
-  if (reason === 'timeout') {
+  if (reason === 'brutal') {
+    verdict = 'FAIL — BRUTAL';
+    headerClass = 'fail';
+  } else if (reason === 'timeout') {
     verdict = '時間切れ';
     headerClass = 'incomplete';
   } else if (session.mode === 'practice') {

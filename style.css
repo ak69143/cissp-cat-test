@@ -1385,3 +1385,21 @@ body.mode-practice #domain-mini-block { display: none !important; }
   /* 用語テスト時はドメインバッジを非表示（スマホのみ） */
   body.mode-terms .q-domain-badge { display: none; }
 }
+
+/* ===== BRUTAL MODE ===== */
+.brutal-badge {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #dc2626;
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  z-index: 9999;
+  display: none;
+  pointer-events: none;
+}
+body.brutal-mode .brutal-badge { display: block; }
