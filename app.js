@@ -429,9 +429,6 @@ function showAbortModal(message) {
 function setupAbortButtons(message) {
   const handler = () => showAbortModal(message);
   document.getElementById('btn-abort').onclick = handler;
-  const inlineBtn = document.getElementById('btn-abort-inline');
-  inlineBtn.onclick = handler;
-  inlineBtn.classList.remove('hidden');
 }
 
 function applyPreset(preset) {
@@ -976,6 +973,7 @@ function updateAccuracyDisplay() {
 
 function renderDomainMiniList() {
   const list = document.getElementById('domain-mini-list');
+  if (!list) return;
   list.innerHTML = '';
   domainMeta.forEach((d, i) => {
     const count = session.domainCounts[i];
