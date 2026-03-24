@@ -428,7 +428,8 @@ function showAbortModal(message) {
 
 function setupAbortButtons(message) {
   const handler = () => showAbortModal(message);
-  document.getElementById('btn-abort').onclick = handler;
+  const btn = document.getElementById('btn-abort');
+  if (btn) btn.onclick = handler;
 }
 
 function applyPreset(preset) {
@@ -919,6 +920,9 @@ function selectAnswer(selectedIndex) {
 
   // 統計保存
   saveAnswerToStats(q.domainIndex, isCorrect, session.mode);
+
+  // 回答直後にも保存（リロード対策）
+  saveSessionToStorage();
 
   // BRUTAL MODE: 不正解で即終了
   if (session.isExamMode && brutalMode && !isCorrect) {
