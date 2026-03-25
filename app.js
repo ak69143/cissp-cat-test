@@ -482,6 +482,7 @@ function createSession(mode, questionPool) {
     finished: false,
     reviewing: false,  // レビューモード中かどうか
     reviewIndex: 0,    // レビュー中の問題インデックス
+    optionShuffleMap: new Map(),  // q.id → { shuffledOptions, shuffledAnswer }
   };
 }
 
@@ -509,6 +510,7 @@ function saveSessionToStorage() {
       elapsedSeconds: elapsed,
       settings: session.settings,
       isExamMode: session.isExamMode || false,
+      optionShuffles: Object.fromEntries(session.optionShuffleMap),
     };
     localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(data));
   } catch (e) { /* localStorage 使用不可の場合は無視 */ }
@@ -549,6 +551,7 @@ function restoreSessionFromStorage() {
       reviewIndex: 0,
       settings: data.settings,
       isExamMode: data.isExamMode ?? false,
+      optionShuffleMap: new Map(Object.entries(data.optionShuffles || {})),
     };
 
     // UI復元
@@ -824,10 +827,11 @@ function renderNextQuestion() {
   // 選択肢
   const optionsList = document.getElementById('options-list');
   optionsList.innerHTML = '';
-  q.options.forEach((opt, i) => {
+  const { shuffledOptions } = shuffleOptionsForQuestion(q);
+  shuffledOptions.forEach((opt, i) => {
     const btn = document.createElement('button');
     btn.className = 'option-btn';
-    btn.innerHTML = `<span class="option-label">${opt.charAt(0)}</span><span>${opt.slice(3)}</span>`;
+    btn.innerHTML = `<span class="option-label">${'ABCD'[i]}</span><span>${opt.slice(3)}</span>`;
     btn.addEventListener('click', () => selectAnswer(i));
     optionsList.appendChild(btn);
   });
@@ -879,14 +883,15 @@ function selectAnswer(selectedIndex) {
   if (session.finished) return;
   const q = session.currentQuestion;
   document.getElementById('btn-back').disabled = true;
-  const isCorrect = selectedIndex === q.answer;
+  const { shuffledAnswer } = shuffleOptionsForQuestion(q);
+  const isCorrect = selectedIndex === shuffledAnswer;
 
   // ボタンを無効化
   const buttons = document.querySelectorAll('.option-btn');
   buttons.forEach((btn, i) => {
     btn.disabled = true;
     if (!session.isExamMode) {
-      if (i === q.answer) btn.classList.add('correct');
+      if (i === shuffledAnswer) btn.classList.add('correct');
       if (i === selectedIndex && !isCorrect) btn.classList.add('incorrect');
     } else {
       // 本番モード：正誤は表示しないが選択肢はハイライト
@@ -1015,13 +1020,14 @@ function renderReviewQuestion() {
   // 選択肢（読み取り専用・正誤表示）
   const optionsList = document.getElementById('options-list');
   optionsList.innerHTML = '';
-  q.options.forEach((opt, i) => {
+  const { shuffledOptions: revOpts, shuffledAnswer: revAns } = shuffleOptionsForQuestion(q);
+  revOpts.forEach((opt, i) => {
     const btn = document.createElement('button');
     btn.className = 'option-btn';
     btn.disabled = true;
-    if (i === q.answer) btn.classList.add('correct');
+    if (i === revAns) btn.classList.add('correct');
     if (i === record.selectedIndex && !record.isCorrect) btn.classList.add('incorrect');
-    btn.innerHTML = `<span class="option-label">${opt.charAt(0)}</span><span>${opt.slice(3)}</span>`;
+    btn.innerHTML = `<span class="option-label">${'ABCD'[i]}</span><span>${opt.slice(3)}</span>`;
     optionsList.appendChild(btn);
   });
 
@@ -1257,6 +1263,7 @@ function renderReview() {
 
   wrong.forEach((a, idx) => {
     const q = a.question;
+    const { shuffledOptions: rvOpts, shuffledAnswer: rvAns } = shuffleOptionsForQuestion(q);
     const item = document.createElement('div');
     item.className = 'review-item';
     item.innerHTML = `
@@ -1266,8 +1273,8 @@ function renderReview() {
         ${session.mode !== 'terms' ? `<span class="q-difficulty-badge ${['','easy','medium','hard'][q.difficulty]}">${['','Easy','Medium','Hard'][q.difficulty]}</span>` : ''}
       </div>
       <div class="review-item-q">${q.question}</div>
-      <div class="review-item-answer">あなたの回答: ${q.options[a.selectedIndex]}</div>
-      <div class="review-item-correct">正解: ${q.options[q.answer]}</div>
+      <div class="review-item-answer">あなたの回答: ${rvOpts[a.selectedIndex]}</div>
+      <div class="review-item-correct">正解: ${rvOpts[rvAns]}</div>
       <div class="review-item-exp">${q.explanation}</div>
     `;
     list.appendChild(item);
@@ -1469,6 +1476,22 @@ function shuffle(arr) {
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr;
+}
+
+function shuffleOptionsForQuestion(q) {
+  if (session.optionShuffleMap.has(q.id)) {
+    return session.optionShuffleMap.get(q.id);
+  }
+  const indices = q.options.map((_, i) => i);
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  const shuffledOptions = indices.map(i => q.options[i]);
+  const shuffledAnswer = indices.indexOf(q.answer);
+  const result = { shuffledOptions, shuffledAnswer };
+  session.optionShuffleMap.set(q.id, result);
+  return result;
 }
 
 function formatTime(seconds) {
