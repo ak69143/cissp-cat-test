@@ -12,6 +12,13 @@
   <!-- ホーム画面 -->
   <div id="screen-home" class="screen active">
     <div class="home-container">
+      <!-- 一時中断からの再開バナー -->
+      <div id="resume-banner" class="resume-banner hidden">
+        <span id="resume-banner-text">前回の続きがあります</span>
+        <button id="btn-resume-discard" class="btn-resume-discard">破棄する</button>
+        <button id="btn-resume" class="btn-resume">再開する →</button>
+      </div>
+
       <div class="ai-disclaimer">
         ⚠️ この問題集はAI（Claude Code）によって自動生成されています。内容に誤りが含まれる可能性があります。学習の参考としてご利用ください。正確な情報はISC²の公式資料をご確認ください。
       </div>
@@ -331,7 +338,8 @@
       <p id="abort-modal-message" class="abort-modal-message">試験を中断して結果を見ますか？</p>
       <div class="modal-actions">
         <button id="abort-cancel" class="btn-secondary">続ける</button>
-        <button id="abort-confirm" class="btn-danger">中断する</button>
+        <button id="abort-pause" class="btn-outline">一時中断（ホームへ）</button>
+        <button id="abort-confirm" class="btn-danger">終了（結果を見る）</button>
       </div>
     </div>
   </div>

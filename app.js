@@ -83,6 +83,7 @@ async function init() {
   showLoading(false);
   if (!restoreSessionFromStorage()) {
     showScreen('home');
+    renderResumeBanner();
   }
 }
 
@@ -389,8 +390,21 @@ function bindModalEvents() {
     const cb = closeConfirmModal();
     if (cb) cb();
   });
+  document.getElementById('abort-pause').addEventListener('click', () => {
+    closeConfirmModal();
+    pauseSession();
+  });
   document.getElementById('abort-modal-overlay').addEventListener('click', e => {
     if (e.target === document.getElementById('abort-modal-overlay')) closeConfirmModal();
+  });
+
+  // 再開バナー
+  document.getElementById('btn-resume').addEventListener('click', () => {
+    restoreSessionFromStorage();
+  });
+  document.getElementById('btn-resume-discard').addEventListener('click', () => {
+    clearSessionStorage();
+    renderResumeBanner();
   });
 
   // 履歴詳細モーダル
@@ -405,7 +419,7 @@ function bindModalEvents() {
 
 let _confirmCallback = null;
 
-function showConfirmModal(message, onConfirm, { confirmText = '中断する', cancelText = '続ける', title = '中断しますか？' } = {}) {
+function showConfirmModal(message, onConfirm, { confirmText = '終了（結果を見る）', cancelText = '続ける', title = '中断しますか？' } = {}) {
   _confirmCallback = onConfirm;
   document.getElementById('abort-modal-title').textContent = title;
   document.getElementById('abort-modal-message').textContent = message;
@@ -424,6 +438,32 @@ function closeConfirmModal() {
 // 後方互換
 function showAbortModal(message) {
   showConfirmModal(message, () => finishSession('abort'));
+}
+
+function pauseSession() {
+  saveSessionToStorage();
+  stopTimer();
+  session = null;
+  document.body.classList.remove('mode-exam', 'mode-practice', 'mode-terms');
+  showScreen('home');
+  renderResumeBanner();
+}
+
+function renderResumeBanner() {
+  const banner = document.getElementById('resume-banner');
+  try {
+    const raw = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (!raw) { banner.classList.add('hidden'); return; }
+    const data = JSON.parse(raw);
+    const modeLabel = data.modeLabel || 'セッション';
+    const answered = (data.answered || []).length;
+    const total = (data.questionIds || []).length;
+    document.getElementById('resume-banner-text').textContent =
+      `${modeLabel} — ${answered} / ${total} 問回答済み`;
+    banner.classList.remove('hidden');
+  } catch (e) {
+    banner.classList.add('hidden');
+  }
 }
 
 function setupAbortButtons(message) {
