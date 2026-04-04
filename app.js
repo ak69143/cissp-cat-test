@@ -419,12 +419,13 @@ function bindModalEvents() {
 
 let _confirmCallback = null;
 
-function showConfirmModal(message, onConfirm, { confirmText = '終了（結果を見る）', cancelText = '続ける', title = '中断しますか？' } = {}) {
+function showConfirmModal(message, onConfirm, { confirmText = '終了（結果を見る）', cancelText = '続ける', title = '中断しますか？', showPause = false } = {}) {
   _confirmCallback = onConfirm;
   document.getElementById('abort-modal-title').textContent = title;
   document.getElementById('abort-modal-message').textContent = message;
   document.getElementById('abort-confirm').textContent = confirmText;
   document.getElementById('abort-cancel').textContent = cancelText;
+  document.getElementById('abort-pause').classList.toggle('hidden', !showPause);
   document.getElementById('abort-modal-overlay').classList.remove('hidden');
 }
 
@@ -437,7 +438,7 @@ function closeConfirmModal() {
 
 // 後方互換
 function showAbortModal(message) {
-  showConfirmModal(message, () => finishSession('abort'));
+  showConfirmModal(message, () => finishSession('abort'), { showPause: true });
 }
 
 function pauseSession() {
