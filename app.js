@@ -81,10 +81,8 @@ async function init() {
     return;
   }
   showLoading(false);
-  if (!restoreSessionFromStorage()) {
-    showScreen('home');
-    renderResumeBanner();
-  }
+  showScreen('home');
+  renderResumeBanner();
 }
 
 // ===== 問題読み込み =====
@@ -1578,4 +1576,11 @@ function initTheme() {
 }
 
 // ===== 起動 =====
+window.addEventListener('pagehide', () => {
+  if (session) {
+    saveSessionToStorage();
+    session = null;
+  }
+});
+
 document.addEventListener('DOMContentLoaded', () => { initTheme(); init(); });
