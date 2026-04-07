@@ -28,6 +28,8 @@ const DOMAIN_COLORS = [
   '#1abc9c', '#e74c3c', '#3498db', '#f39c12',
 ];
 
+const FEEDBACK_STORAGE_KEY = 'cissp_feedback';
+
 const CAT_MIN_QUESTIONS = 100;
 const CAT_MAX_QUESTIONS = 150;
 const CAT_EXAM_SECONDS = 3 * 60 * 60; // 3時間
@@ -913,6 +915,10 @@ function renderNextQuestion() {
   // スコア更新
   if (session.mode === 'cat' && settings.showScore) updateScoreDisplay();
 
+  // 改善要望ボタン（CAT試験モード中は非表示）
+  const btnFeedback = document.getElementById('btn-feedback');
+  if (btnFeedback) btnFeedback.classList.toggle('hidden', isExamMode);
+
   renderDomainMiniList();
   saveSessionToStorage();
 }
@@ -1575,6 +1581,106 @@ function initTheme() {
   });
 }
 
+// ===== 改善要望 =====
+function openFeedbackModal() {
+  const q = session && session.currentQuestion;
+  const meta = document.getElementById('feedback-question-meta');
+  if (meta) {
+    meta.textContent = q ? `[${q.id}] ${q.question.slice(0, 40)}…` : '';
+  }
+  document.querySelectorAll('input[name="fb-category"]').forEach(r => r.checked = false);
+  document.getElementById('feedback-comment').value = '';
+  document.getElementById('feedback-category-error').classList.add('hidden');
+  document.getElementById('feedback-modal-overlay').classList.remove('hidden');
+}
+
+function closeFeedbackModal() {
+  document.getElementById('feedback-modal-overlay').classList.add('hidden');
+}
+
+function submitFeedback() {
+  const category = document.querySelector('input[name="fb-category"]:checked');
+  if (!category) {
+    document.getElementById('feedback-category-error').classList.remove('hidden');
+    return;
+  }
+  document.getElementById('feedback-category-error').classList.add('hidden');
+
+  const q = session && session.currentQuestion;
+  const entry = {
+    id: 'fb_' + Date.now(),
+    questionId: q ? q.id : '(不明)',
+    questionText: q ? q.question.slice(0, 50) : '',
+    category: category.value,
+    comment: document.getElementById('feedback-comment').value.trim(),
+    timestamp: new Date().toISOString(),
+    mode: session ? session.mode : '',
+  };
+
+  const existing = JSON.parse(localStorage.getItem(FEEDBACK_STORAGE_KEY) || '[]');
+  existing.push(entry);
+  localStorage.setItem(FEEDBACK_STORAGE_KEY, JSON.stringify(existing));
+
+  closeFeedbackModal();
+  showToast('送信しました');
+}
+
+function showToast(msg) {
+  let toast = document.getElementById('feedback-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'feedback-toast';
+    toast.className = 'feedback-toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.classList.add('visible');
+  setTimeout(() => toast.classList.remove('visible'), 1800);
+}
+
+// ===== 管理ページ =====
+function renderAdminFeedback() {
+  const list = document.getElementById('admin-feedback-list');
+  const data = JSON.parse(localStorage.getItem(FEEDBACK_STORAGE_KEY) || '[]');
+
+  if (data.length === 0) {
+    list.innerHTML = '<div class="admin-empty">要望はまだありません</div>';
+    return;
+  }
+
+  const rows = [...data].reverse().map(entry => {
+    const dt = new Date(entry.timestamp).toLocaleString('ja-JP', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+    return `<div class="admin-entry" data-id="${entry.id}">
+      <div class="admin-entry-header">
+        <span class="admin-entry-time">${dt}</span>
+        <span class="admin-entry-qid">${entry.questionId}</span>
+        <span class="admin-entry-category">${entry.category}</span>
+        <button class="admin-entry-delete btn-danger" data-id="${entry.id}">削除</button>
+      </div>
+      ${entry.questionText ? `<div class="admin-entry-qtext">${entry.questionText}</div>` : ''}
+      ${entry.comment ? `<div class="admin-entry-comment">${entry.comment}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  list.innerHTML = rows;
+
+  list.querySelectorAll('.admin-entry-delete').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      const updated = JSON.parse(localStorage.getItem(FEEDBACK_STORAGE_KEY) || '[]').filter(e => e.id !== id);
+      localStorage.setItem(FEEDBACK_STORAGE_KEY, JSON.stringify(updated));
+      renderAdminFeedback();
+    });
+  });
+}
+
+function handleHashNavigation() {
+  if (location.hash === '#admin') {
+    showScreen('admin');
+    renderAdminFeedback();
+  }
+}
+
 // ===== 起動 =====
 window.addEventListener('pagehide', () => {
   if (session) {
@@ -1583,4 +1689,31 @@ window.addEventListener('pagehide', () => {
   }
 });
 
-document.addEventListener('DOMContentLoaded', () => { initTheme(); init(); });
+document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
+  init();
+
+  // 改善要望モーダル
+  document.getElementById('btn-feedback').addEventListener('click', openFeedbackModal);
+  document.getElementById('feedback-cancel').addEventListener('click', closeFeedbackModal);
+  document.getElementById('feedback-submit').addEventListener('click', submitFeedback);
+  document.getElementById('feedback-modal-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('feedback-modal-overlay')) closeFeedbackModal();
+  });
+
+  // 管理ページ
+  document.getElementById('admin-home').addEventListener('click', () => {
+    location.hash = '';
+    showScreen('home');
+  });
+  document.getElementById('admin-clear-all').addEventListener('click', () => {
+    if (confirm('全件削除します。よろしいですか？')) {
+      localStorage.removeItem(FEEDBACK_STORAGE_KEY);
+      renderAdminFeedback();
+    }
+  });
+
+  // ハッシュルーティング
+  window.addEventListener('hashchange', handleHashNavigation);
+  handleHashNavigation();
+});
