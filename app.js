@@ -1601,6 +1601,8 @@ function closeFeedbackModal() {
   document.getElementById('feedback-modal-overlay').classList.add('hidden');
 }
 
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyHCazIuqcojAJ2ZkkD7tCVY7mTVh8XnzasVqWjnY0Hs-aaA9t0r7n2Dg23ctRXou4akQ/exec';
+
 function submitFeedback() {
   const category = document.querySelector('input[name="fb-category"]:checked');
   if (!category) {
@@ -1623,6 +1625,11 @@ function submitFeedback() {
   const existing = JSON.parse(localStorage.getItem(FEEDBACK_STORAGE_KEY) || '[]');
   existing.push(entry);
   localStorage.setItem(FEEDBACK_STORAGE_KEY, JSON.stringify(existing));
+
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    body: JSON.stringify(entry),
+  }).catch(() => {});
 
   closeFeedbackModal();
   showToast('送信しました');
