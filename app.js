@@ -83,8 +83,11 @@ async function init() {
     return;
   }
   showLoading(false);
-  showScreen('home');
-  renderResumeBanner();
+  handleHashNavigation();
+  if (location.hash !== '#admin') {
+    showScreen('home');
+    renderResumeBanner();
+  }
 }
 
 // ===== 問題読み込み =====
