@@ -1004,6 +1004,24 @@ body.mode-practice #domain-mini-block { display: none !important; }
 
 /* 中断確認モーダル */
 .abort-modal-box { max-width: 400px; }
+.abort-modal-box .modal-actions {
+  flex-wrap: wrap;
+}
+.abort-modal-box .modal-actions button {
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 480px) {
+  .abort-modal-box .modal-actions {
+    flex-direction: column;
+  }
+  .abort-modal-box .modal-actions button {
+    width: 100%;
+    flex: none;
+  }
+}
 .abort-modal-message {
   color: var(--text-secondary);
   margin-bottom: 20px;
