@@ -1674,6 +1674,34 @@ function renderAdminFeedback() {
   });
 }
 
+function exportFeedbackCSV() {
+  const data = JSON.parse(localStorage.getItem(FEEDBACK_STORAGE_KEY) || '[]');
+  if (data.length === 0) {
+    showToast('エクスポートするデータがありません');
+    return;
+  }
+
+  const headers = ['日時', '問題ID', '問題文(先頭50字)', 'カテゴリ', 'コメント', 'モード'];
+  const escapeCSV = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+  const rows = data.map(e => [
+    new Date(e.timestamp).toLocaleString('ja-JP'),
+    e.questionId,
+    e.questionText,
+    e.category,
+    e.comment,
+    e.mode,
+  ].map(escapeCSV).join(','));
+
+  const csv = '\uFEFF' + [headers.join(','), ...rows].join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `cissp_feedback_${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 function handleHashNavigation() {
   if (location.hash === '#admin') {
     showScreen('admin');
@@ -1706,6 +1734,7 @@ document.addEventListener('DOMContentLoaded', () => {
     location.hash = '';
     showScreen('home');
   });
+  document.getElementById('admin-export-csv').addEventListener('click', exportFeedbackCSV);
   document.getElementById('admin-clear-all').addEventListener('click', () => {
     if (confirm('全件削除します。よろしいですか？')) {
       localStorage.removeItem(FEEDBACK_STORAGE_KEY);
