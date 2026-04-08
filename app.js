@@ -845,7 +845,7 @@ function renderNextQuestion() {
   }
 
   session.currentQuestion = q;
-  const qNum = session.answered.length + 1;
+  const qNum = session.mode === 'terms' ? session.currentIndex + 1 : session.answered.length + 1;
 
   // UI更新
   document.getElementById('q-num').textContent = qNum;
@@ -931,7 +931,8 @@ function renderNextQuestion() {
                      s2.showExplanation === false && s2.showAccuracy === false;
   if (isExamMode) {
     btnBack.classList.add('hidden');
-  } else {
+  } else if (session.mode !== 'terms') {
+    // termsモードは上のブロックで設定済みなので上書きしない
     btnBack.classList.remove('hidden');
     btnBack.disabled = session.answered.length === 0;
     btnBack.onclick = () => {
@@ -1134,7 +1135,7 @@ function renderReviewQuestion() {
     btnNext.textContent = '次の問題を確認 →';
     btnNext.onclick = () => { session.reviewIndex++; renderReviewQuestion(); };
   } else {
-    btnNext.textContent = '現在の問題へ →';
+    btnNext.textContent = '次の問題へ →';
     btnNext.onclick = () => { session.reviewing = false; renderNextQuestion(); };
   }
 }
