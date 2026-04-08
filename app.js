@@ -888,7 +888,14 @@ function renderNextQuestion() {
   const btnSkip = document.getElementById('btn-skip');
   if (session.mode === 'terms') {
     btnSkip.classList.remove('hidden');
-    btnSkip.onclick = () => renderNextQuestion();
+    btnSkip.onclick = () => {
+      session.currentIndex++;
+      if (session.currentIndex >= session.questions.length) {
+        finishSession('all_done');
+        return;
+      }
+      renderNextQuestion();
+    };
   } else {
     btnSkip.classList.add('hidden');
   }
