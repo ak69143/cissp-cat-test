@@ -884,11 +884,17 @@ function renderNextQuestion() {
   document.getElementById('btn-next').classList.add('hidden');
   document.getElementById('btn-finish').classList.add('hidden');
 
-  // スキップボタン（用語テストのみ）
-  const btnSkip = document.getElementById('btn-skip');
+  // スキップボタン非表示
+  document.getElementById('btn-skip').classList.add('hidden');
+
+  // 用語テスト：前後ボタンをindexベースで制御
   if (session.mode === 'terms') {
-    btnSkip.classList.remove('hidden');
-    btnSkip.onclick = () => {
+    const btnNext = document.getElementById('btn-next');
+    const btnBack = document.getElementById('btn-back');
+    btnNext.classList.remove('hidden');
+    btnNext.disabled = false;
+    btnNext.textContent = '次の問題へ →';
+    btnNext.onclick = () => {
       session.currentIndex++;
       if (session.currentIndex >= session.questions.length) {
         finishSession('all_done');
@@ -896,8 +902,12 @@ function renderNextQuestion() {
       }
       renderNextQuestion();
     };
-  } else {
-    btnSkip.classList.add('hidden');
+    btnBack.classList.remove('hidden');
+    btnBack.disabled = session.currentIndex === 0;
+    btnBack.onclick = () => {
+      session.currentIndex--;
+      renderNextQuestion();
+    };
   }
 
   // ヒントボタン制御
