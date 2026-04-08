@@ -884,6 +884,15 @@ function renderNextQuestion() {
   document.getElementById('btn-next').classList.add('hidden');
   document.getElementById('btn-finish').classList.add('hidden');
 
+  // スキップボタン（用語テストのみ）
+  const btnSkip = document.getElementById('btn-skip');
+  if (session.mode === 'terms') {
+    btnSkip.classList.remove('hidden');
+    btnSkip.onclick = () => renderNextQuestion();
+  } else {
+    btnSkip.classList.add('hidden');
+  }
+
   // ヒントボタン制御
   const settings = session.settings || { showHints: true, showExplanation: true };
   const btnHint = document.getElementById('btn-hint');
