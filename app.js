@@ -949,6 +949,23 @@ function renderNextQuestion() {
   const btnFeedback = document.getElementById('btn-feedback');
   if (btnFeedback) btnFeedback.classList.toggle('hidden', isExamMode);
 
+  // 用語テスト：既回答済みの場合は回答済み状態で上書き表示
+  if (session.mode === 'terms' && session.currentIndex < session.answered.length) {
+    const record = session.answered[session.currentIndex];
+    const { shuffledAnswer: revAns } = shuffleOptionsForQuestion(q);
+    document.querySelectorAll('.option-btn').forEach((btn, i) => {
+      btn.disabled = true;
+      if (i === revAns) btn.classList.add('correct');
+      if (i === record.selectedIndex && !record.isCorrect) btn.classList.add('incorrect');
+    });
+    document.getElementById('explanation-box').classList.remove('hidden');
+    const expResult = document.getElementById('explanation-result');
+    expResult.textContent = record.isCorrect ? '✓ 正解！' : '✗ 不正解';
+    expResult.className = `explanation-result ${record.isCorrect ? 'correct' : 'incorrect'}`;
+    document.getElementById('explanation-text').textContent = q.explanation;
+    document.getElementById('btn-hint').classList.add('hidden');
+  }
+
   renderDomainMiniList();
   saveSessionToStorage();
 }
@@ -993,6 +1010,24 @@ function selectAnswer(selectedIndex) {
   session.answered.push({ question: q, selectedIndex, isCorrect });
   session.domainCounts[q.domainIndex]++;
   if (session.mode !== 'cat') session.currentIndex++;
+
+  // 回答後の戻るボタン更新
+  const sPost = session.settings || {};
+  const isExamModePost = sPost.showScore === false && sPost.showHints === false &&
+                         sPost.showExplanation === false && sPost.showAccuracy === false;
+  if (!isExamModePost) {
+    const btnBackPost = document.getElementById('btn-back');
+    if (session.mode === 'terms') {
+      // currentIndexはN+1。戻るとN-1に行くべきなのでonclickも更新
+      btnBackPost.disabled = session.currentIndex < 2;
+      btnBackPost.onclick = () => {
+        session.currentIndex -= 2;
+        renderNextQuestion();
+      };
+    } else {
+      btnBackPost.disabled = false;
+    }
+  }
 
   // theta更新
   updateTheta(isCorrect, q.difficulty);
