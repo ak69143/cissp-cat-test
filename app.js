@@ -103,13 +103,6 @@ document.addEventListener('keydown', e => {
       // 選択肢を回答
       clearKeyboardFocus();
       selectAnswer(keyboardSelectedIndex);
-    } else if (isAnswered) {
-      // 次の問題へ or 終了
-      if (btnNext && !btnNext.classList.contains('hidden')) {
-        btnNext.click();
-      } else if (btnFinish && !btnFinish.classList.contains('hidden')) {
-        btnFinish.click();
-      }
     }
 
   } else if (e.key === 'ArrowRight') {
