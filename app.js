@@ -75,7 +75,7 @@ function clearKeyboardFocus() {
 }
 
 document.addEventListener('keydown', e => {
-  const quizScreen = document.getElementById('screen-quiz');
+  const quizScreen = document.getElementById('screen-question');
   if (!quizScreen || !quizScreen.classList.contains('active')) return;
   if (!session || session.finished) return;
 
