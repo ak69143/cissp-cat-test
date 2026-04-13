@@ -309,6 +309,36 @@ select {
   cursor: pointer;
 }
 
+/* キーボード操作ガイド */
+.keyboard-guide {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.keyboard-guide-title {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-right: 4px;
+}
+.keyboard-guide kbd {
+  display: inline-block;
+  padding: 2px 7px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: monospace;
+  color: var(--text-primary);
+  box-shadow: 0 1px 0 var(--border);
+}
+
 /* 成績セクション */
 .stats-section {
   background: var(--bg-card);
