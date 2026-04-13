@@ -95,12 +95,18 @@ document.addEventListener('keydown', e => {
     e.preventDefault();
     clearKeyboardFocus();
     keyboardSelectedIndex = idx;
-    optionBtns[idx].classList.add('keyboard-focus');
+    if (session && session.isExamMode) {
+      preSelectOption(idx);
+    } else {
+      optionBtns[idx].classList.add('keyboard-focus');
+    }
 
   } else if (e.key === ' ' || e.key === 'Enter') {
     e.preventDefault();
-    if (!isAnswered && keyboardSelectedIndex !== null) {
-      // 選択肢を回答
+    if (session && session.isExamMode && session.pendingSelection !== null && session.pendingSelection !== undefined) {
+      commitAndNavigate();
+    } else if (!isAnswered && keyboardSelectedIndex !== null) {
+      // 選択肢を回答（非本番モード）
       clearKeyboardFocus();
       selectAnswer(keyboardSelectedIndex);
     }
@@ -581,6 +587,7 @@ function createSession(mode, questionPool) {
     reviewing: false,  // レビューモード中かどうか
     reviewIndex: 0,    // レビュー中の問題インデックス
     optionShuffleMap: new Map(),  // q.id → { shuffledOptions, shuffledAnswer }
+    pendingSelection: null,       // 本番モード：確定前の選択インデックス
   };
 }
 
@@ -650,6 +657,7 @@ function restoreSessionFromStorage() {
       settings: data.settings,
       isExamMode: data.isExamMode ?? false,
       optionShuffleMap: new Map(Object.entries(data.optionShuffles || {})),
+      pendingSelection: null,
     };
 
     // UI復元
@@ -931,7 +939,13 @@ function renderNextQuestion() {
     const btn = document.createElement('button');
     btn.className = 'option-btn';
     btn.innerHTML = `<span class="option-label">${'ABCD'[i]}</span><span>${opt.slice(3)}</span>`;
-    btn.addEventListener('click', () => selectAnswer(i));
+    btn.addEventListener('click', () => {
+      if (session.isExamMode) {
+        preSelectOption(i);
+      } else {
+        selectAnswer(i);
+      }
+    });
     optionsList.appendChild(btn);
   });
 
@@ -1039,6 +1053,36 @@ function renderExplanation(text, q) {
     const displayIdx = originalToDisplay[origIdx];
     return displayIdx !== undefined ? `（${labels[displayIdx]}）` : match;
   });
+}
+
+// 本番モード専用：選択肢をハイライトするだけ（確定しない）
+function preSelectOption(idx) {
+  session.pendingSelection = idx;
+  document.querySelectorAll('.option-btn').forEach((btn, i) => {
+    btn.classList.toggle('selected', i === idx);
+    btn.classList.remove('keyboard-focus');
+  });
+  keyboardSelectedIndex = idx;
+  const btnNext = document.getElementById('btn-next');
+  btnNext.classList.remove('hidden');
+  btnNext.onclick = () => commitAndNavigate();
+}
+
+// 本番モード専用：確定して次の問題へ進む
+function commitAndNavigate() {
+  if (session.pendingSelection === null || session.pendingSelection === undefined) return;
+  const sel = session.pendingSelection;
+  session.pendingSelection = null;
+  document.querySelectorAll('.option-btn').forEach(btn => { btn.disabled = true; });
+  document.getElementById('btn-next').classList.add('hidden');
+  selectAnswer(sel);
+  // selectAnswer が btn-finish か btn-next を表示する → 自動的に次へ進む
+  const btnFinish = document.getElementById('btn-finish');
+  if (btnFinish && !btnFinish.classList.contains('hidden')) {
+    btnFinish.click();
+  } else {
+    renderNextQuestion();
+  }
 }
 
 function selectAnswer(selectedIndex) {
