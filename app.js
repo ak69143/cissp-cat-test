@@ -66,6 +66,68 @@ document.addEventListener('keydown', e => {
   }
 });
 
+// ===== キーボード操作（クイズ画面）=====
+let keyboardSelectedIndex = null;
+
+function clearKeyboardFocus() {
+  keyboardSelectedIndex = null;
+  document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('keyboard-focus'));
+}
+
+document.addEventListener('keydown', e => {
+  const quizScreen = document.getElementById('screen-quiz');
+  if (!quizScreen || !quizScreen.classList.contains('active')) return;
+  if (!session || session.finished) return;
+
+  // テキスト入力中は無視
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+  const optionBtns = document.querySelectorAll('.option-btn');
+  const btnNext = document.getElementById('btn-next');
+  const btnFinish = document.getElementById('btn-finish');
+  const btnBack = document.getElementById('btn-back');
+  const isAnswered = optionBtns.length > 0 && optionBtns[0].disabled;
+
+  if (['1','2','3','4'].includes(e.key)) {
+    if (isAnswered) return;
+    const idx = parseInt(e.key) - 1;
+    if (idx >= optionBtns.length) return;
+    e.preventDefault();
+    clearKeyboardFocus();
+    keyboardSelectedIndex = idx;
+    optionBtns[idx].classList.add('keyboard-focus');
+
+  } else if (e.key === ' ' || e.key === 'Enter') {
+    e.preventDefault();
+    if (!isAnswered && keyboardSelectedIndex !== null) {
+      // 選択肢を回答
+      clearKeyboardFocus();
+      selectAnswer(keyboardSelectedIndex);
+    } else if (isAnswered) {
+      // 次の問題へ or 終了
+      if (btnNext && !btnNext.classList.contains('hidden')) {
+        btnNext.click();
+      } else if (btnFinish && !btnFinish.classList.contains('hidden')) {
+        btnFinish.click();
+      }
+    }
+
+  } else if (e.key === 'ArrowRight') {
+    e.preventDefault();
+    if (btnNext && !btnNext.classList.contains('hidden')) {
+      btnNext.click();
+    } else if (btnFinish && !btnFinish.classList.contains('hidden')) {
+      btnFinish.click();
+    }
+
+  } else if (e.key === 'ArrowLeft') {
+    e.preventDefault();
+    if (btnBack && !btnBack.classList.contains('hidden') && !btnBack.disabled) {
+      btnBack.click();
+    }
+  }
+});
+
 // ===== 初期化 =====
 async function init() {
   showLoading(true);
@@ -822,6 +884,7 @@ function canGoBack() {
 
 // ===== 問題レンダリング =====
 function renderNextQuestion() {
+  clearKeyboardFocus();
   if (session && session.reviewing) {
     renderReviewQuestion();
     return;

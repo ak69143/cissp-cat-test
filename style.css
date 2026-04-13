@@ -637,6 +637,8 @@ body.mode-practice #domain-mini-block { display: none !important; }
 .option-btn.incorrect { border-color: var(--danger) !important; background: rgba(231,76,60,0.08) !important; }
 .option-btn.correct .option-label { color: var(--success); }
 .option-btn.incorrect .option-label { color: var(--danger); }
+.option-btn.keyboard-focus { border-color: var(--accent); background: var(--bg-card-hover); outline: 2px solid var(--accent); outline-offset: 2px; }
+.option-btn.keyboard-focus .option-label { color: var(--accent); }
 
 /* 解説 */
 .explanation-box {
