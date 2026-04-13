@@ -1018,12 +1018,27 @@ function renderNextQuestion() {
     const expResult = document.getElementById('explanation-result');
     expResult.textContent = record.isCorrect ? '✓ 正解！' : '✗ 不正解';
     expResult.className = `explanation-result ${record.isCorrect ? 'correct' : 'incorrect'}`;
-    document.getElementById('explanation-text').textContent = q.explanation;
+    document.getElementById('explanation-text').textContent = renderExplanation(q.explanation, q);
     document.getElementById('btn-hint').classList.add('hidden');
   }
 
   renderDomainMiniList();
   saveSessionToStorage();
+}
+
+function renderExplanation(text, q) {
+  const { shuffledOptions } = shuffleOptionsForQuestion(q);
+  const originalToDisplay = {};
+  for (let displayPos = 0; displayPos < shuffledOptions.length; displayPos++) {
+    const originalPos = q.options.indexOf(shuffledOptions[displayPos]);
+    if (originalPos !== -1) originalToDisplay[originalPos] = displayPos;
+  }
+  const labels = 'ABCD';
+  return text.replace(/（([ABCD])）/g, (match, letter) => {
+    const origIdx = labels.indexOf(letter);
+    const displayIdx = originalToDisplay[origIdx];
+    return displayIdx !== undefined ? `（${labels[displayIdx]}）` : match;
+  });
 }
 
 function selectAnswer(selectedIndex) {
@@ -1057,7 +1072,7 @@ function selectAnswer(selectedIndex) {
     const expResult = document.getElementById('explanation-result');
     expResult.textContent = isCorrect ? '✓ 正解！' : '✗ 不正解';
     expResult.className = `explanation-result ${isCorrect ? 'correct' : 'incorrect'}`;
-    document.getElementById('explanation-text').textContent = q.explanation;
+    document.getElementById('explanation-text').textContent = renderExplanation(q.explanation, q);
   } else {
     expBox.classList.add('hidden');
   }
@@ -1201,7 +1216,7 @@ function renderReviewQuestion() {
   const expResult = document.getElementById('explanation-result');
   expResult.textContent = record.isCorrect ? '✓ 正解！' : '✗ 不正解';
   expResult.className = `explanation-result ${record.isCorrect ? 'correct' : 'incorrect'}`;
-  document.getElementById('explanation-text').textContent = q.explanation;
+  document.getElementById('explanation-text').textContent = renderExplanation(q.explanation, q);
 
   // ヒント非表示
   document.getElementById('btn-hint').classList.add('hidden');
