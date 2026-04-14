@@ -436,6 +436,34 @@
       ],
       "answer": 0,
       "explanation": "CVSS（Common Vulnerability Scoring System）はFIRSTが管理する脆弱性の深刻度評価フレームワークです。基本値（Base Score）は攻撃容易性・影響範囲などの固有特性、現状値（Temporal Score）は現時点の実情、環境値（Environmental Score）は組織固有の事情を反映します。0.0〜10.0のスコアで表され、NVD等で公開されています。"
+    },
+    {
+      "id": "t6_032",
+      "difficulty": 2,
+      "topic": "ISO/IEC 27002",
+      "question": "次の説明が示す規格はどれか？「ISO/IEC 27001 の実践規範として位置づけられる規格。情報セキュリティ管理策のベストプラクティスをカテゴリ別に列挙し、各組織が自社のリスクに応じて適切な管理策を選択・実装するための指針を提供する」",
+      "options": [
+        "A. ISO/IEC 27001",
+        "B. ISO/IEC 27002",
+        "C. NIST SP 800-53",
+        "D. PCI DSS"
+      ],
+      "answer": 1,
+      "explanation": "ISO/IEC 27002は情報セキュリティ管理策の実践規範（Code of Practice）。ISO/IEC 27001がISMS認証の要件規格であるのに対し、27002は実装のガイドライン。2022年改訂版では管理策が114項目から93項目に再編成された。NIST SP 800-53は米国連邦政府向けのセキュリティ・プライバシー管理策カタログ。PCI DSSは決済カード業界のセキュリティ標準。"
+    },
+    {
+      "id": "t6_033",
+      "difficulty": 2,
+      "topic": "NIST SP 800-171",
+      "question": "次の説明が示す文書はどれか？「米国連邦政府の非機密管理情報（CUI）を扱う非連邦組織・請負業者に対して適用されるセキュリティ要件を定めた NIST の文書。DoD 調達要件や CMMC の基盤としても参照される」",
+      "options": [
+        "A. NIST SP 800-53",
+        "B. NIST SP 800-137",
+        "C. NIST SP 800-171",
+        "D. FIPS 140-2"
+      ],
+      "answer": 2,
+      "explanation": "NIST SP 800-171は、連邦政府機関以外でCUI（Controlled Unclassified Information）を取り扱う組織向けのセキュリティ要件をまとめた文書。米国防総省（DoD）の調達において請負業者に要求され、CMMC（Cybersecurity Maturity Model Certification）の基礎ともなっている。NIST SP 800-53は連邦情報システム向けの管理策カタログ。NIST SP 800-137は継続的監視のガイドライン。FIPS 140-2は暗号モジュールの標準。"
     }
   ]
 }
