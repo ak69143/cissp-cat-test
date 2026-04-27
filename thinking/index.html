@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="auto">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CISSP シンキングガイド</title>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    /* ===== 認証画面 ===== */
+    .auth-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 24px;
+    }
+
+    .auth-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 40px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .auth-icon {
+      font-size: 40px;
+      margin-bottom: 16px;
+    }
+
+    .auth-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .auth-subtitle {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 28px;
+    }
+
+    .auth-input-wrap {
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    .auth-input {
+      width: 100%;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-size: 16px;
+      padding: 14px 48px 14px 16px;
+      outline: none;
+      transition: border-color 0.15s;
+      letter-spacing: 2px;
+    }
+
+    .auth-input:focus { border-color: var(--accent); }
+    .auth-input.error { border-color: var(--danger); animation: shake 0.3s ease; }
+
+    .auth-toggle {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 18px;
+      padding: 4px;
+    }
+
+    .auth-toggle:hover { color: var(--text-secondary); }
+
+    .auth-error {
+      font-size: 13px;
+      color: var(--danger);
+      margin-bottom: 16px;
+      min-height: 20px;
+    }
+
+    .auth-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .auth-btn:hover { background: var(--accent-hover); }
+    .auth-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+
+    /* 認証中はコンテンツ非表示 */
+    .page-wrap.locked { display: none; }
+
+    /* ===== ページ固有スタイル ===== */
+    .page-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 48px 24px;
+    }
+
+    /* ヘッダー */
+    .page-header {
+      margin-bottom: 48px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-bottom: 32px;
+      transition: color 0.15s;
+    }
+
+    .back-link:hover { color: var(--accent); }
+
+    .page-title-block {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    .page-icon {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #8b5cf6, var(--accent));
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      flex-shrink: 0;
+    }
+
+    .page-title-block h1 {
+      font-size: 30px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+
+    .page-subtitle {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      max-width: 640px;
+    }
+
+    /* 統計バー */
+    .stats-bar {
+      display: flex;
+      gap: 24px;
+      margin-top: 28px;
+      padding: 20px 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .stat-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .stat-pill-num {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .stat-pill-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .stat-divider {
+      width: 1px;
+      background: var(--border);
+      align-self: stretch;
+    }
+
+    /* フィルタータブ */
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+
+    .filter-tab {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 7px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .filter-tab:hover {
+      color: var(--text-secondary);
+      border-color: var(--text-muted);
+    }
+
+    .filter-tab.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    /* パターングリッド */
+    .pattern-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    /* パターンカード */
+    .pattern-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      border-left: 4px solid var(--border);
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    }
+
+    .pattern-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+
+    .pattern-card[data-cat="priority"]   { border-left-color: #f39c12; }
+    .pattern-card[data-cat="risk"]       { border-left-color: #e74c3c; }
+    .pattern-card[data-cat="control"]    { border-left-color: #2ecc71; }
+    .pattern-card[data-cat="mindset"]    { border-left-color: #8b5cf6; }
+    .pattern-card[data-cat="incident"]   { border-left-color: #4f8ef7; }
+    .pattern-card[data-cat="access"]     { border-left-color: #1abc9c; }
+
+    .pattern-card.hidden { display: none; }
+
+    /* カードヘッダー */
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .card-num {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+    }
+
+    .cat-badge {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      padding: 3px 10px;
+      border-radius: 10px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .cat-badge.priority { background: rgba(243,156,18,0.15); color: #f39c12; }
+    .cat-badge.risk     { background: rgba(231,76,60,0.15);  color: #e74c3c; }
+    .cat-badge.control  { background: rgba(46,204,113,0.15); color: #2ecc71; }
+    .cat-badge.mindset  { background: rgba(139,92,246,0.15); color: #8b5cf6; }
+    .cat-badge.incident { background: rgba(79,142,247,0.15); color: #4f8ef7; }
+    .cat-badge.access   { background: rgba(26,188,156,0.15); color: #1abc9c; }
+
+    /* パターン名 */
+    .pattern-name {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.3;
+    }
+
+    /* ルール（核心1行） */
+    .pattern-rule {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      background: var(--bg-secondary);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      line-height: 1.6;
+      border-left: 3px solid currentColor;
+    }
+
+    .pattern-card[data-cat="priority"] .pattern-rule { color: #f39c12; }
+    .pattern-card[data-cat="risk"]     .pattern-rule { color: #e74c3c; }
+    .pattern-card[data-cat="control"]  .pattern-rule { color: #2ecc71; }
+    .pattern-card[data-cat="mindset"]  .pattern-rule { color: #8b5cf6; }
+    .pattern-card[data-cat="incident"] .pattern-rule { color: #4f8ef7; }
+    .pattern-card[data-cat="access"]   .pattern-rule { color: #1abc9c; }
+
+    /* 説明 */
+    .pattern-why {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    .pattern-why strong {
+      color: var(--text-primary);
+    }
+
+    /* 具体例 */
+    .pattern-example {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+    }
+
+    .example-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .example-text {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .example-text .wrong {
+      color: var(--danger);
+      font-weight: 600;
+    }
+
+    .example-text .right {
+      color: var(--success);
+      font-weight: 600;
+    }
+
+    /* タグ */
+    .pattern-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: auto;
+    }
+
+    .tag {
+      font-size: 11px;
+      color: var(--text-muted);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 3px 8px;
+    }
+
+    /* フッター */
+    .page-footer {
+      margin-top: 64px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .footer-note {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* レスポンシブ */
+    @media (max-width: 768px) {
+      .pattern-grid { grid-template-columns: 1fr; }
+      .stats-bar { flex-wrap: wrap; gap: 16px; }
+      .stat-divider { display: none; }
+      .page-title-block { flex-direction: column; gap: 16px; }
+      .page-title-block h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- 認証オーバーレイ -->
+<div class="auth-overlay" id="auth-overlay">
+  <div class="auth-box">
+    <div class="auth-icon">🔒</div>
+    <div class="auth-title">CISSP シンキングガイド</div>
+    <div class="auth-subtitle">アクセスにはパスワードが必要です</div>
+    <div class="auth-input-wrap">
+      <input type="password" class="auth-input" id="auth-input" placeholder="パスワードを入力" autocomplete="current-password">
+      <button class="auth-toggle" id="auth-toggle" type="button">👁</button>
+    </div>
+    <div class="auth-error" id="auth-error"></div>
+    <button class="auth-btn" id="auth-btn">入る</button>
+  </div>
+</div>
+
+<button class="theme-toggle-btn floating-theme-btn" id="theme-btn" title="テーマ切替">🌙</button>
+
+<div class="page-wrap locked" id="page-wrap">
+
+  <!-- ヘッダー -->
+  <div class="page-header">
+    <a href="../" class="back-link">← 模擬試験に戻る</a>
+
+    <div class="page-title-block">
+      <div class="page-icon">🧠</div>
+      <div>
+        <h1>CISSP シンキングガイド</h1>
+        <p class="page-subtitle">
+          CISSPは知識だけでなく<strong>「思考パターン」</strong>が合否を分ける試験です。<br>
+          技術者としてではなく、セキュリティマネージャーとして考える10のルールを学びましょう。
+        </p>
+      </div>
+    </div>
+
+    <div class="stats-bar">
+      <div class="stat-pill">
+        <div class="stat-pill-num">10</div>
+        <div class="stat-pill-label">思考<br>パターン</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-pill">
+        <div class="stat-pill-num">6</div>
+        <div class="stat-pill-label">カテゴリ</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-pill">
+        <div class="stat-pill-num">∞</div>
+        <div class="stat-pill-label">合格への<br>近道</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- フィルタータブ -->
+  <div class="filter-tabs">
+    <button class="filter-tab active" data-filter="all">すべて</button>
+    <button class="filter-tab" data-filter="priority">優先順位</button>
+    <button class="filter-tab" data-filter="risk">リスク管理</button>
+    <button class="filter-tab" data-filter="control">コントロール</button>
+    <button class="filter-tab" data-filter="access">アクセス制御</button>
+    <button class="filter-tab" data-filter="mindset">マネージャー思考</button>
+    <button class="filter-tab" data-filter="incident">インシデント対応</button>
+  </div>
+
+  <!-- パターングリッド -->
+  <div class="pattern-grid" id="pattern-grid">
+
+    <!-- #1 予防 > 検知 > 対応 -->
+    <div class="pattern-card" data-cat="priority">
+      <div class="card-header">
+        <span class="card-num">#01</span>
+        <span class="cat-badge priority">優先順位</span>
+      </div>
+      <div class="pattern-name">予防 ＞ 検知 ＞ 対応</div>
+      <div class="pattern-rule">コントロールを選ぶときは「予防的」を最優先に選ぶ</div>
+      <div class="pattern-why">
+        CISSPは<strong>「問題が起きる前に防ぐ」</strong>ことを最も重視します。<br>
+        検知（発見）や対応（修復）は後手の対策。予防が最善です。
+      </div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          Q: 不正アクセスへの最善の対策は？<br>
+          <span class="wrong">✗ 侵入検知システム（IDS）を導入する → 検知（後手）</span><br>
+          <span class="right">✓ ファイアウォールでアクセスを制限する → 予防</span>
+        </div>
+      </div>
+      <div class="pattern-tags">
+        <span class="tag">コントロール選択</span>
+        <span class="tag">セキュリティ設計</span>
+      </div>
+    </div>
+
+    <!-- #2 最初にすること = スコープ・承認 -->
+    <div class="pattern-card" data-cat="priority">
+      <div class="card-header">
+        <span class="card-num">#02</span>
+        <span class="cat-badge priority">優先順位</span>
+      </div>
+      <div class="pattern-name">「最初にすべきこと」＝ 確認・承認</div>
+      <div class="pattern-rule">即座に動く前に、必ずスコープ確認・上位への報告・承認取得を行う</div>
+      <div class="pattern-why">
+        CISSPは<strong>衝動的な対応より、適切なプロセス</strong>を重視します。<br>
+        何かが起きたとき、最初の行動は「把握する」「報告する」です。勝手に修復しない。
+      </div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          Q: セキュリティ侵害を発見した。最初に取るべき行動は？<br>
+          <span class="wrong">✗ すぐにシステムをシャットダウンする</span><br>
+          <span class="right">✓ インシデントの範囲を把握し、経営層に報告する</span>
+        </div>
+      </div>
+      <div class="pattern-tags">
+        <span class="tag">インシデント対応</span>
+        <span class="tag">ガバナンス</span>
+      </div>
+    </div>
+
+    <!-- #3 リスク対応の4択 -->
+    <div class="pattern-card" data-cat="risk">
+      <div class="card-header">
+        <span class="card-num">#03</span>
+        <span class="cat-badge risk">リスク管理</span>
+      </div>
+      <div class="pattern-name">リスク対応の4択を使い分ける</div>
+      <div class="pattern-rule">軽減・移転・受容・回避 ── コストと影響度で判断する</div>
+      <div class="pattern-why">
+        <strong>リスクの完全排除は不可能</strong>です。コスト対効果を考えて対応方法を選びます。<br>
+        · 軽減（Mitigate）: 対策してリスクを下げる<br>
+        · 移転（Transfer）: 保険・外部委託でリスクを移す<br>
+        · 受容（Accept）: 低リスクなら許容する<br>
+        · 回避（Avoid）: その活動自体をやめる
+      </div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          小さな確率の低損害リスク → <span class="right">受容</span><br>
+          大損害だが対策コスト過大 → <span class="right">移転（保険）</span><br>
+          高損害・高発生率 → <span class="right">軽減</span>
+        </div>
+      </div>
+      <div class="pattern-tags">
+        <span class="tag">リスクマネジメント</span>
+        <span class="tag">意思決定</span>
+      </div>
+    </div>
+
+    <!-- #4 CIA の重み -->
+    <div class="pattern-card" data-cat="risk">
+      <div class="card-header">
+        <span class="card-num">#04</span>
+        <span class="cat-badge risk">リスク管理</span>
+      </div>
+      <div class="pattern-name">CIA の重み：機密性が最重要</div>
+      <div class="pattern-rule">セキュリティ問題では、機密性の侵害が最も深刻とされることが多い</div>
+      <div class="pattern-why">
+        CIA（機密性・完全性・可用性）は等価ではありません。<br>
+        <strong>データ漏えいは取り返しがつかない</strong>ため、機密性の保護を最優先に考えます。<br>
+        可用性の問題（ダウンタイム）は一時的に回復できますが、漏えいたデータは戻りません。
+      </div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          Q: サーバーダウン vs 顧客データ漏えい、どちらが深刻？<br>
+          <span class="wrong">✗ サーバーダウン → 可用性問題（回復可能）</span><br>
+          <span class="right">✓ 顧客データ漏えい → 機密性侵害（取り戻せない）</span>
+        </div>
+      </div>
+      <div class="pattern-tags">
+        <span class="tag">CIA トライアド</span>
+        <span class="tag">資産保護</span>
+      </div>
+    </div>
+
+    <!-- #5 管理的 > 技術的 > 物理的 -->
+    <div class="pattern-card" data-cat="control">
+      <div class="card-header">
+        <span class="card-num">#05</span>
+        <span class="cat-badge control">コントロール</span>
+      </div>
+      <div class="pattern-name">管理的 ＞ 技術的 ＞ 物理的</div>
+      <div class="pattern-rule">ポリシー・手順（管理的コントロール）を最初に検討する</div>
+      <div class="pattern-why">
+        技術的コントロールは、<strong>管理的コントロールを実装するための手段</strong>に過ぎません。<br>
+        まずポリシーや手順を整備し、それを技術や物理で実現します。<br>
+        「ツールを入れる前にルールを作る」がCISSPの考え方です。
+      </div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          Q: 強いパスワードを強制するには？<br>
+          <span class="wrong">✗ システムで文字数を強制する → 技術的（先走り）</span><br>
+          <span class="right">✓ パスワードポリシーを策定する → 管理的（先に来る）</span>
+        </div>
+      </div>
+      <div class="pattern-tags">
+        <span class="tag">コントロール種別</span>
+        <span class="tag">ポリシー設計</span>
+      </div>
+    </div>
+
+    <!-- #6 Least Privilege -->
+    <div class="pattern-card" data-cat="access">
+      <div class="card-header">
+        <span class="card-num">#06</span>
+        <span class="cat-badge access">アクセス制御</span>
+      </div>
+      <div class="pattern-name">最小権限（Least Privilege）</div>
+      <div class="pattern-rule">業務に必要な最低限の権限のみを付与する</div>
+      <div class="pattern-why">
+        権限を絞ることで、アカウント侵害時の<strong>被害範囲を最小化</strong>できます。<br>
+        「とりあえず広い権限を与えておく」はCISSP的に完全にNG。<br>
+        Need-to-know（知る必要がある情報のみアクセス可）とセットで考えます。
+      </div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          <span class="wrong">✗ 全員に管理者権限を付与する（便利だから）</span><br>
+          <span class="right">✓ 業務に必要な権限のみを個別に付与する</span>
+        </div>
+      </div>
+      <div class="pattern-tags">
+        <span class="tag">IAM</span>
+        <span class="tag">Need-to-Know</span>
+        <span class="tag">権限管理</span>
+      </div>
+    </div>
+
+    <!-- #7 職務分離 -->
+    <div class="pattern-card" data-cat="access">
+      <div class="card-header">
+        <span class="card-num">#07</span>
+        <span class="cat-badge access">アクセス制御</span>
+      </div>
+      <div class="pattern-name">職務分離（Separation of Duties）</div>
+      <div class="pattern-rule">単一人物が不正を完結できる権限を持たせない</div>
+      <div class="pattern-why">
+        一人の人間が「申請 → 承認 → 実行」をすべてできる状態は危険です。<br>
+        職務を分けることで、<strong>内部不正や意図しない誤りを防止</strong>します。<br>
+        2人の協力なしに不正が成立しない設計が理想です。
+      </div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          <span class="wrong">✗ 経理担当が支払い申請も承認も実行もできる</span><br>
+          <span class="right">✓ 申請者と承認者を別の人物にする</span>
+        </div>
+      </div>
+      <div class="pattern-tags">
+        <span class="tag">内部統制</span>
+        <span class="tag">不正防止</span>
+      </div>
+    </div>
+
+    <!-- #8 Default Deny -->
+    <div class="pattern-card" data-cat="control">
+      <div class="card-header">
+        <span class="card-num">#08</span>
+        <span class="cat-badge control">コントロール</span>
+      </div>
+      <div class="pattern-name">デフォルト拒否（Default Deny）</div>
+      <div class="pattern-rule">明示的に許可されていないものはすべて拒否する</div>
+      <div class="pattern-why">
+        「許可リスト（Allowlist）方式」とも呼ばれます。<br>
+        <strong>何も指定しなければ拒否</strong>が正しいデフォルト状態です。<br>
+        「とりあえず許可しておく」は攻撃者に隙を与えます。
+      </div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          <span class="wrong">✗ ファイアウォール：全通信を許可し、危険なものだけブロック</span><br>
+          <span class="right">✓ ファイアウォール：全通信を拒否し、必要なものだけ許可</span>
+        </div>
+      </div>
+      <div class="pattern-tags">
+        <span class="tag">ファイアウォール</span>
+        <span class="tag">アクセス制御</span>
+        <span class="tag">セキュリティ設計</span>
+      </div>
+    </div>
+
+    <!-- #9 マネージャー思考 -->
+    <div class="pattern-card" data-cat="mindset">
+      <div class="card-header">
+        <span class="card-num">#09</span>
+        <span class="cat-badge mindset">マネージャー思考</span>
+      </div>
+      <div class="pattern-name">技術者ではなくCISOとして考える</div>
+      <div class="pattern-rule">「技術的に正しい」より「ビジネスリスクとして適切か」を問う</div>
+      <div class="pattern-why">
+        CISSPは技術試験ではなく<strong>セキュリティマネジメントの試験</strong>です。<br>
+        エンジニアが選ぶ答えより、リスク・コスト・ビジネスへの影響を考えた答えが正解になります。<br>
+        「まず技術で解決」ではなく「まずリスク評価・承認プロセス」を選びましょう。
+      </div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          Q: 重大な脆弱性を発見した。最善の対応は？<br>
+          <span class="wrong">✗ すぐにパッチを適用する → エンジニア的思考</span><br>
+          <span class="right">✓ リスクを評価し、変更管理プロセスに従って承認を得てから適用</span>
+        </div>
+      </div>
+      <div class="pattern-tags">
+        <span class="tag">ガバナンス</span>
+        <span class="tag">変更管理</span>
+        <span class="tag">リスク評価</span>
+      </div>
+    </div>
+
+    <!-- #10 インシデント対応順序 -->
+    <div class="pattern-card" data-cat="incident">
+      <div class="card-header">
+        <span class="card-num">#10</span>
+        <span class="cat-badge incident">インシデント対応</span>
+      </div>
+      <div class="pattern-name">インシデント対応の正しい順序</div>
+      <div class="pattern-rule">検知 → 封じ込め → 根絶 → 復旧 → 事後分析</div>
+      <div class="pattern-why">
+        インシデント対応には<strong>決まった手順</strong>があります。順序を守ることが重要です。<br>
+        特に間違えやすいのが「封じ込めを飛ばして復旧しようとする」パターン。<br>
+        復旧の前に必ず<strong>封じ込め（被害の拡大防止）と根絶（原因除去）</strong>を行います。
+      </div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          Q: ランサムウェア感染を確認した。最初にすべきことは？<br>
+          <span class="wrong">✗ バックアップからシステムを復旧する → 復旧（早すぎる）</span><br>
+          <span class="right">✓ 感染端末をネットワークから切断する → 封じ込め</span>
+        </div>
+      </div>
+      <div class="pattern-tags">
+        <span class="tag">NIST SP 800-61</span>
+        <span class="tag">BCP/DR</span>
+        <span class="tag">フォレンジック</span>
+      </div>
+    </div>
+
+  </div><!-- /.pattern-grid -->
+
+  <!-- フッター -->
+  <div class="page-footer">
+    <span class="footer-note">⚠️ このガイドはAIによって生成されています。正確な情報はISC²公式資料をご確認ください。</span>
+    <a href="../" class="btn-secondary btn-sm" style="text-decoration:none; display:inline-block;">← 模擬試験に戻る</a>
+  </div>
+
+</div><!-- /.page-wrap -->
+
+<script>
+  // ===== 認証 =====
+  const HASH = '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08'; // test
+  const SESSION_KEY = 'cissp_thinking_auth';
+
+  const authOverlay = document.getElementById('auth-overlay');
+  const pageWrap    = document.getElementById('page-wrap');
+  const authInput   = document.getElementById('auth-input');
+  const authBtn     = document.getElementById('auth-btn');
+  const authError   = document.getElementById('auth-error');
+  const authToggle  = document.getElementById('auth-toggle');
+
+  async function sha256(str) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  function unlock() {
+    authOverlay.style.display = 'none';
+    pageWrap.classList.remove('locked');
+    sessionStorage.setItem(SESSION_KEY, '1');
+  }
+
+  // セッション中に認証済みならスキップ
+  if (sessionStorage.getItem(SESSION_KEY) === '1') unlock();
+
+  authBtn.addEventListener('click', async () => {
+    const val = authInput.value;
+    if (!val) return;
+    authBtn.disabled = true;
+    const hash = await sha256(val);
+    if (hash === HASH) {
+      unlock();
+    } else {
+      authError.textContent = 'パスワードが違います';
+      authInput.classList.add('error');
+      authInput.value = '';
+      setTimeout(() => authInput.classList.remove('error'), 400);
+      authBtn.disabled = false;
+      authInput.focus();
+    }
+  });
+
+  authInput.addEventListener('keydown', e => { if (e.key === 'Enter') authBtn.click(); });
+
+  // 表示切替
+  let visible = false;
+  authToggle.addEventListener('click', () => {
+    visible = !visible;
+    authInput.type = visible ? 'text' : 'password';
+    authToggle.textContent = visible ? '🙈' : '👁';
+  });
+
+  // オートフォーカス
+  authInput.focus();
+
+  // ===== テーマ切替
+  const themeBtn = document.getElementById('theme-btn');
+  const html = document.documentElement;
+  const themes = ['auto', 'dark', 'light'];
+  const icons = { auto: '🌙', dark: '🌙', light: '☀️' };
+
+  let current = localStorage.getItem('theme') || 'auto';
+  html.setAttribute('data-theme', current);
+  themeBtn.textContent = icons[current];
+
+  themeBtn.addEventListener('click', () => {
+    const idx = themes.indexOf(current);
+    current = themes[(idx + 1) % themes.length];
+    html.setAttribute('data-theme', current);
+    themeBtn.textContent = icons[current];
+    localStorage.setItem('theme', current);
+  });
+
+  // フィルター
+  const filterTabs = document.querySelectorAll('.filter-tab');
+  const cards = document.querySelectorAll('.pattern-card');
+
+  filterTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      filterTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      const filter = tab.dataset.filter;
+      cards.forEach(card => {
+        if (filter === 'all' || card.dataset.cat === filter) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
