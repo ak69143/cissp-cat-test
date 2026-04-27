@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="auto">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>計算問題攻略 | CISSP シンキングガイド</title>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .page-wrap { max-width: 1000px; margin: 0 auto; padding: 48px 24px; }
+
+    .back-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 13px; color: var(--text-muted);
+      text-decoration: none; margin-bottom: 32px; transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--accent); }
+
+    .page-header { margin-bottom: 36px; }
+    .page-title-row { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 20px; }
+    .page-icon {
+      width: 52px; height: 52px; flex-shrink: 0;
+      background: linear-gradient(135deg, #f39c12, #e74c3c);
+      border-radius: 14px; display: flex; align-items: center;
+      justify-content: center; font-size: 24px;
+    }
+    .page-title-row h1 { font-size: 26px; font-weight: 800; line-height: 1.2; margin-bottom: 6px; }
+    .page-title-row p  { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+
+    /* セクション */
+    .section-block { margin-bottom: 48px; }
+    .section-title {
+      font-size: 13px; font-weight: 700; letter-spacing: 1.5px;
+      color: var(--text-muted); text-transform: uppercase;
+      margin-bottom: 16px; padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* 計算カード */
+    .calc-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 28px;
+      margin-bottom: 18px;
+      border-left: 4px solid #f39c12;
+    }
+    .calc-card.blue   { border-left-color: #3498db; }
+    .calc-card.green  { border-left-color: #2ecc71; }
+    .calc-card.purple { border-left-color: #9b59b6; }
+    .calc-card.red    { border-left-color: #e74c3c; }
+
+    .calc-header { margin-bottom: 16px; }
+    .calc-name { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+    .calc-full  { font-size: 13px; color: var(--text-muted); }
+
+    /* 数式ボックス */
+    .formula-box {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .formula-main {
+      font-size: 22px; font-weight: 800;
+      color: var(--text-primary);
+      font-family: 'Courier New', monospace;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .formula-unit {
+      font-size: 12px; color: var(--text-muted);
+    }
+
+    /* 変数定義 */
+    .vars-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .var-item {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+    }
+    .var-abbr { font-size: 14px; font-weight: 800; color: var(--accent); margin-bottom: 2px; }
+    .var-name { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+    .var-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.4; }
+
+    /* 例題ボックス */
+    .example-box {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .example-header {
+      background: var(--bg-secondary);
+      padding: 8px 16px;
+      font-size: 11px; font-weight: 700; letter-spacing: 1px;
+      color: var(--text-muted); text-transform: uppercase;
+    }
+    .example-body { padding: 16px; }
+    .example-q {
+      font-size: 13px; color: var(--text-secondary); line-height: 1.7;
+      margin-bottom: 12px;
+    }
+    .example-steps { list-style: none; padding: 0; margin: 0; }
+    .example-steps li {
+      font-size: 13px; color: var(--text-secondary); line-height: 1.7;
+      padding: 3px 0;
+      padding-left: 20px; position: relative;
+    }
+    .example-steps li::before {
+      content: attr(data-step);
+      position: absolute; left: 0;
+      font-weight: 700; color: var(--accent);
+    }
+    .result-line {
+      font-size: 15px; font-weight: 800; color: var(--accent);
+      margin-top: 10px; padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* 試験ポイント */
+    .exam-tip {
+      display: flex; gap: 12px; align-items: flex-start;
+      background: rgba(var(--accent-rgb, 59,130,246),0.06);
+      border: 1px solid rgba(var(--accent-rgb, 59,130,246),0.2);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      font-size: 13px; color: var(--text-secondary); line-height: 1.6;
+    }
+    .exam-tip-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .exam-tip strong { color: var(--text-primary); }
+
+    /* 公式一覧テーブル */
+    .formula-table {
+      width: 100%; border-collapse: collapse;
+      font-size: 13px;
+    }
+    .formula-table th {
+      text-align: left; padding: 10px 14px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
+      color: var(--text-muted); text-transform: uppercase;
+    }
+    .formula-table td {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      color: var(--text-secondary); line-height: 1.5;
+      vertical-align: top;
+    }
+    .formula-table td:first-child {
+      font-weight: 700; color: var(--accent); white-space: nowrap;
+    }
+    .formula-table tr:hover td { background: var(--bg-secondary); }
+    .f-formula {
+      font-family: 'Courier New', monospace;
+      font-weight: 700; color: var(--text-primary);
+    }
+
+    /* フッター */
+    .page-footer {
+      margin-top: 48px; padding-top: 24px;
+      border-top: 1px solid var(--border);
+      font-size: 13px; color: var(--text-muted);
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+    }
+
+    @media (max-width: 768px) {
+      .vars-grid { grid-template-columns: 1fr 1fr; }
+      .page-title-row { flex-direction: column; gap: 12px; }
+      .page-title-row h1 { font-size: 22px; }
+      .page-wrap { padding: 32px 16px; }
+      .formula-main { font-size: 18px; }
+      .formula-table { font-size: 12px; }
+    }
+    @media (max-width: 480px) {
+      .vars-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<button class="theme-toggle-btn floating-theme-btn" id="theme-btn" title="テーマ切替">🌙</button>
+
+<div class="page-wrap">
+
+  <a href="./" class="back-link">← シンキングガイドに戻る</a>
+
+  <div class="page-header">
+    <div class="page-title-row">
+      <div class="page-icon">🔢</div>
+      <div>
+        <h1>計算問題攻略</h1>
+        <p>SLE・ALE・ARO・ROSI など、CISSPで確実に出る計算問題の公式と解き方。<br>公式を丸暗記するより「何を計算しているか」を理解するのが本質。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 公式一覧（クイックリファレンス） -->
+  <div class="section-block">
+    <div class="section-title">公式クイックリファレンス</div>
+    <div style="overflow-x: auto;">
+      <table class="formula-table">
+        <thead>
+          <tr>
+            <th>略語</th>
+            <th>正式名称</th>
+            <th>公式</th>
+            <th>単位</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>AV</td>
+            <td>Asset Value（資産価値）</td>
+            <td class="f-formula">直接設定（見積もり）</td>
+            <td>円 / ドル</td>
+          </tr>
+          <tr>
+            <td>EF</td>
+            <td>Exposure Factor（影響度）</td>
+            <td class="f-formula">直接設定（0.0 〜 1.0）</td>
+            <td>割合（%）</td>
+          </tr>
+          <tr>
+            <td>SLE</td>
+            <td>Single Loss Expectancy（単一損失期待値）</td>
+            <td class="f-formula">AV × EF</td>
+            <td>円 / ドル</td>
+          </tr>
+          <tr>
+            <td>ARO</td>
+            <td>Annualized Rate of Occurrence（年間発生頻度）</td>
+            <td class="f-formula">直接設定（年 n 回）</td>
+            <td>回/年（小数OK）</td>
+          </tr>
+          <tr>
+            <td>ALE</td>
+            <td>Annualized Loss Expectancy（年間損失期待値）</td>
+            <td class="f-formula">SLE × ARO</td>
+            <td>円/年</td>
+          </tr>
+          <tr>
+            <td>ALE削減額</td>
+            <td>コントロール導入による効果</td>
+            <td class="f-formula">ALE(before) − ALE(after)</td>
+            <td>円/年</td>
+          </tr>
+          <tr>
+            <td>ROSI</td>
+            <td>Return on Security Investment（セキュリティ投資対効果）</td>
+            <td class="f-formula">ALE削減額 − 対策コスト</td>
+            <td>円/年</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 主要公式の詳細 -->
+  <div class="section-block">
+    <div class="section-title">主要公式の詳細解説</div>
+
+    <!-- SLE -->
+    <div class="calc-card">
+      <div class="calc-header">
+        <div class="calc-name">SLE — 単一損失期待値</div>
+        <div class="calc-full">Single Loss Expectancy</div>
+      </div>
+      <div class="formula-box">
+        <div class="formula-main">SLE = AV × EF</div>
+        <div class="formula-unit">「1回インシデントが起きたとき、いくら損するか」</div>
+      </div>
+      <div class="vars-grid">
+        <div class="var-item">
+          <div class="var-abbr">AV</div>
+          <div class="var-name">Asset Value（資産価値）</div>
+          <div class="var-desc">守るべき資産の金銭価値。置き換え費用・ビジネスへの影響で算出。</div>
+        </div>
+        <div class="var-item">
+          <div class="var-abbr">EF</div>
+          <div class="var-name">Exposure Factor（影響度）</div>
+          <div class="var-desc">インシデント1回で資産の何%が失われるか。0.0（影響なし）〜 1.0（全損）。</div>
+        </div>
+      </div>
+      <div class="example-box">
+        <div class="example-header">例題</div>
+        <div class="example-body">
+          <div class="example-q">サーバー（資産価値：500万円）が火災で被害を受けた場合、毎回40%のデータが失われるとする。SLEはいくらか？</div>
+          <ul class="example-steps">
+            <li data-step="①">AV = 5,000,000円、EF = 0.4（40%）</li>
+            <li data-step="②">SLE = 5,000,000 × 0.4</li>
+          </ul>
+          <div class="result-line">SLE = 2,000,000円</div>
+        </div>
+      </div>
+      <div class="exam-tip">
+        <span class="exam-tip-icon">💡</span>
+        <div>EFは<strong>0〜1の小数</strong>（%ではない）で代入することに注意。問題文で「40%」と書かれていたら0.4として計算する。</div>
+      </div>
+    </div>
+
+    <!-- ALE -->
+    <div class="calc-card blue">
+      <div class="calc-header">
+        <div class="calc-name">ALE — 年間損失期待値</div>
+        <div class="calc-full">Annualized Loss Expectancy</div>
+      </div>
+      <div class="formula-box">
+        <div class="formula-main">ALE = SLE × ARO</div>
+        <div class="formula-unit">「1年間でどのくらいの損失が発生するか」の期待値</div>
+      </div>
+      <div class="vars-grid">
+        <div class="var-item">
+          <div class="var-abbr">SLE</div>
+          <div class="var-name">Single Loss Expectancy</div>
+          <div class="var-desc">1回インシデントが起きたときの損失。上記で計算。</div>
+        </div>
+        <div class="var-item">
+          <div class="var-abbr">ARO</div>
+          <div class="var-name">Annualized Rate of Occurrence</div>
+          <div class="var-desc">1年に平均何回インシデントが発生するか。小数OK（0.1 = 10年に1回）。</div>
+        </div>
+      </div>
+      <div class="example-box">
+        <div class="example-header">例題（SLE引き継ぎ）</div>
+        <div class="example-body">
+          <div class="example-q">上記のサーバー（SLE = 200万円）で、火災は年に0.1回（10年に1回）発生するとする。ALEはいくらか？</div>
+          <ul class="example-steps">
+            <li data-step="①">SLE = 2,000,000円、ARO = 0.1</li>
+            <li data-step="②">ALE = 2,000,000 × 0.1</li>
+          </ul>
+          <div class="result-line">ALE = 200,000円/年</div>
+        </div>
+      </div>
+      <div class="exam-tip">
+        <span class="exam-tip-icon">💡</span>
+        <div>ARO = 0.1 は「10年に1回」= 年0.1回。<strong>2年に1回 = ARO 0.5、毎年 = ARO 1.0、年2回 = ARO 2.0</strong>と換算できるようにしておく。</div>
+      </div>
+    </div>
+
+    <!-- ROSI -->
+    <div class="calc-card green">
+      <div class="calc-header">
+        <div class="calc-name">ROSI — セキュリティ投資対効果</div>
+        <div class="calc-full">Return on Security Investment</div>
+      </div>
+      <div class="formula-box">
+        <div class="formula-main">ROSI = (ALE<sub style="font-size:0.7em">before</sub> − ALE<sub style="font-size:0.7em">after</sub>) − 対策コスト</div>
+        <div class="formula-unit">「セキュリティ投資でどれだけ節約できるか」 正の値 = 投資価値あり</div>
+      </div>
+      <div class="example-box">
+        <div class="example-header">例題</div>
+        <div class="example-body">
+          <div class="example-q">現在のALE = 50万円/年。新しいセキュリティ対策（年間コスト10万円）を導入すると、ALE が 15万円/年 に下がるとする。この投資は正当化されるか？</div>
+          <ul class="example-steps">
+            <li data-step="①">ALE削減額 = 500,000 − 150,000 = 350,000円/年</li>
+            <li data-step="②">ROSI = 350,000 − 100,000 = <strong>250,000円/年</strong></li>
+          </ul>
+          <div class="result-line">ROSI = +250,000円/年 → 投資価値あり ✓</div>
+        </div>
+      </div>
+      <div class="exam-tip">
+        <span class="exam-tip-icon">💡</span>
+        <div>ROSIが<strong>正の値</strong>なら対策コストよりリスク削減効果が大きい。試験では「対策コストがALE削減額より大きい場合は正当化されない」パターンも出る。</div>
+      </div>
+    </div>
+
+    <!-- TCO / Value at Risk -->
+    <div class="calc-card purple">
+      <div class="calc-header">
+        <div class="calc-name">TCO と その他の定量指標</div>
+        <div class="calc-full">Total Cost of Ownership / Value at Risk</div>
+      </div>
+      <div class="vars-grid">
+        <div class="var-item">
+          <div class="var-abbr">TCO</div>
+          <div class="var-name">Total Cost of Ownership</div>
+          <div class="var-desc">資産の取得・運用・廃棄までの総コスト。セキュリティ対策の費用対効果評価に使う。</div>
+        </div>
+        <div class="var-item">
+          <div class="var-abbr">VaR</div>
+          <div class="var-name">Value at Risk</div>
+          <div class="var-desc">統計的に「X%の確率で、Y円以上の損失は発生しない」という最大損失の見積もり。金融リスク管理由来。</div>
+        </div>
+        <div class="var-item">
+          <div class="var-abbr">NPV</div>
+          <div class="var-name">Net Present Value</div>
+          <div class="var-desc">将来のコスト削減効果を現在価値に換算して比較。長期的な投資判断に使用。</div>
+        </div>
+        <div class="var-item">
+          <div class="var-abbr">ROI</div>
+          <div class="var-name">Return on Investment</div>
+          <div class="var-desc">（利益 − コスト）÷ コスト × 100%。一般的な投資対効果。ROSIとは使う文脈が違う。</div>
+        </div>
+      </div>
+      <div class="exam-tip">
+        <span class="exam-tip-icon">💡</span>
+        <div>試験では「どの指標を使うべきか」という問いが出る。<strong>定量的リスク分析 = SLE/ALE/ARO</strong>、<strong>投資判断 = ROSI/ROI/NPV</strong>と使い分けを把握する。</div>
+      </div>
+    </div>
+
+  </div><!-- /section-block -->
+
+  <!-- BCP/DRの時間指標 -->
+  <div class="section-block">
+    <div class="section-title">BCP / DR の時間指標</div>
+    <div class="calc-card red">
+      <div class="calc-header">
+        <div class="calc-name">RTO・RPO・MTD・MTBF・MTTR</div>
+        <div class="calc-full">復旧目標と可用性の指標</div>
+      </div>
+      <div class="vars-grid">
+        <div class="var-item">
+          <div class="var-abbr">RTO</div>
+          <div class="var-name">Recovery Time Objective（目標復旧時間）</div>
+          <div class="var-desc">障害発生から業務復旧までの最大許容時間。<br>「何時間以内に復旧しなければならないか」</div>
+        </div>
+        <div class="var-item">
+          <div class="var-abbr">RPO</div>
+          <div class="var-name">Recovery Point Objective（目標復旧地点）</div>
+          <div class="var-desc">データ損失の最大許容範囲。「バックアップを取る頻度」の根拠。<br>RPO = 4h なら4時間分の損失は許容。</div>
+        </div>
+        <div class="var-item">
+          <div class="var-abbr">MTD</div>
+          <div class="var-name">Maximum Tolerable Downtime（最大許容停止時間）</div>
+          <div class="var-desc">ビジネスが停止に耐えられる最大時間。RTOはMTD以内でなければならない。<br>MTD ≥ RTO が必須条件。</div>
+        </div>
+        <div class="var-item">
+          <div class="var-abbr">MTBF</div>
+          <div class="var-name">Mean Time Between Failures（平均故障間隔）</div>
+          <div class="var-desc">正常稼働から次の故障までの平均時間。<br>値が大きいほど信頼性が高い。</div>
+        </div>
+        <div class="var-item">
+          <div class="var-abbr">MTTR</div>
+          <div class="var-name">Mean Time To Repair（平均修復時間）</div>
+          <div class="var-desc">故障発生から修復完了までの平均時間。<br>値が小さいほど保守性が高い。</div>
+        </div>
+        <div class="var-item">
+          <div class="var-abbr">可用性</div>
+          <div class="var-name">Availability</div>
+          <div class="var-desc">MTBF ÷ (MTBF + MTTR) × 100%<br>例：MTBF=100h、MTTR=1h → 99%</div>
+        </div>
+      </div>
+      <div class="example-box">
+        <div class="example-header">重要な大小関係</div>
+        <div class="example-body">
+          <ul class="example-steps">
+            <li data-step="①">MTD ≥ RTO（RTOはMTDを超えてはいけない）</li>
+            <li data-step="②">RPO が小さい → バックアップ頻度を上げる必要がある → コスト増</li>
+            <li data-step="③">「RTO = 0」=「リアルタイムフェイルオーバー（ホットサイト）」</li>
+          </ul>
+        </div>
+      </div>
+      <div class="exam-tip">
+        <span class="exam-tip-icon">💡</span>
+        <div><strong>RTO vs RPO の違い</strong>：RTOは「時間（どれだけ早く復旧）」、RPOは「データ（どこまで遡れるか）」。混同しやすいので要注意。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 定量 vs 定性 -->
+  <div class="section-block">
+    <div class="section-title">定量的分析 vs 定性的分析</div>
+    <div style="overflow-x: auto;">
+      <table class="formula-table">
+        <thead>
+          <tr>
+            <th>項目</th>
+            <th>定量的（Quantitative）</th>
+            <th>定性的（Qualitative）</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>特徴</td>
+            <td>金額・数値で表現。ALE/SLE/ARO を使用</td>
+            <td>高・中・低、スコア、マトリクスで表現</td>
+          </tr>
+          <tr>
+            <td>メリット</td>
+            <td>ROI/ROSI を計算できる。経営層への説得力がある</td>
+            <td>データ不足でも実施できる。迅速。直感的</td>
+          </tr>
+          <tr>
+            <td>デメリット</td>
+            <td>データ収集・計算に時間とコストがかかる</td>
+            <td>主観が入る。金額換算できないため予算要求に弱い</td>
+          </tr>
+          <tr>
+            <td>使う場面</td>
+            <td>投資判断・保険購入の検討・経営報告</td>
+            <td>初期スクリーニング・データ不足時・優先順位付け</td>
+          </tr>
+          <tr>
+            <td>CISSP的</td>
+            <td>厳密だが現実には難しい</td>
+            <td>現実的。両方の組み合わせが理想</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>⚠️ このガイドはAIによって生成されています。正確な情報はISC²公式資料をご確認ください。</span>
+    <a href="./" style="text-decoration:none; color: var(--accent); font-weight: 600;">← シンキングガイドに戻る</a>
+  </div>
+
+</div><!-- /page-wrap -->
+
+<script>
+  // 認証チェック
+  if (sessionStorage.getItem('cissp_thinking_auth') !== '1') {
+    location.href = './';
+  }
+
+  // テーマ切替
+  const themeBtn = document.getElementById('theme-btn');
+  const themes = ['auto','dark','light'];
+  const icons  = { auto:'🌙', dark:'🌙', light:'☀️' };
+  let current  = localStorage.getItem('theme') || 'auto';
+  document.documentElement.setAttribute('data-theme', current);
+  themeBtn.textContent = icons[current];
+  themeBtn.addEventListener('click', () => {
+    const idx = themes.indexOf(current);
+    current = themes[(idx + 1) % themes.length];
+    document.documentElement.setAttribute('data-theme', current);
+    themeBtn.textContent = icons[current];
+    localStorage.setItem('theme', current);
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="auto">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>引っかかり選択肢パターン | CISSP シンキングガイド</title>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .page-wrap { max-width: 1100px; margin: 0 auto; padding: 48px 24px; }
+
+    .back-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 13px; color: var(--text-muted);
+      text-decoration: none; margin-bottom: 32px; transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--accent); }
+
+    .page-header { margin-bottom: 36px; }
+    .page-title-row { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 20px; }
+    .page-icon {
+      width: 52px; height: 52px; flex-shrink: 0;
+      background: linear-gradient(135deg, #2ecc71, #06b6d4);
+      border-radius: 14px; display: flex; align-items: center;
+      justify-content: center; font-size: 24px;
+    }
+    .page-title-row h1 { font-size: 26px; font-weight: 800; line-height: 1.2; margin-bottom: 6px; }
+    .page-title-row p  { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+
+    .count-bar {
+      display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
+      font-size: 13px; color: var(--text-muted);
+    }
+    .count-total { font-size: 20px; font-weight: 800; color: var(--accent); }
+
+    /* フィルタータブ */
+    .filter-wrap {
+      margin-bottom: 28px;
+      overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px;
+    }
+    .filter-tabs { display: flex; gap: 8px; white-space: nowrap; min-width: max-content; }
+    .filter-tab {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 7px 16px;
+      font-size: 13px; font-weight: 600; color: var(--text-muted);
+      cursor: pointer; transition: all 0.15s; flex-shrink: 0;
+    }
+    .filter-tab:hover { color: var(--text-secondary); border-color: var(--text-muted); }
+    .filter-tab.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+    /* トラップグリッド */
+    .trap-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+
+    /* トラップカード */
+    .trap-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+      display: flex; flex-direction: column; gap: 14px;
+      border-left: 4px solid var(--border);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .trap-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+    .trap-card.hidden { display: none; }
+
+    .trap-card[data-cat="management"] { border-left-color: #e74c3c; }
+    .trap-card[data-cat="process"]    { border-left-color: #f39c12; }
+    .trap-card[data-cat="technology"] { border-left-color: #3498db; }
+    .trap-card[data-cat="policy"]     { border-left-color: #9b59b6; }
+    .trap-card[data-cat="order"]      { border-left-color: #2ecc71; }
+
+    .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .trap-num { font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--text-muted); }
+    .cat-badge {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+      padding: 3px 10px; border-radius: 10px; white-space: nowrap; flex-shrink: 0;
+    }
+    .cat-badge.management { background: rgba(231,76,60,0.15);  color: #e74c3c; }
+    .cat-badge.process    { background: rgba(243,156,18,0.15); color: #f39c12; }
+    .cat-badge.technology { background: rgba(52,152,219,0.15); color: #3498db; }
+    .cat-badge.policy     { background: rgba(155,89,182,0.15); color: #9b59b6; }
+    .cat-badge.order      { background: rgba(46,204,113,0.15); color: #2ecc71; }
+
+    .trap-name { font-size: 18px; font-weight: 800; color: var(--text-primary); line-height: 1.3; }
+
+    /* 罠パターンボックス */
+    .trap-pattern {
+      background: var(--bg-secondary); border-radius: var(--radius-sm);
+      padding: 10px 14px; font-size: 13px; font-weight: 600;
+      color: var(--text-muted); line-height: 1.6;
+      border-left: 3px solid;
+    }
+    .trap-card[data-cat="management"] .trap-pattern { border-color: #e74c3c; }
+    .trap-card[data-cat="process"]    .trap-pattern { border-color: #f39c12; }
+    .trap-card[data-cat="technology"] .trap-pattern { border-color: #3498db; }
+    .trap-card[data-cat="policy"]     .trap-pattern { border-color: #9b59b6; }
+    .trap-card[data-cat="order"]      .trap-pattern { border-color: #2ecc71; }
+
+    .trap-why { font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+    .trap-why strong { color: var(--text-primary); }
+
+    /* 比較ボックス */
+    .compare-box {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+    .compare-row {
+      display: flex; align-items: stretch;
+      border-bottom: 1px solid var(--border);
+    }
+    .compare-row:last-child { border-bottom: none; }
+    .compare-label {
+      padding: 8px 12px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
+      display: flex; align-items: center;
+      min-width: 48px; justify-content: center;
+    }
+    .compare-label.wrong { background: rgba(231,76,60,0.12); color: #e74c3c; }
+    .compare-label.right { background: rgba(46,204,113,0.12); color: #2ecc71; }
+    .compare-text {
+      padding: 8px 14px; font-size: 13px;
+      color: var(--text-secondary); line-height: 1.6;
+      border-left: 1px solid var(--border);
+      flex: 1;
+    }
+    .compare-text strong { color: var(--text-primary); }
+
+    /* フッター */
+    .page-footer {
+      margin-top: 48px; padding-top: 24px;
+      border-top: 1px solid var(--border);
+      font-size: 13px; color: var(--text-muted);
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+    }
+
+    @media (max-width: 768px) {
+      .trap-grid { grid-template-columns: 1fr; }
+      .page-title-row { flex-direction: column; gap: 12px; }
+      .page-title-row h1 { font-size: 22px; }
+      .page-wrap { padding: 32px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<button class="theme-toggle-btn floating-theme-btn" id="theme-btn" title="テーマ切替">🌙</button>
+
+<div class="page-wrap">
+
+  <a href="./" class="back-link">← シンキングガイドに戻る</a>
+
+  <div class="page-header">
+    <div class="page-title-row">
+      <div class="page-icon">⚠️</div>
+      <div>
+        <h1>引っかかり選択肢パターン</h1>
+        <p>「技術的には正しいが、CISSPとしては×」な罠の選択肢パターン集。<br>なぜ正しく見えるのに間違いなのかを理解することで、本番での判断力が上がる。</p>
+      </div>
+    </div>
+    <div class="count-bar">
+      表示中 <span class="count-total" id="visible-count">30</span> パターン
+    </div>
+  </div>
+
+  <div class="filter-wrap">
+    <div class="filter-tabs">
+      <button class="filter-tab active" data-filter="all">すべて (30)</button>
+      <button class="filter-tab" data-filter="management">管理・報告の罠 (8)</button>
+      <button class="filter-tab" data-filter="process">手順・プロセスの罠 (7)</button>
+      <button class="filter-tab" data-filter="technology">技術解決策の罠 (7)</button>
+      <button class="filter-tab" data-filter="policy">ポリシー・コンプライアンスの罠 (4)</button>
+      <button class="filter-tab" data-filter="order">順序・優先度の罠 (4)</button>
+    </div>
+  </div>
+
+  <div class="trap-grid" id="trap-grid">
+
+    <!-- ===== 管理・報告の罠 ===== -->
+    <div class="trap-card" data-cat="management">
+      <div class="card-top">
+        <div class="trap-num">T-01</div>
+        <span class="cat-badge management">管理・報告の罠</span>
+      </div>
+      <div class="trap-name">「まず技術的に修正する」罠</div>
+      <div class="trap-pattern">インシデント発生時 → 「まず脆弱性を修正する」が魅力的に見える</div>
+      <div class="trap-why">CISSPの視点では、技術修正は<strong>「対応フェーズ」でマネジメントが承認した後の話</strong>。まず経営層・管理者に報告し、意思決定を仰ぐのが正しい手順。セキュリティ担当者が勝手に動くことで証拠破壊・対応方針の齟齬が起きる。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">インシデントを発見したら、まず影響を最小化するために脆弱性を修正する</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>インシデント対応手順に従い、まず上司・インシデント対応チームに報告する</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="management">
+      <div class="card-top">
+        <div class="trap-num">T-02</div>
+        <span class="cat-badge management">管理・報告の罠</span>
+      </div>
+      <div class="trap-name">「CISOが直接修正指示を出す」罠</div>
+      <div class="trap-pattern">「CISOとして最も適切な行動は？」→「開発チームに修正を命じる」が正しそうに見える</div>
+      <div class="trap-why">CISOは<strong>戦略・ポリシー・リスク管理</strong>の責任者。技術的な修正指示は部門長や実務担当者を通じて行う。CISOが直接マイクロマネジメントするのはCISSP的にNG。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">CISOが開発チームに直接バグの修正を命令する</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>リスクを経営層に報告し、適切な対応リソースが割り当てられるよう調整する</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="management">
+      <div class="card-top">
+        <div class="trap-num">T-03</div>
+        <span class="cat-badge management">管理・報告の罠</span>
+      </div>
+      <div class="trap-name">「セキュリティ > ビジネス」罠</div>
+      <div class="trap-pattern">「厳格なセキュリティポリシーを即時適用する」が正義に見える</div>
+      <div class="trap-why">CISSPでは<strong>セキュリティはビジネス目標を支援するもの</strong>。ビジネスへの影響を考慮せずにセキュリティを押し付けるのは間違い。常にリスクとビジネスへの影響のバランスを考える。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">セキュリティリスクを排除するため、業務に影響が出ても厳格な制御を即時適用する</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>ビジネス目標とリスク許容度を踏まえた、バランスの取れたセキュリティ対策を提案する</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="management">
+      <div class="card-top">
+        <div class="trap-num">T-04</div>
+        <span class="cat-badge management">管理・報告の罠</span>
+      </div>
+      <div class="trap-name">「技術的に完璧なら安全」罠</div>
+      <div class="trap-pattern">最新技術・高性能なツールを導入すれば問題は解決する、と思わせる選択肢</div>
+      <div class="trap-why">CISSPでは<strong>人・プロセス・技術</strong>の三本柱が必要。どれかひとつだけでは不完全。例えば最新のファイアウォールを入れても、ユーザー教育やポリシーがなければ意味がない。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">最先端のDLPツールを導入して情報漏洩を防止する</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>技術的対策・ポリシー・ユーザー教育を組み合わせた包括的なプログラムを実施する</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="management">
+      <div class="card-top">
+        <div class="trap-num">T-05</div>
+        <span class="cat-badge management">管理・報告の罠</span>
+      </div>
+      <div class="trap-name">「経営層にすべて委ねる」罠</div>
+      <div class="trap-pattern">「リスクは経営層が判断するもの」→「何もしないで報告だけする」が正しそうに見える</div>
+      <div class="trap-why">確かに残留リスクの<strong>受容</strong>は経営層の判断だが、セキュリティ担当者は<strong>リスクの識別・評価・対策の提案</strong>を行う責任がある。単に「経営層に任せる」だけでは不十分。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">リスクは経営層が決定するものなので、報告書を提出して判断を委ねる</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>リスク評価・対策オプション・コスト試算を含む報告書を作成し、経営層の意思決定を支援する</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="management">
+      <div class="card-top">
+        <div class="trap-num">T-06</div>
+        <span class="cat-badge management">管理・報告の罠</span>
+      </div>
+      <div class="trap-name">「同僚のミスを見逃す」罠</div>
+      <div class="trap-pattern">チームワークのため、同僚の違反行為を内々に対処する選択肢が正しそうに見える</div>
+      <div class="trap-why">CISSPは<strong>倫理規定（Code of Ethics）</strong>を遵守する義務がある。内部の不正行為を隠蔽・黙認することはこれに反する。適切なチャネルを通じた報告が必須。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">同僚のデータアクセス違反を直接注意し、組織内での報告はしない</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>確立されたインシデント報告チャネルを通じて、管理者または適切な部署に報告する</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="management">
+      <div class="card-top">
+        <div class="trap-num">T-07</div>
+        <span class="cat-badge management">管理・報告の罠</span>
+      </div>
+      <div class="trap-name">「コスト最小化」罠</div>
+      <div class="trap-pattern">「最も安価な対策を選ぶ」が合理的に見える</div>
+      <div class="trap-why">CISSPでは対策コストはALEを超えてはならない（費用対効果）が原則だが、「最安値」を選ぶのではなく<strong>「リスク削減に適切なコスト」</strong>を選ぶのが正しい。最安値の対策がリスクを適切に軽減しなければ意味がない。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">セキュリティ予算を最小化するため、最も安い対策オプションを選択する</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>リスク低減効果と対策コストを比較し、費用対効果が最も高い対策を選択する</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="management">
+      <div class="card-top">
+        <div class="trap-num">T-08</div>
+        <span class="cat-badge management">管理・報告の罠</span>
+      </div>
+      <div class="trap-name">「責任の所在が不明確な委託」罠</div>
+      <div class="trap-pattern">「クラウドに移行したから責任はベンダーが持つ」が正しそうに見える</div>
+      <div class="trap-why">クラウド利用でも<strong>データの最終的な責任（accountability）は組織（データオーナー）が保持</strong>する。ベンダーにはセキュリティの実装責任（responsibility）を委ねても、説明責任は委ねられない。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">クラウドプロバイダーがセキュリティを管理するので、データ保護の責任はプロバイダーにある</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>クラウド利用でもデータの最終的な説明責任は自組織にある。SLAと責任分界点を明確化する</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 手順・プロセスの罠 ===== -->
+    <div class="trap-card" data-cat="process">
+      <div class="card-top">
+        <div class="trap-num">T-09</div>
+        <span class="cat-badge process">手順・プロセスの罠</span>
+      </div>
+      <div class="trap-name">「リスク評価を省略して対策」罠</div>
+      <div class="trap-pattern">脅威を発見したら「すぐに対策を実施する」が行動力があって正しそうに見える</div>
+      <div class="trap-why">CISSPでは<strong>リスクアセスメント → 対策選択 → 実装</strong>の順が鉄則。評価なしに対策を打つと過剰投資・的外れな対策になりやすい。まず「どのくらいのリスクか」を評価する。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">新しい脅威を発見したので、すぐにファイアウォールルールを追加する</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>リスクアセスメントを実施して脅威の影響と可能性を評価し、適切な対策を選択する</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="process">
+      <div class="card-top">
+        <div class="trap-num">T-10</div>
+        <span class="cat-badge process">手順・プロセスの罠</span>
+      </div>
+      <div class="trap-name">「ペネトレーションテストを先に実施」罠</div>
+      <div class="trap-pattern">「まずペネトレーションテストで脆弱性を洗い出す」が積極的に見える</div>
+      <div class="trap-why">ペネトレーションテストは<strong>脆弱性評価の後</strong>に実施するもの。順序は「脆弱性スキャン → 脆弱性評価 → ペネトレーションテスト」。いきなりペネトレーションするのは手順違い。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">システムのセキュリティ評価として、まずペネトレーションテストを実施する</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>脆弱性スキャンと評価を先に実施し、その結果をペネトレーションテストで検証する</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="process">
+      <div class="card-top">
+        <div class="trap-num">T-11</div>
+        <span class="cat-badge process">手順・プロセスの罠</span>
+      </div>
+      <div class="trap-name">「変更管理を省略する緊急パッチ」罠</div>
+      <div class="trap-pattern">緊急の脆弱性なので「すぐにパッチを適用する」が安全に見える</div>
+      <div class="trap-why">緊急であっても<strong>変更管理プロセス（Change Management）</strong>は省略できない。テスト・承認なしのパッチ適用はシステム障害を引き起こすリスクがある。緊急変更（Emergency Change）手順を使う。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">ゼロデイ脆弱性のため変更管理を省略して直ちにパッチを適用する</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>緊急変更手順を使って迅速に承認を得た上でパッチを適用し、その後に正式な文書化を行う</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="process">
+      <div class="card-top">
+        <div class="trap-num">T-12</div>
+        <span class="cat-badge process">手順・プロセスの罠</span>
+      </div>
+      <div class="trap-name">「証拠収集より復旧優先」罠</div>
+      <div class="trap-pattern">インシデント後「まず業務復旧する」が利用者への影響を最小化して正しそうに見える</div>
+      <div class="trap-why">フォレンジック観点では<strong>「証拠保全が復旧より先」</strong>。復旧作業で証拠が上書き・破壊されると、後の調査・法的手続きに支障をきたす。まず証拠を保全し、許可を得てから復旧する。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">インシデント発生後、できるだけ早くシステムを再起動して業務を再開する</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>システムのイメージを取得して証拠を保全した後、復旧作業を開始する</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="process">
+      <div class="card-top">
+        <div class="trap-num">T-13</div>
+        <span class="cat-badge process">手順・プロセスの罠</span>
+      </div>
+      <div class="trap-name">「セキュリティ要件は最後に追加」罠</div>
+      <div class="trap-pattern">「開発が完了してからセキュリティレビューをする」が効率的に見える</div>
+      <div class="trap-why">CISSPが推進するのは<strong>Shift Left（セキュリティを開発の早期に組み込む）</strong>。後付けのセキュリティは修正コストが10〜100倍になる。要件定義からセキュリティを組み込む（SDL/DevSecOps）。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">アプリ開発完了後にセキュリティテストを実施して問題を修正する</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>要件定義フェーズからセキュリティ要件を定義し、各開発フェーズでセキュリティを組み込む</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="process">
+      <div class="card-top">
+        <div class="trap-num">T-14</div>
+        <span class="cat-badge process">手順・プロセスの罠</span>
+      </div>
+      <div class="trap-name">「ユーザーに責任を押し付ける」罠</div>
+      <div class="trap-pattern">「セキュリティ事故はユーザーの不注意が原因なので教育を強化する」が正解に見える</div>
+      <div class="trap-why">ユーザー教育は重要だが、<strong>セキュリティは「ユーザーの善意に依存しない」設計</strong>が基本（Defense in Depth）。ユーザーが間違えても被害が出ない仕組みを作るのがCISSP的アプローチ。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">フィッシング被害を防ぐため、ユーザーのセキュリティ意識向上トレーニングのみ実施する</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>技術的対策（メールフィルタリング・MFA）とユーザー教育を組み合わせた多層防御を実施する</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="process">
+      <div class="card-top">
+        <div class="trap-num">T-15</div>
+        <span class="cat-badge process">手順・プロセスの罠</span>
+      </div>
+      <div class="trap-name">「テスト環境で問題なければ本番OK」罠</div>
+      <div class="trap-pattern">「テスト環境でパッチが動作したので本番に適用する」が迅速に見える</div>
+      <div class="trap-why">テスト環境と本番環境の差異（設定・データ量・依存関係）があるため、<strong>段階的なロールアウト・ロールバック計画</strong>が必要。「テスト環境でOKだったから」は根拠として不十分。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">テスト環境での検証が完了したので、同日に全本番サーバーへパッチを適用する</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>ロールバック計画を準備した上で、段階的に本番環境へ展開する</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 技術解決策の罠 ===== -->
+    <div class="trap-card" data-cat="technology">
+      <div class="card-top">
+        <div class="trap-num">T-16</div>
+        <span class="cat-badge technology">技術解決策の罠</span>
+      </div>
+      <div class="trap-name">「暗号化＝完全な保護」罠</div>
+      <div class="trap-pattern">「データを暗号化すれば情報漏洩リスクはなくなる」が安心感を与える</div>
+      <div class="trap-why">暗号化は<strong>機密性（Confidentiality）</strong>を保護するが、完全性（Integrity）・可用性（Availability）・アクセス制御は別途必要。また鍵管理が不適切なら暗号化の意味がない。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">全データを暗号化することでセキュリティリスクを完全に排除する</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>暗号化に加え、鍵管理・アクセス制御・完全性検証・バックアップを組み合わせた対策を実施する</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="technology">
+      <div class="card-top">
+        <div class="trap-num">T-17</div>
+        <span class="cat-badge technology">技術解決策の罠</span>
+      </div>
+      <div class="trap-name">「ファイアウォールで万全」罠</div>
+      <div class="trap-pattern">「境界にファイアウォールを設置したから内部は安全」が一般的に正しそうに見える</div>
+      <div class="trap-why">境界型セキュリティは<strong>内部脅威・侵入後の横移動</strong>に対応できない。Zero Trust（境界を信頼しない）の観点では内部ネットワークも外部と同様に扱う。単一の境界防御はCISSP的に不十分。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">強力なファイアウォールを設置すれば内部ネットワークのセキュリティは確保できる</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>多層防御とゼロトラスト原則に基づき、内部ネットワークも継続的に検証・監視する</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="technology">
+      <div class="card-top">
+        <div class="trap-num">T-18</div>
+        <span class="cat-badge technology">技術解決策の罠</span>
+      </div>
+      <div class="trap-name">「強力なパスワードポリシーだけでOK」罠</div>
+      <div class="trap-pattern">「長いパスワードを義務化すれば認証は安全」が論理的に見える</div>
+      <div class="trap-why">パスワードポリシーだけでは<strong>フィッシング・credential stuffing・内部脅威</strong>には対応できない。現代のCISSP的ベストプラクティスはMFA（多要素認証）の導入。単要素認証は不十分。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">16文字以上のパスワードを義務化し、90日ごとに変更させることで認証を強化する</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>MFA（多要素認証）を導入し、パスワードに加えて追加認証要素を求める</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="technology">
+      <div class="card-top">
+        <div class="trap-num">T-19</div>
+        <span class="cat-badge technology">技術解決策の罠</span>
+      </div>
+      <div class="trap-name">「技術的コントロール > 管理的コントロール」罠</div>
+      <div class="trap-pattern">技術的な解決策（システム・ツール）が管理的対策（ポリシー・手順）より確実に見える</div>
+      <div class="trap-why">CISSPでは<strong>管理的コントロール（Administrative）が最も優先度が高い</strong>。ポリシー・手順・トレーニングがなければ技術的対策も有効に機能しない。管理的 > 技術的 > 物理的の順で考える。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">USBメモリの持ち込みを防ぐため、USB接続をシステムでブロックする</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>まずUSBメモリの使用ポリシーを策定し、技術的ブロックと組み合わせる</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="technology">
+      <div class="card-top">
+        <div class="trap-num">T-20</div>
+        <span class="cat-badge technology">技術解決策の罠</span>
+      </div>
+      <div class="trap-name">「ハッシュ = 暗号化」混同罠</div>
+      <div class="trap-pattern">「パスワードはMD5でハッシュ化して保存しているから安全」が正しそうに見える</div>
+      <div class="trap-why">ハッシュは<strong>一方向関数（復号不可）</strong>で完全性検証用。暗号化は双方向（復号可能）で機密性保護用。MD5は衝突脆弱性があり、パスワード保存にはbcrypt・Argon2等を使うべき。「ハッシュ化＝暗号化」は誤り。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">MD5でハッシュ化して保存しているのでパスワードは暗号化されており安全</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>ソルトを付加したbcryptやArgon2等の適切なパスワードハッシュ関数を使用する</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="technology">
+      <div class="card-top">
+        <div class="trap-num">T-21</div>
+        <span class="cat-badge technology">技術解決策の罠</span>
+      </div>
+      <div class="trap-name">「セキュリティ through Obscurity」罠</div>
+      <div class="trap-pattern">「システム構成を非公開にすれば攻撃されにくい」が予防的に見える</div>
+      <div class="trap-why"><strong>Security through Obscurity（隠蔽によるセキュリティ）</strong>はCISSP的にNGの考え方。隠すことに依存したセキュリティは基盤として使えない。Kerckhoffsの原則：「システムの安全性は秘密の鍵だけに依存すべき」。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">ネットワーク構成を非公開にすることで攻撃者に情報を与えない</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>公開しても安全な暗号・設計に基づいた対策を実施し、隠蔽に依存しない</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="technology">
+      <div class="card-top">
+        <div class="trap-num">T-22</div>
+        <span class="cat-badge technology">技術解決策の罠</span>
+      </div>
+      <div class="trap-name">「バックアップ = DR対策完了」罠</div>
+      <div class="trap-pattern">「定期バックアップをとっているのでDR対策は完了している」が安心感を与える</div>
+      <div class="trap-why">バックアップはデータ保護の一部に過ぎない。<strong>DRはRTO・RPOに基づいた復旧手順・テスト・代替サイト</strong>の準備が必要。バックアップがあっても復旧手順がなければDRにならない。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">毎日バックアップを取得しているのでディザスタリカバリ対策は十分</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>RTO・RPOに基づいたDRPを策定し、代替サイトの準備と定期的なDRテストを実施する</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ポリシー・コンプライアンスの罠 ===== -->
+    <div class="trap-card" data-cat="policy">
+      <div class="card-top">
+        <div class="trap-num">T-23</div>
+        <span class="cat-badge policy">ポリシー・コンプライアンスの罠</span>
+      </div>
+      <div class="trap-name">「コンプライアンス準拠 = セキュア」罠</div>
+      <div class="trap-pattern">「PCI DSSに準拠しているから安全」が正当性があって正しそうに見える</div>
+      <div class="trap-why">コンプライアンスは<strong>最低限の要件</strong>であり、完全なセキュリティを保証しない。PCI DSSに準拠していても侵害は発生する。CISSPでは「コンプライアンスはセキュリティの床（floor）であり天井（ceiling）ではない」。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">PCI DSSに準拠しているため、カード情報のセキュリティは十分に確保されている</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>コンプライアンスを最低ラインとして、リスクベースで追加のセキュリティ対策を継続的に実施する</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="policy">
+      <div class="card-top">
+        <div class="trap-num">T-24</div>
+        <span class="cat-badge policy">ポリシー・コンプライアンスの罠</span>
+      </div>
+      <div class="trap-name">「ポリシーさえあれば十分」罠</div>
+      <div class="trap-pattern">「セキュリティポリシーを作成して全員に配布した」が対策完了に見える</div>
+      <div class="trap-why">ポリシーは<strong>認識・教育・施行（Enforcement）</strong>がセットで機能する。作っただけでは機能しない。定期的なトレーニング、準拠状況のモニタリング、違反時の対応が必要。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">セキュリティポリシーを文書化して全員に配布したので対策は完了した</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>ポリシー策定・教育・施行・監視・レビューのサイクルを継続的に回す</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="policy">
+      <div class="card-top">
+        <div class="trap-num">T-25</div>
+        <span class="cat-badge policy">ポリシー・コンプライアンスの罠</span>
+      </div>
+      <div class="trap-name">「例外を認めない厳格さ」罠</div>
+      <div class="trap-pattern">「ポリシーの例外は一切認めない」が厳格さとして正しそうに見える</div>
+      <div class="trap-why">現実のビジネス環境では例外が発生する。重要なのは<strong>例外を禁止することではなく、例外申請・承認・記録・レビューのプロセスを設けること</strong>。例外を認めないと、黙認や闇の抜け道が生まれる。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">ポリシーの例外は一切認めず、全ての従業員に同一の規則を適用する</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>正式な例外申請・承認・記録プロセスを設け、例外は管理された形で認める</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="policy">
+      <div class="card-top">
+        <div class="trap-num">T-26</div>
+        <span class="cat-badge policy">ポリシー・コンプライアンスの罠</span>
+      </div>
+      <div class="trap-name">「法的要件さえ満たせばよい」罠</div>
+      <div class="trap-pattern">「GDPRに違反していなければ個人情報の扱いは問題ない」が法的安心感を与える</div>
+      <div class="trap-why">法的要件は最低基準。<strong>プライバシーバイデザイン（Privacy by Design）</strong>の考え方では、法律が要求する以上に利用者のプライバシーを尊重する設計が求められる。CISSPはISC²倫理規定も含めて判断する。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">GDPR違反にならない範囲でユーザーデータを最大限に活用する</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>Privacy by Designの原則に基づき、データ最小化とユーザーの権利を最大限尊重する設計を行う</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 順序・優先度の罠 ===== -->
+    <div class="trap-card" data-cat="order">
+      <div class="card-top">
+        <div class="trap-num">T-27</div>
+        <span class="cat-badge order">順序・優先度の罠</span>
+      </div>
+      <div class="trap-name">「システム復旧より業務継続」罠</div>
+      <div class="trap-pattern">「BCPではシステム復旧を最優先にする」がIT中心の考え方として正しく見える</div>
+      <div class="trap-why">BCP（事業継続計画）の優先順位は<strong>①人命安全 → ②業務継続（重要機能） → ③システム復旧</strong>の順。ITシステムの復旧はあくまで手段であり目的ではない。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">BCPでは、最も重要なITシステムの復旧を最優先事項として計画する</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>BCPでは人命安全を最優先とし、次に重要ビジネス機能の継続、その後にシステム復旧の順で計画する</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="order">
+      <div class="card-top">
+        <div class="trap-num">T-28</div>
+        <span class="cat-badge order">順序・優先度の罠</span>
+      </div>
+      <div class="trap-name">「セキュリティ対策は最後に考える」罠</div>
+      <div class="trap-pattern">「まず機能を実装してから後でセキュリティを強化する」が効率的に見える</div>
+      <div class="trap-why">セキュリティは<strong>SDLC（システム開発ライフサイクル）の最初から組み込む</strong>べき。後付けは修正コストが高く、アーキテクチャレベルの問題は後で直せないことが多い（Shift Left）。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">まず製品の機能を完成させ、リリース前にセキュリティの問題を修正する</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>要件定義から設計・実装・テスト・デプロイの全フェーズでセキュリティを組み込む（Shift Left）</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="order">
+      <div class="card-top">
+        <div class="trap-num">T-29</div>
+        <span class="cat-badge order">順序・優先度の罠</span>
+      </div>
+      <div class="trap-name">「重大度が高い = 先に修正」罠</div>
+      <div class="trap-pattern">「CVSSスコアが高い脆弱性から順に修正する」が合理的に見える</div>
+      <div class="trap-why">CVSSスコアは汎用的な深刻度だが、<strong>自組織への実際のリスク（悪用可能性・資産価値・ビジネスへの影響）</strong>で優先順位を決めるべき。スコアが高くても自組織で使っていない機能なら優先度は下がる。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">CVSSスコアが10.0の脆弱性を最優先で修正し、スコアが低いものは後回しにする</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>自組織の資産価値・悪用可能性・ビジネス影響を考慮したリスクベースの優先順位付けを行う</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="order">
+      <div class="card-top">
+        <div class="trap-num">T-30</div>
+        <span class="cat-badge order">順序・優先度の罠</span>
+      </div>
+      <div class="trap-name">「ルール違反より人命優先」の誤解罠</div>
+      <div class="trap-pattern">「規則に従うことが最優先」が秩序を守る正しい選択肢に見える</div>
+      <div class="trap-why">CISSPの倫理規定（Code of Ethics）の第1原則は<strong>「社会・公衆衛生・安全・公正の保護」</strong>。人命・公衆の安全を守ることが、組織のルールや雇用主への忠誠より上位にある。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">重大な安全上の問題を発見したが、組織の機密保持ポリシーに従い社外には開示しない</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>公衆の安全を守るために、倫理的義務として適切な当局への報告（内部告発）を検討する</strong></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /trap-grid -->
+
+  <div class="page-footer">
+    <span>⚠️ このガイドはAIによって生成されています。正確な情報はISC²公式資料をご確認ください。</span>
+    <a href="./" style="text-decoration:none; color: var(--accent); font-weight: 600;">← シンキングガイドに戻る</a>
+  </div>
+
+</div><!-- /page-wrap -->
+
+<script>
+  // 認証チェック
+  if (sessionStorage.getItem('cissp_thinking_auth') !== '1') {
+    location.href = './';
+  }
+
+  // フィルター
+  const tabs  = document.querySelectorAll('.filter-tab');
+  const cards = document.querySelectorAll('.trap-card');
+  const countEl = document.getElementById('visible-count');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const f = tab.dataset.filter;
+      let visible = 0;
+      cards.forEach(card => {
+        const show = f === 'all' || card.dataset.cat === f;
+        card.classList.toggle('hidden', !show);
+        if (show) visible++;
+      });
+      countEl.textContent = visible;
+    });
+  });
+
+  // テーマ切替
+  const themeBtn = document.getElementById('theme-btn');
+  const themes = ['auto','dark','light'];
+  const icons  = { auto:'🌙', dark:'🌙', light:'☀️' };
+  let current  = localStorage.getItem('theme') || 'auto';
+  document.documentElement.setAttribute('data-theme', current);
+  themeBtn.textContent = icons[current];
+  themeBtn.addEventListener('click', () => {
+    const idx = themes.indexOf(current);
+    current = themes[(idx + 1) % themes.length];
+    document.documentElement.setAttribute('data-theme', current);
+    themeBtn.textContent = icons[current];
+    localStorage.setItem('theme', current);
+  });
+</script>
+
+</body>
+</html>

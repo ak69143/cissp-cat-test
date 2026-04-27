@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="auto">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>フレームワーク早見表 | CISSP シンキングガイド</title>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .page-wrap { max-width: 1100px; margin: 0 auto; padding: 48px 24px; }
+
+    .back-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 13px; color: var(--text-muted);
+      text-decoration: none; margin-bottom: 32px; transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--accent); }
+
+    .page-header { margin-bottom: 36px; }
+    .page-title-row { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 20px; }
+    .page-icon {
+      width: 52px; height: 52px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--accent), #06b6d4);
+      border-radius: 14px; display: flex; align-items: center;
+      justify-content: center; font-size: 24px;
+    }
+    .page-title-row h1 { font-size: 26px; font-weight: 800; line-height: 1.2; margin-bottom: 6px; }
+    .page-title-row p  { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+
+    .count-bar {
+      display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
+      font-size: 13px; color: var(--text-muted);
+    }
+    .count-total { font-size: 20px; font-weight: 800; color: var(--accent); }
+
+    /* フィルタータブ */
+    .filter-wrap {
+      margin-bottom: 28px;
+      overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px;
+    }
+    .filter-tabs { display: flex; gap: 8px; white-space: nowrap; min-width: max-content; }
+    .filter-tab {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 7px 16px;
+      font-size: 13px; font-weight: 600; color: var(--text-muted);
+      cursor: pointer; transition: all 0.15s; flex-shrink: 0;
+    }
+    .filter-tab:hover { color: var(--text-secondary); border-color: var(--text-muted); }
+    .filter-tab.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+    /* カードグリッド */
+    .fw-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+
+    /* フレームワークカード */
+    .fw-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+      display: flex; flex-direction: column; gap: 14px;
+      border-left: 4px solid var(--border);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .fw-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+    .fw-card.hidden { display: none; }
+
+    .fw-card[data-cat="nist"]       { border-left-color: #3498db; }
+    .fw-card[data-cat="iso"]        { border-left-color: #2ecc71; }
+    .fw-card[data-cat="model"]      { border-left-color: #9b59b6; }
+    .fw-card[data-cat="governance"] { border-left-color: #e67e22; }
+    .fw-card[data-cat="compliance"] { border-left-color: #e74c3c; }
+
+    .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .fw-abbr {
+      font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    .cat-badge {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+      padding: 3px 10px; border-radius: 10px; white-space: nowrap; flex-shrink: 0;
+    }
+    .cat-badge.nist       { background: rgba(52,152,219,0.15); color: #3498db; }
+    .cat-badge.iso        { background: rgba(46,204,113,0.15); color: #2ecc71; }
+    .cat-badge.model      { background: rgba(155,89,182,0.15); color: #9b59b6; }
+    .cat-badge.governance { background: rgba(230,126,34,0.15); color: #e67e22; }
+    .cat-badge.compliance { background: rgba(231,76,60,0.15);  color: #e74c3c; }
+
+    .fw-name { font-size: 18px; font-weight: 800; color: var(--text-primary); line-height: 1.3; }
+    .fw-tagline {
+      font-size: 13px; font-weight: 600; line-height: 1.6;
+      background: var(--bg-secondary); border-radius: var(--radius-sm);
+      padding: 10px 14px; border-left: 3px solid;
+      color: var(--text-primary);
+    }
+    .fw-card[data-cat="nist"]       .fw-tagline { border-color: #3498db; }
+    .fw-card[data-cat="iso"]        .fw-tagline { border-color: #2ecc71; }
+    .fw-card[data-cat="model"]      .fw-tagline { border-color: #9b59b6; }
+    .fw-card[data-cat="governance"] .fw-tagline { border-color: #e67e22; }
+    .fw-card[data-cat="compliance"] .fw-tagline { border-color: #e74c3c; }
+
+    .fw-components {
+      font-size: 13px; color: var(--text-secondary); line-height: 1.7;
+    }
+    .fw-components strong { color: var(--text-primary); }
+
+    .fw-components ul {
+      margin: 6px 0 0 0; padding-left: 18px;
+      display: flex; flex-direction: column; gap: 3px;
+    }
+
+    /* CISSP出題ポイント */
+    .cissp-point {
+      background: var(--bg-primary); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 10px 14px;
+    }
+    .point-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 1px;
+      color: var(--accent); margin-bottom: 5px;
+    }
+    .point-text { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+    .point-text strong { color: var(--text-primary); }
+
+    /* フッター */
+    .page-footer {
+      margin-top: 48px; padding-top: 24px;
+      border-top: 1px solid var(--border);
+      font-size: 13px; color: var(--text-muted);
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+    }
+
+    @media (max-width: 768px) {
+      .fw-grid { grid-template-columns: 1fr; }
+      .page-title-row { flex-direction: column; gap: 12px; }
+      .page-title-row h1 { font-size: 22px; }
+      .page-wrap { padding: 32px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<button class="theme-toggle-btn floating-theme-btn" id="theme-btn" title="テーマ切替">🌙</button>
+
+<div class="page-wrap">
+
+  <a href="./" class="back-link">← シンキングガイドに戻る</a>
+
+  <div class="page-header">
+    <div class="page-title-row">
+      <div class="page-icon">📚</div>
+      <div>
+        <h1>フレームワーク早見表</h1>
+        <p>NIST・ISO・セキュリティモデル・コンプライアンス規格を一覧で整理。<br>試験では「どのフレームワークがどの目的か」を問われる。</p>
+      </div>
+    </div>
+    <div class="count-bar">
+      表示中 <span class="count-total" id="visible-count">28</span> フレームワーク
+    </div>
+  </div>
+
+  <div class="filter-wrap">
+    <div class="filter-tabs">
+      <button class="filter-tab active" data-filter="all">すべて (28)</button>
+      <button class="filter-tab" data-filter="nist">NISTフレームワーク (4)</button>
+      <button class="filter-tab" data-filter="iso">ISO規格 (5)</button>
+      <button class="filter-tab" data-filter="model">セキュリティモデル (11)</button>
+      <button class="filter-tab" data-filter="governance">ガバナンス (4)</button>
+      <button class="filter-tab" data-filter="compliance">コンプライアンス (4)</button>
+    </div>
+  </div>
+
+  <div class="fw-grid" id="fw-grid">
+
+    <!-- ===== NIST ===== -->
+    <div class="fw-card" data-cat="nist">
+      <div class="card-top">
+        <div class="fw-abbr">NIST CSF 2.0</div>
+        <span class="cat-badge nist">NISTフレームワーク</span>
+      </div>
+      <div class="fw-name">サイバーセキュリティフレームワーク</div>
+      <div class="fw-tagline">サイバーセキュリティリスク管理の共通言語。2024年v2.0で「統治 Govern」が追加。</div>
+      <div class="fw-components">
+        <strong>6つのコア機能（2024年v2.0）</strong>
+        <ul>
+          <li><strong>Govern（統治）</strong>：v2.0で追加。組織の優先事項・リスク許容度を定義</li>
+          <li><strong>Identify（特定）</strong>：資産・リスクの識別</li>
+          <li><strong>Protect（防御）</strong>：適切な保護策の実施</li>
+          <li><strong>Detect（検知）</strong>：セキュリティイベントの検出</li>
+          <li><strong>Respond（対応）</strong>：インシデント対応活動</li>
+          <li><strong>Recover（回復）</strong>：能力・サービスの復旧</li>
+        </ul>
+      </div>
+      <div class="cissp-point">
+        <div class="point-label">▶ CISSP 出題ポイント</div>
+        <div class="point-text">v2.0で<strong>Governが追加</strong>されたことを必ず覚える。「組織のリスク管理体制の構築」はGovern。強制力なし（任意のフレームワーク）。</div>
+      </div>
+    </div>
+
+    <div class="fw-card" data-cat="nist">
+      <div class="card-top">
+        <div class="fw-abbr">NIST RMF (SP 800-37 Rev.2)</div>
+        <span class="cat-badge nist">NISTフレームワーク</span>
+      </div>
+      <div class="fw-name">リスク管理フレームワーク</div>
+      <div class="fw-tagline">連邦政府システム向けのリスク管理プロセス。7ステップで構成。</div>
+      <div class="fw-components">
+        <strong>7ステップ（Rev.2でPrepareが追加）</strong>
+        <ul>
+          <li><strong>Prepare</strong>：リスク管理の準備・前提整備（Rev.2で追加）</li>
+          <li><strong>Categorize</strong>：システムと情報の分類（FIPS 199準拠）</li>
+          <li><strong>Select</strong>：セキュリティコントロールの選択</li>
+          <li><strong>Implement</strong>：コントロールの実装</li>
+          <li><strong>Assess</strong>：コントロールの評価</li>
+          <li><strong>Authorize</strong>：運用承認（ATO: Authority to Operate）</li>
+          <li><strong>Monitor</strong>：継続的な監視</li>
+        </ul>
+      </div>
+      <div class="cissp-point">
+        <div class="point-label">▶ CISSP 出題ポイント</div>
+        <div class="point-text">ステップ順序を覚える。<strong>Authorizeステップ</strong>でシステムの運用が承認される。Rev.2で<strong>Prepare</strong>が先頭に追加された点も問われる。</div>
+      </div>
+    </div>
+
+    <div class="fw-card" data-cat="nist">
+      <div class="card-top">
+        <div class="fw-abbr">NIST SP 800-53 Rev.5</div>
+        <span class="cat-badge nist">NISTフレームワーク</span>
+      </div>
+      <div class="fw-name">セキュリティとプライバシーコントロール</div>
+      <div class="fw-tagline">連邦政府情報システム向けのセキュリティコントロールカタログ。20のコントロールファミリー。</div>
+      <div class="fw-components">
+        <strong>主なコントロールファミリー（20種）</strong>
+        <ul>
+          <li>AC（Access Control）、AT（Awareness Training）</li>
+          <li>AU（Audit and Accountability）、CA（Assessment）</li>
+          <li>CM（Configuration Management）、CP（Contingency Planning）</li>
+          <li>IA（Identification and Authentication）、IR（Incident Response）</li>
+          <li>Rev.5でプライバシーコントロール（PT, RA等）を統合</li>
+        </ul>
+      </div>
+      <div class="cissp-point">
+        <div class="point-label">▶ CISSP 出題ポイント</div>
+        <div class="point-text">RMFのSelectステップで参照するカタログ。<strong>Rev.5でプライバシーを統合</strong>。コントロールはBaseline（Low/Moderate/High）に分類される。</div>
+      </div>
+    </div>
+
+    <div class="fw-card" data-cat="nist">
+      <div class="card-top">
+        <div class="fw-abbr">NIST SP 800-171</div>
+        <span class="cat-badge nist">NISTフレームワーク</span>
+      </div>
+      <div class="fw-name">CUI保護（非連邦システム向け）</div>
+      <div class="fw-tagline">連邦政府以外のシステムでCUI（管理対象未分類情報）を扱う場合の要件。</div>
+      <div class="fw-components">
+        <strong>概要</strong>
+        <ul>
+          <li>SP 800-53のサブセット（110のセキュリティ要件）</li>
+          <li>14のファミリーで構成</li>
+          <li>防衛調達（DFARS）で準拠が義務化</li>
+          <li>CMMC（Cybersecurity Maturity Model Certification）の基礎</li>
+        </ul>
+      </div>
+      <div class="cissp-point">
+        <div class="point-label">▶ CISSP 出題ポイント</div>
+        <div class="point-text">「政府の請負業者がCUIを扱う場合の要件」= SP 800-171。SP 800-53との違いは<strong>連邦機関か否か</strong>。</div>
+      </div>
+    </div>
+
+    <!-- ===== ISO ===== -->
+    <div class="fw-card" data-cat="iso">
+      <div class="card-top">
+        <div class="fw-abbr">ISO/IEC 27001</div>
+        <span class="cat-badge iso">ISO規格</span>
+      </div>
+      <div class="fw-name">ISMS要件規格（認証規格）</div>
+      <div class="fw-tagline">情報セキュリティマネジメントシステム（ISMS）の要件を定める国際認証規格。</div>
+      <div class="fw-components">
+        <strong>構成</strong>
+        <ul>
+          <li>Annex A：93のセキュリティコントロール（2022年版）</li>
+          <li>PDCAサイクルに基づくマネジメントシステム</li>
+          <li>第三者認証が可能（27002との違い）</li>
+          <li>スコープ定義・リスクアセスメント・SoA（適用宣言書）が必須</li>
+        </ul>
+      </div>
+      <div class="cissp-point">
+        <div class="point-label">▶ CISSP 出題ポイント</div>
+        <div class="point-text"><strong>「認証取得できる」のは27001のみ</strong>。27002はガイダンスで認証なし。SoA（Statement of Applicability）でコントロールの適用可否を宣言する。</div>
+      </div>
+    </div>
+
+    <div class="fw-card" data-cat="iso">
+      <div class="card-top">
+        <div class="fw-abbr">ISO/IEC 27002</div>
+        <span class="cat-badge iso">ISO規格</span>
+      </div>
+      <div class="fw-name">セキュリティコントロール実装ガイダンス</div>
+      <div class="fw-tagline">27001のAnnex Aコントロールの実装手引き。認証規格ではなくガイダンス。</div>
+      <div class="fw-components">
+        <strong>2022年版の4テーマ分類</strong>
+        <ul>
+          <li><strong>組織的コントロール</strong>（37項目）</li>
+          <li><strong>人的コントロール</strong>（8項目）</li>
+          <li><strong>物理的コントロール</strong>（14項目）</li>
+          <li><strong>技術的コントロール</strong>（34項目）</li>
+          <li>合計93コントロール（旧版114から統合整理）</li>
+        </ul>
+      </div>
+      <div class="cissp-point">
+        <div class="point-label">▶ CISSP 出題ポイント</div>
+        <div class="point-text">27001の「要件（MUST）」に対し、27002は「推奨（SHOULD）」。<strong>認証は27001、実装ガイドは27002</strong>と覚える。</div>
+      </div>
+    </div>
+
+    <div class="fw-card" data-cat="iso">
+      <div class="card-top">
+        <div class="fw-abbr">ISO/IEC 27005</div>
+        <span class="cat-badge iso">ISO規格</span>
+      </div>
+      <div class="fw-name">情報セキュリティリスク管理</div>
+      <div class="fw-tagline">ISMSにおけるリスク管理プロセスのガイダンス。ISO 31000をベースに情報セキュリティ特化。</div>
+      <div class="fw-components">
+        <strong>プロセス</strong>
+        <ul>
+          <li>コンテキスト確立 → リスク特定 → リスク分析</li>
+          <li>リスク評価 → リスク対応 → 残留リスク受容</li>
+          <li>リスクコミュニケーション・モニタリング</li>
+          <li>定量・定性どちらのアプローチも許容</li>
+        </ul>
+      </div>
+      <div class="cissp-point">
+        <div class="point-label">▶ CISSP 出題ポイント</div>
+        <div class="point-text">「ISMSのリスク管理方法論」= 27005。<strong>リスク対応の4択</strong>（回避・軽減・移転・受容）はここで定義。</div>
+      </div>
+    </div>
+
+    <div class="fw-card" data-cat="iso">
+      <div class="card-top">
+        <div class="fw-abbr">ISO/IEC 27701</div>
+        <span class="cat-badge iso">ISO規格</span>
+      </div>
+      <div class="fw-name">プライバシー情報マネジメント（PIMS）</div>
+      <div class="fw-tagline">27001/27002をプライバシー（PII保護）に拡張した規格。GDPRへの対応を支援。</div>
+      <div class="fw-components">
+        <strong>概要</strong>
+        <ul>
+          <li>27001の拡張規格（27001取得が前提）</li>
+          <li>PII管理者（Controller）とPII処理者（Processor）の要件を規定</li>
+          <li>GDPR, CCPA等のプライバシー規制へのマッピング提供</li>
+        </ul>
+      </div>
+      <div class="cissp-point">
+        <div class="point-label">▶ CISSP 出題ポイント</div>
+        <div class="point-text">「プライバシー + ISMS = 27701」。GDPRのDPIA（データ保護影響評価）実施にも活用される。</div>
+      </div>
+    </div>
+
+    <div class="fw-card" data-cat="iso">
+      <div class="card-top">
+        <div class="fw-abbr">ISO 31000</div>
+        <span class="cat-badge iso">ISO規格</span>
+      </div>
+      <div class="fw-name">リスク管理（汎用）</div>
+      <div class="fw-tagline">あらゆる種類のリスクに適用できる汎用リスク管理フレームワーク。</div>
+      <div class="fw-components">
+        <strong>概要</strong>
+        <ul>
+          <li>原則・フレームワーク・プロセスの3要素で構成</li>
+          <li>業種・規模を問わず適用可能</li>
+          <li>27005はこれを情報セキュリティに特化させたもの</li>
+        </ul>
+      </div>
+      <div class="cissp-point">
+        <div class="point-label">▶ CISSP 出題ポイント</div>
+        <div class="point-text">「情報セキュリティのリスク管理」=27005、「組織全体のリスク管理」=31000と区別する。</div>
+      </div>
+    </div>
+
+    <!-- ===== セキュリティモデル ===== -->
+    <div class="fw-card" data-cat="model">
+      <div class="card-top">
+        <div class="fw-abbr">Bell-LaPadula</div>
+        <span class="cat-badge model">セキュリティモデル</span>
+      </div>
+      <div class="fw-name">機密性モデル</div>
+      <div class="fw-tagline">「機密情報の漏洩防止」に特化したMACモデル。軍の機密区分を基に設計。</div>
+      <div class="fw-components">
+        <strong>2つの特性</strong>
+        <ul>
+          <li><strong>Simple Security Property（ss特性）：「No Read Up」</strong><br>被験者は自分の機密区分より高いオブジェクトを読めない</li>
+          <li><strong>Star Property（*特性）：「No Write Down」</strong><br>被験者は自分の機密区分より低いオブジェクトに書けない</li>
+          <li>「上を読むな、下に書くな」＝機密情報の下方漏洩を防ぐ</li>
+        </ul>
+      </div>
+      <div class="cissp-point">
+        <div class="point-label">▶ CISSP 出題ポイント</div>
+        <div class="point-text"><strong>機密性（Confidentiality）のみ</strong>を保護。完全性は扱わない。「政府・軍の機密システム」に適した場面で選ぶ。Bibaとセットで覚える。</div>
+      </div>
+    </div>
+
+    <div class="fw-card" data-cat="model">
+      <div class="card-top">
+        <div class="fw-abbr">Biba</div>
+        <span class="cat-badge model">セキュリティモデル</span>
+      </div>
+      <div class="fw-name">完全性モデル</div>
+      <div class="fw-tagline">Bell-LaPadulaの「逆」。データの完全性（汚染防止）に特化。</div>
+      <div class="fw-components">
+        <strong>2つの特性（BLPの逆）</strong>
+        <ul>
+          <li><strong>Simple Integrity Property：「No Read Down」</strong><br>被験者は自分より完全性が低いオブジェクトを読めない（汚染防止）</li>
+          <li><strong>Star Integrity Property（*特性）：「No Write Up」</strong><br>被験者は自分より完全性が高いオブジェクトに書けない</li>
+          <li>「下を読むな、上に書くな」＝低品質データによる汚染を防ぐ</li>
+        </ul>
+      </div>
+      <div class="cissp-point">
+        <div class="point-label">▶ CISSP 出題ポイント</div>
+        <div class="point-text"><strong>完全性（Integrity）のみ</strong>を保護。BLPとBibaは方向が逆。「データの完全性保証」「金融システム」のシナリオで選ぶ。</div>
+      </div>
+    </div>
+
+    <div class="fw-card" data-cat="model">
+      <div class="card-top">
+        <div class="fw-abbr">Clark-Wilson</div>
+        <span class="cat-badge model">セキュリティモデル</span>
+      </div>
+      <div class="fw-name">商用完全性モデル</div>
+      <div class="fw-tagline">商用システム向けの完全性モデル。職務分離と承認済み手順によりデータ完全性を保証。</div>
+      <div class="fw-components">
+        <strong>4つの要素</strong>
+        <ul>
+          <li><strong>CDI</strong>（Constrained Data Items）：保護対象データ</li>
+          <li><strong>UDI</strong>（Unconstrained Data Items）：非保護データ（入力等）</li>
+          <li><strong>TP</strong>（Transformation Procedures）：CDIを操作する承認済みプロシージャ</li>
+          <li><strong>IVP</strong>（Integrity Verification Procedures）：CDIの整合性検証</li>
+          <li>アクセス三重構造：主体 → TP → CDI</li>
+        </ul>
+      </div>
+      <div class="cissp-point">
+        <div class="point-label">▶ CISSP 出題ポイント</div>
+        <div class="point-text">Bibaが「格付けレベル」で制御するのに対し、Clark-Wilsonは<strong>「承認された手順（TP）を通じてのみ」</strong>データを操作できる。職務分離・監査を組み込む。</div>
+      </div>
+    </div>
+
+    <div class="fw-card" data-cat="model">
+      <div class="card-top">
+        <div class="fw-abbr">Brewer-Nash（Chinese Wall）</div>
+        <span class="cat-badge model">セキュリティモデル</span>
+      </div>
+      <div class="fw-name">利益相反防止モデル</div>
+      <div class="fw-tagline">コンサルティング・金融業向け。過去のアクセス履歴に基づいて利益相反を動的に制御。</div>
+      <div class="fw-components">
+        <strong>仕組み</strong>
+        <ul>
+          <li>オブジェクトを「競合利益クラス」にグループ化</li>
+          <li>一度A社のデータにアクセスしたら、競合B社データへのアクセスを自動禁止</li>
+          <li>時間経過でアクセス可能オブジェクトが変化する動的モデル</li>
+        </ul>
+      </div>
+      <div class="cissp-point">
+        <div class="point-label">▶ CISSP 出題ポイント</div>
+        <div class="point-text">「利益相反（Conflict of Interest）」の防止 = Brewer-Nash。<strong>動的に変化するアクセス制御</strong>が特徴。コンサルや投資銀行のシナリオで登場。</div>
+      </div>
+    </div>
+
+    <div class="fw-card" data-cat="model">
+      <div class="card-top">
+        <div class="fw-abbr">Take-Grant</div>
+        <span class="cat-badge model">セキュリティモデル</span>
+      </div>
+      <div class="fw-name">アクセス権伝播モデル</div>
+      <div class="fw-tagline">グラフ理論でアクセス権の伝播を形式的に分析するモデル。</div>
+      <div class="fw-components">
+        <strong>4つの操作</strong>
+        <ul>
+          <li><strong>Take</strong>：別の主体からアクセス権を取得</li>
+          <li><strong>Grant</strong>：別の主体へアクセス権を付与</li>
+          <li><strong>Create</strong>：新しい主体・客体を作成</li>
+          <li><strong>Remove</strong>：アクセス権を削除</li>
+        </ul>
+      </div>
+      <div class="cissp-point">
+        <div class="point-label">▶ CISSP 出題ポイント</div>
+        <div class="point-text">「アクセス権の伝播を分析するモデル」= Take-Grant。「誰が誰に権限を渡せるか」の形式的証明に使う。試験では名称と目的の照合が多い。</div>
+      </div>
+    </div>
+
+    <div class="fw-card" data-cat="model">
+      <div class="card-top">
+        <div class="fw-abbr">Graham-Denning</div>
+        <span class="cat-badge model">セキュリティモデル</span>
+      </div>
+      <div class="fw-name">保護権限管理モデル</div>
+      <div class="fw-tagline">主体・客体の作成・削除と権限の移譲を定義する8つの保護権限を規定。</div>
+      <div class="fw-components">
+        <strong>8つの保護権（抜粋）</strong>
+        <ul>
+          <li>主体の作成・削除、客体の作成・削除</li>
+          <li>アクセス権の読み取り・付与・削除・移転</li>
+        </ul>
+      </div>
+      <div class="cissp-point">
+        <div class="point-label">▶ CISSP 出題ポイント</div>
+        <div class="point-text">「8つの保護権限」が特徴。Take-Grantより詳細。試験では名称と「主体/客体の生成・削除」を管理するモデルとして問われる。</div>
+      </div>
+    </div>
+
+    <div class="fw-card" data-cat="model">
+      <div class="card-top">
+        <div class="fw-abbr">Harrison-Ruzzo-Ullman (HRU)</div>
+        <span class="cat-badge model">セキュリティモデル</span>
+      </div>
+      <div class="fw-name">アクセス行列モデル</div>
+      <div class="fw-tagline">主体×客体のアクセス行列でシステムの安全性（Safety）を形式的に検証。</div>
+      <div class="fw-components">
+        <strong>概要</strong>
+        <ul>
+          <li>アクセス行列（Access Matrix）で権限状態を表現</li>
+          <li>操作（コマンド）による状態遷移を定義</li>
+          <li>「この権限が漏れることはないか？」を証明するための理論モデル</li>
+        </ul>
+      </div>
+      <div class="cissp-point">
+        <div class="point-label">▶ CISSP 出題ポイント</div>
+        <div class="point-text">「アクセス行列で安全性を証明」= HRU。完全な安全性証明は一般的には決定不能（undecidable）であることが知られている。</div>
+      </div>
+    </div>
+
+    <div class="fw-card" data-cat="model">
+      <div class="card-top">
+        <div class="fw-abbr">Trusted Computing Base (TCB)</div>
+        <span class="cat-badge model">セキュリティモデル</span>
+      </div>
+      <div class="fw-name">信頼できるコンピューティング基盤</div>
+      <div class="fw-tagline">セキュリティポリシーを強制するすべてのH/W・S/W・ファームウェアの集合。</div>
+      <div class="fw-components">
+        <strong>概要</strong>
+        <ul>
+          <li>TCBに含まれるもの：OS・ハイパーバイザー・セキュリティ機能</li>
+          <li>TCBが小さいほど攻撃面が小さく、検証が容易</li>
+          <li>参照モニター（Reference Monitor）はTCBの中核概念</li>
+        </ul>
+      </div>
+      <div class="cissp-point">
+        <div class="point-label">▶ CISSP 出題ポイント</div>
+        <div class="point-text">「TCBは小さいほど良い」が基本原則。参照モニターの3条件：<strong>常に呼び出される・改ざん不可・検証可能な小ささ</strong>。</div>
+      </div>
+    </div>
+
+    <div class="fw-card" data-cat="model">
+      <div class="card-top">
+        <div class="fw-abbr">Lattice-Based Access Control</div>
+        <span class="cat-badge model">セキュリティモデル</span>
+      </div>
+      <div class="fw-name">格子ベースアクセス制御</div>
+      <div class="fw-tagline">セキュリティラベルを格子（半順序集合）として定義し、情報フローを制御。MACの数学的基礎。</div>
+      <div class="fw-components">
+        <strong>概要</strong>
+        <ul>
+          <li>各主体・客体にセキュリティレベルを割り当て</li>
+          <li>情報フローは低 → 高方向のみ許可（機密性）</li>
+          <li>Bell-LaPadula・Bibaはこの格子構造を利用</li>
+        </ul>
+      </div>
+      <div class="cissp-point">
+        <div class="point-label">▶ CISSP 出題ポイント</div>
+        <div class="point-text">MACモデルの数学的基盤。「情報フロー制御」の文脈で登場。BLPやBibaの理論的土台として理解する。</div>
+      </div>
+    </div>
+
+    <div class="fw-card" data-cat="model">
+      <div class="card-top">
+        <div class="fw-abbr">State Machine Model</div>
+        <span class="cat-badge model">セキュリティモデル</span>
+      </div>
+      <div class="fw-name">状態機械モデル</div>
+      <div class="fw-tagline">システムを状態の集合とその遷移として表現。すべての状態がセキュアであることを保証。</div>
+      <div class="fw-components">
+        <strong>概要</strong>
+        <ul>
+          <li>初期状態がセキュアであること</li>
+          <li>セキュアな状態からセキュアな状態へのみ遷移</li>
+          <li>Bell-LaPadula・Bibaはこのモデルを基礎にする</li>
+        </ul>
+      </div>
+      <div class="cissp-point">
+        <div class="point-label">▶ CISSP 出題ポイント</div>
+        <div class="point-text">「状態機械モデル」= セキュリティモデルの基礎理論。BLPやBibaが「どの状態でもセキュリティ特性を満たす」ことをこのモデルで証明する。</div>
+      </div>
+    </div>
+
+    <div class="fw-card" data-cat="model">
+      <div class="card-top">
+        <div class="fw-abbr">Non-Interference Model</div>
+        <span class="cat-badge model">セキュリティモデル</span>
+      </div>
+      <div class="fw-name">非干渉モデル</div>
+      <div class="fw-tagline">高機密レベルの操作が低機密レベルの出力に影響を与えないことを保証。サイドチャネル攻撃対策の理論基盤。</div>
+      <div class="fw-components">
+        <strong>概要</strong>
+        <ul>
+          <li>情報フローの隠れたチャネル（コバートチャネル）防止</li>
+          <li>高セキュリティドメインの処理が低セキュリティドメインに「干渉しない」</li>
+          <li>BLPより厳格（タイミング攻撃等も考慮）</li>
+        </ul>
+      </div>
+      <div class="cissp-point">
+        <div class="point-label">▶ CISSP 出題ポイント</div>
+        <div class="point-text">「コバートチャネル（隠れチャネル）」の防止モデル。情報の<strong>意図しない漏洩経路を理論的に排除</strong>したい場合のモデル。</div>
+      </div>
+    </div>
+
+    <!-- ===== ガバナンス ===== -->
+    <div class="fw-card" data-cat="governance">
+      <div class="card-top">
+        <div class="fw-abbr">COBIT 2019</div>
+        <span class="cat-badge governance">ガバナンス</span>
+      </div>
+      <div class="fw-name">ITガバナンスフレームワーク</div>
+      <div class="fw-tagline">ITガバナンスとマネジメントを包括的に定義。ISACA発行。企業のIT統治に広く使われる。</div>
+      <div class="fw-components">
+        <strong>概要</strong>
+        <ul>
+          <li>6つのガバナンス原則（COBIT 2019）</li>
+          <li>40の目標（旧37）でITプロセスを体系化</li>
+          <li>ISO 38500（IT統治）との整合性</li>
+          <li>VAL IT（価値管理）・Risk IT（リスク管理）を統合</li>
+        </ul>
+      </div>
+      <div class="cissp-point">
+        <div class="point-label">▶ CISSP 出題ポイント</div>
+        <div class="point-text">「ITガバナンス」= COBIT。ITIL（IT運用/サービス管理）と混同しない。<strong>経営層がITを統治するためのフレームワーク</strong>。</div>
+      </div>
+    </div>
+
+    <div class="fw-card" data-cat="governance">
+      <div class="card-top">
+        <div class="fw-abbr">ITIL 4</div>
+        <span class="cat-badge governance">ガバナンス</span>
+      </div>
+      <div class="fw-name">ITサービス管理フレームワーク</div>
+      <div class="fw-tagline">ITサービスのライフサイクル管理のベストプラクティス集。COBITとは補完関係。</div>
+      <div class="fw-components">
+        <strong>ITIL 4のコア概念</strong>
+        <ul>
+          <li>4つのディメンション（組織・情報/技術・パートナー・バリューストリーム）</li>
+          <li>SVS（サービスバリューシステム）</li>
+          <li>34のプラクティス（旧26プロセス）</li>
+          <li>継続的改善（Continual Improvement）を重視</li>
+        </ul>
+      </div>
+      <div class="cissp-point">
+        <div class="point-label">▶ CISSP 出題ポイント</div>
+        <div class="point-text">COBIT=ガバナンス、ITIL=<strong>サービス管理（運用）</strong>と区別する。「変更管理（Change Management）」「インシデント管理」のベストプラクティスとして登場。</div>
+      </div>
+    </div>
+
+    <div class="fw-card" data-cat="governance">
+      <div class="card-top">
+        <div class="fw-abbr">SABSA</div>
+        <span class="cat-badge governance">ガバナンス</span>
+      </div>
+      <div class="fw-name">セキュリティアーキテクチャフレームワーク</div>
+      <div class="fw-tagline">ビジネス要件からセキュリティアーキテクチャを導出するリスクベースフレームワーク。</div>
+      <div class="fw-components">
+        <strong>6つのアーキテクチャ層（Zachmanに対応）</strong>
+        <ul>
+          <li>Contextual（コンテキスト）→ Conceptual → Logical</li>
+          <li>Physical → Component → Operational</li>
+          <li>各層で「資産・動機・プロセス・人・場所・時間」の6次元</li>
+        </ul>
+      </div>
+      <div class="cissp-point">
+        <div class="point-label">▶ CISSP 出題ポイント</div>
+        <div class="point-text">「エンタープライズセキュリティアーキテクチャ」= SABSA。<strong>ビジネス属性（Business Attributes）</strong>からセキュリティ要件を導出する点が特徴。TOGAFとの違いも問われる。</div>
+      </div>
+    </div>
+
+    <div class="fw-card" data-cat="governance">
+      <div class="card-top">
+        <div class="fw-abbr">COSO</div>
+        <span class="cat-badge governance">ガバナンス</span>
+      </div>
+      <div class="fw-name">内部統制フレームワーク</div>
+      <div class="fw-tagline">財務報告の信頼性を確保するための内部統制フレームワーク。SOX法の基礎。</div>
+      <div class="fw-components">
+        <strong>5つのコンポーネント</strong>
+        <ul>
+          <li>統制環境・リスク評価・統制活動</li>
+          <li>情報とコミュニケーション・モニタリング</li>
+          <li>3つの目的：業務の有効性・財務報告の信頼性・コンプライアンス</li>
+        </ul>
+      </div>
+      <div class="cissp-point">
+        <div class="point-label">▶ CISSP 出題ポイント</div>
+        <div class="point-text">「財務報告の内部統制」= COSO。SOX法対応に使われる。セキュリティ試験では<strong>「どのフレームワークが財務統制向けか」</strong>という問いで登場。</div>
+      </div>
+    </div>
+
+    <!-- ===== コンプライアンス ===== -->
+    <div class="fw-card" data-cat="compliance">
+      <div class="card-top">
+        <div class="fw-abbr">PCI DSS v4.0</div>
+        <span class="cat-badge compliance">コンプライアンス</span>
+      </div>
+      <div class="fw-name">カード決済セキュリティ基準</div>
+      <div class="fw-tagline">クレジットカード情報を扱う組織が準拠必須の業界基準。VISA/Mastercard等が策定。</div>
+      <div class="fw-components">
+        <strong>12要件（6目標）</strong>
+        <ul>
+          <li>安全なネットワーク構築・維持（要件1-2）</li>
+          <li>カード会員データの保護（要件3-4）</li>
+          <li>脆弱性管理プログラム（要件5-6）</li>
+          <li>強固なアクセス制御（要件7-9）</li>
+          <li>ネットワーク監視・テスト（要件10-11）</li>
+          <li>情報セキュリティポリシー（要件12）</li>
+        </ul>
+      </div>
+      <div class="cissp-point">
+        <div class="point-label">▶ CISSP 出題ポイント</div>
+        <div class="point-text">「12要件」が頻出。カード情報（PAN）は<strong>保存不可が原則</strong>。v4.0では認証強化とカスタマイズドアプローチが追加された。</div>
+      </div>
+    </div>
+
+    <div class="fw-card" data-cat="compliance">
+      <div class="card-top">
+        <div class="fw-abbr">GDPR</div>
+        <span class="cat-badge compliance">コンプライアンス</span>
+      </div>
+      <div class="fw-name">EU一般データ保護規則</div>
+      <div class="fw-tagline">EU市民の個人データを保護する規制。EU域外の組織にも適用される。2018年施行。</div>
+      <div class="fw-components">
+        <strong>主要原則（7原則）</strong>
+        <ul>
+          <li>適法性・公正性・透明性 / 目的の限定 / データ最小化</li>
+          <li>正確性 / 保存の制限 / 完全性と機密性 / 説明責任</li>
+          <li>個人の権利：忘れられる権利・アクセス権・ポータビリティ権</li>
+          <li>データ侵害通知：DPA（監督機関）へ<strong>72時間以内</strong>に通知</li>
+        </ul>
+      </div>
+      <div class="cissp-point">
+        <div class="point-label">▶ CISSP 出題ポイント</div>
+        <div class="point-text"><strong>72時間通知</strong>・<strong>忘れられる権利（消去権）</strong>・DPO（データ保護責任者）の選任義務を覚える。「域外適用」（EU市民データを扱えば非EU企業にも適用）も頻出。</div>
+      </div>
+    </div>
+
+    <div class="fw-card" data-cat="compliance">
+      <div class="card-top">
+        <div class="fw-abbr">HIPAA</div>
+        <span class="cat-badge compliance">コンプライアンス</span>
+      </div>
+      <div class="fw-name">米国医療情報保護法</div>
+      <div class="fw-tagline">医療情報（PHI）の保護を義務付ける米国法律。医療機関・保険会社・取引先に適用。</div>
+      <div class="fw-components">
+        <strong>3つのルール</strong>
+        <ul>
+          <li><strong>Privacy Rule</strong>：PHIの使用・開示を制限</li>
+          <li><strong>Security Rule</strong>：電子PHI（ePHI）のセキュリティ要件（管理・物理・技術的保護措置）</li>
+          <li><strong>Breach Notification Rule</strong>：侵害発生時の通知義務（60日以内）</li>
+          <li>Business Associate（BAA契約）：PHIを扱う取引先にも適用</li>
+        </ul>
+      </div>
+      <div class="cissp-point">
+        <div class="point-label">▶ CISSP 出題ポイント</div>
+        <div class="point-text">「医療情報」= HIPAA。<strong>PHIとePHIの区別</strong>・BAA（Business Associate Agreement）の締結義務・60日通知を覚える。</div>
+      </div>
+    </div>
+
+    <div class="fw-card" data-cat="compliance">
+      <div class="card-top">
+        <div class="fw-abbr">SOC 2</div>
+        <span class="cat-badge compliance">コンプライアンス</span>
+      </div>
+      <div class="fw-name">サービス組織のセキュリティ報告</div>
+      <div class="fw-tagline">クラウド・SaaSプロバイダー向けの第三者保証報告書。AICPA（米国公認会計士協会）が策定。</div>
+      <div class="fw-components">
+        <strong>5つのトラストサービス基準（TSC）</strong>
+        <ul>
+          <li><strong>Security</strong>（必須）：不正アクセスからの保護</li>
+          <li><strong>Availability</strong>：合意したパフォーマンスを維持</li>
+          <li><strong>Confidentiality</strong>：機密情報の保護</li>
+          <li><strong>Processing Integrity</strong>：処理の完全性</li>
+          <li><strong>Privacy</strong>：個人情報の収集・使用・保持</li>
+          <li>Type I（時点評価）vs Type II（期間評価）</li>
+        </ul>
+      </div>
+      <div class="cissp-point">
+        <div class="point-label">▶ CISSP 出題ポイント</div>
+        <div class="point-text">「クラウドプロバイダーへのセキュリティ要求」= SOC 2。<strong>Type II</strong>（6ヶ月以上の運用実績）が実質的に信頼性の証明。Securityのみ必須で他は任意。</div>
+      </div>
+    </div>
+
+  </div><!-- /fw-grid -->
+
+  <div class="page-footer">
+    <span>⚠️ このガイドはAIによって生成されています。正確な情報はISC²公式資料をご確認ください。</span>
+    <a href="./" style="text-decoration:none; color: var(--accent); font-weight: 600;">← シンキングガイドに戻る</a>
+  </div>
+
+</div><!-- /page-wrap -->
+
+<script>
+  // 認証チェック
+  if (sessionStorage.getItem('cissp_thinking_auth') !== '1') {
+    location.href = './';
+  }
+
+  // フィルター
+  const tabs  = document.querySelectorAll('.filter-tab');
+  const cards = document.querySelectorAll('.fw-card');
+  const countEl = document.getElementById('visible-count');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const f = tab.dataset.filter;
+      let visible = 0;
+      cards.forEach(card => {
+        const show = f === 'all' || card.dataset.cat === f;
+        card.classList.toggle('hidden', !show);
+        if (show) visible++;
+      });
+      countEl.textContent = visible;
+    });
+  });
+
+  // テーマ切替
+  const themeBtn = document.getElementById('theme-btn');
+  const themes = ['auto','dark','light'];
+  const icons  = { auto:'🌙', dark:'🌙', light:'☀️' };
+  let current  = localStorage.getItem('theme') || 'auto';
+  document.documentElement.setAttribute('data-theme', current);
+  themeBtn.textContent = icons[current];
+  themeBtn.addEventListener('click', () => {
+    const idx = themes.indexOf(current);
+    current = themes[(idx + 1) % themes.length];
+    document.documentElement.setAttribute('data-theme', current);
+    themeBtn.textContent = icons[current];
+    localStorage.setItem('theme', current);
+  });
+</script>
+
+</body>
+</html>
