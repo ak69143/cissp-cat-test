@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="auto">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>思考パターン集 | CISSP シンキングガイド</title>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .page-wrap { max-width: 1100px; margin: 0 auto; padding: 48px 24px; }
+
+    .back-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 13px; color: var(--text-muted);
+      text-decoration: none; margin-bottom: 32px; transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--accent); }
+
+    /* ヘッダー */
+    .page-header { margin-bottom: 36px; }
+    .page-title-row { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 20px; }
+    .page-icon {
+      width: 52px; height: 52px; flex-shrink: 0;
+      background: linear-gradient(135deg, #8b5cf6, var(--accent));
+      border-radius: 14px; display: flex; align-items: center;
+      justify-content: center; font-size: 24px;
+    }
+    .page-title-row h1 { font-size: 26px; font-weight: 800; line-height: 1.2; margin-bottom: 6px; }
+    .page-title-row p  { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+
+    /* カウントバー */
+    .count-bar {
+      display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
+      font-size: 13px; color: var(--text-muted);
+    }
+    .count-total { font-size: 20px; font-weight: 800; color: var(--accent); }
+    .count-dot { color: var(--border); }
+
+    /* フィルタータブ */
+    .filter-wrap {
+      margin-bottom: 28px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 4px;
+    }
+    .filter-tabs {
+      display: flex; gap: 8px;
+      white-space: nowrap;
+      min-width: max-content;
+    }
+    .filter-tab {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 7px 16px;
+      font-size: 13px; font-weight: 600; color: var(--text-muted);
+      cursor: pointer; transition: all 0.15s; flex-shrink: 0;
+      white-space: nowrap;
+    }
+    .filter-tab:hover { color: var(--text-secondary); border-color: var(--text-muted); }
+    .filter-tab.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+    /* パターングリッド */
+    .pattern-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+
+    /* パターンカード */
+    .pattern-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+      display: flex; flex-direction: column; gap: 14px;
+      border-left: 4px solid var(--border);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .pattern-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+    .pattern-card.hidden { display: none; }
+
+    .pattern-card[data-cat="priority"] { border-left-color: #f39c12; }
+    .pattern-card[data-cat="risk"]     { border-left-color: #e74c3c; }
+    .pattern-card[data-cat="control"]  { border-left-color: #2ecc71; }
+    .pattern-card[data-cat="access"]   { border-left-color: #1abc9c; }
+    .pattern-card[data-cat="crypto"]   { border-left-color: #e67e22; }
+    .pattern-card[data-cat="mindset"]  { border-left-color: #8b5cf6; }
+    .pattern-card[data-cat="incident"] { border-left-color: #4f8ef7; }
+
+    /* カードヘッダー */
+    .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .card-num { font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--text-muted); }
+    .cat-badge {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+      padding: 3px 10px; border-radius: 10px; white-space: nowrap; flex-shrink: 0;
+    }
+    .cat-badge.priority { background: rgba(243,156,18,0.15); color: #f39c12; }
+    .cat-badge.risk     { background: rgba(231,76,60,0.15);  color: #e74c3c; }
+    .cat-badge.control  { background: rgba(46,204,113,0.15); color: #2ecc71; }
+    .cat-badge.access   { background: rgba(26,188,156,0.15); color: #1abc9c; }
+    .cat-badge.crypto   { background: rgba(230,126,34,0.15); color: #e67e22; }
+    .cat-badge.mindset  { background: rgba(139,92,246,0.15); color: #8b5cf6; }
+    .cat-badge.incident { background: rgba(79,142,247,0.15); color: #4f8ef7; }
+
+    .pattern-name { font-size: 18px; font-weight: 800; color: var(--text-primary); line-height: 1.3; }
+
+    /* ルール */
+    .pattern-rule {
+      font-size: 13px; font-weight: 600; line-height: 1.6;
+      background: var(--bg-secondary); border-radius: var(--radius-sm);
+      padding: 10px 14px; border-left: 3px solid currentColor;
+    }
+    .pattern-card[data-cat="priority"] .pattern-rule { color: #f39c12; }
+    .pattern-card[data-cat="risk"]     .pattern-rule { color: #e74c3c; }
+    .pattern-card[data-cat="control"]  .pattern-rule { color: #2ecc71; }
+    .pattern-card[data-cat="access"]   .pattern-rule { color: #1abc9c; }
+    .pattern-card[data-cat="crypto"]   .pattern-rule { color: #e67e22; }
+    .pattern-card[data-cat="mindset"]  .pattern-rule { color: #8b5cf6; }
+    .pattern-card[data-cat="incident"] .pattern-rule { color: #4f8ef7; }
+
+    /* 説明 */
+    .pattern-why { font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+    .pattern-why strong { color: var(--text-primary); }
+
+    /* 例 */
+    .pattern-example {
+      background: var(--bg-primary); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 10px 14px;
+    }
+    .example-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 1px;
+      color: var(--text-muted); margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+    .example-text { font-size: 12px; color: var(--text-secondary); line-height: 1.7; }
+    .example-text .wrong { color: var(--danger); font-weight: 600; }
+    .example-text .right { color: var(--success); font-weight: 600; }
+
+    /* タグ */
+    .pattern-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: auto; }
+    .tag {
+      font-size: 11px; color: var(--text-muted);
+      background: var(--bg-secondary); border: 1px solid var(--border);
+      border-radius: 6px; padding: 2px 7px;
+    }
+
+    /* フッター */
+    .page-footer {
+      margin-top: 56px; padding-top: 28px; border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
+    }
+    .footer-note { font-size: 13px; color: var(--text-muted); }
+
+    /* ===== レスポンシブ ===== */
+    @media (max-width: 768px) {
+      .page-wrap { padding: 28px 16px; }
+      .pattern-grid { grid-template-columns: 1fr; gap: 14px; }
+      .page-title-row { flex-direction: column; gap: 12px; }
+      .page-title-row h1 { font-size: 22px; }
+      .pattern-card { padding: 20px; }
+      .pattern-name { font-size: 16px; }
+      .page-footer { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<button class="theme-toggle-btn floating-theme-btn" id="theme-btn" title="テーマ切替">🌙</button>
+
+<div class="page-wrap">
+
+  <a href="./" class="back-link">← ガイドトップに戻る</a>
+
+  <div class="page-header">
+    <div class="page-title-row">
+      <div class="page-icon">🧩</div>
+      <div>
+        <h1>思考パターン集</h1>
+        <p>CISSPで頻出の判断パターン40個。問題を解くたびにこのパターンに当てはめる練習をしましょう。</p>
+      </div>
+    </div>
+    <div class="count-bar">
+      <span class="count-total" id="visible-count">40</span>
+      <span>/ 40 パターン表示中</span>
+    </div>
+  </div>
+
+  <!-- フィルター -->
+  <div class="filter-wrap">
+    <div class="filter-tabs" id="filter-tabs">
+      <button class="filter-tab active" data-filter="all">すべて (40)</button>
+      <button class="filter-tab" data-filter="priority">優先順位 (6)</button>
+      <button class="filter-tab" data-filter="risk">リスク管理 (7)</button>
+      <button class="filter-tab" data-filter="control">コントロール (6)</button>
+      <button class="filter-tab" data-filter="access">アクセス制御 (6)</button>
+      <button class="filter-tab" data-filter="crypto">暗号・技術 (5)</button>
+      <button class="filter-tab" data-filter="mindset">マネージャー思考 (6)</button>
+      <button class="filter-tab" data-filter="incident">インシデント対応 (4)</button>
+    </div>
+  </div>
+
+  <!-- パターングリッド -->
+  <div class="pattern-grid" id="pattern-grid">
+
+    <!-- ===== 優先順位 ===== -->
+    <div class="pattern-card" data-cat="priority">
+      <div class="card-top"><span class="card-num">#01</span><span class="cat-badge priority">優先順位</span></div>
+      <div class="pattern-name">予防 ＞ 検知 ＞ 対応</div>
+      <div class="pattern-rule">コントロールを選ぶときは「予防的」を最優先に選ぶ</div>
+      <div class="pattern-why">CISSPは<strong>「問題が起きる前に防ぐ」</strong>ことを最重視します。検知・対応は後手の対策。予防が最善です。</div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          <span class="wrong">✗ 侵入検知システム（IDS）を導入する → 検知（後手）</span><br>
+          <span class="right">✓ ファイアウォールでアクセスを制限する → 予防</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">コントロール選択</span><span class="tag">セキュリティ設計</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="priority">
+      <div class="card-top"><span class="card-num">#02</span><span class="cat-badge priority">優先順位</span></div>
+      <div class="pattern-name">「最初にすべきこと」＝ 確認・承認</div>
+      <div class="pattern-rule">即座に動く前に、スコープ確認・上位への報告・承認取得を行う</div>
+      <div class="pattern-why">CISSPは<strong>衝動的な対応よりプロセスを重視</strong>します。「何かが起きた」ときの最初の行動は「把握する・報告する」です。</div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          Q: セキュリティ侵害を発見した。最初に取るべき行動は？<br>
+          <span class="wrong">✗ すぐにシステムをシャットダウンする</span><br>
+          <span class="right">✓ インシデントの範囲を把握し、経営層に報告する</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">ガバナンス</span><span class="tag">インシデント対応</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="priority">
+      <div class="card-top"><span class="card-num">#03</span><span class="cat-badge priority">優先順位</span></div>
+      <div class="pattern-name">人命・安全がすべてに優先する</div>
+      <div class="pattern-rule">BCP・DR・物理セキュリティの文脈では、人の安全がビジネス継続より常に優先</div>
+      <div class="pattern-why">ISC²の倫理規定では「公共の安全・セキュリティ・福祉の保護」が最上位に位置づけられています。データや資産より<strong>人命を守ること</strong>が第一です。</div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          Q: 火災発生時、データセンターで最初にすべきことは？<br>
+          <span class="wrong">✗ サーバーを安全にシャットダウンする</span><br>
+          <span class="right">✓ 人員を避難させる</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">ISC²倫理規定</span><span class="tag">BCP/DR</span><span class="tag">物理セキュリティ</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="priority">
+      <div class="card-top"><span class="card-num">#04</span><span class="cat-badge priority">優先順位</span></div>
+      <div class="pattern-name">セキュリティはビジネス目標に奉仕する</div>
+      <div class="pattern-rule">セキュリティ対策はビジネスを止めるためではなく、支えるためにある</div>
+      <div class="pattern-why">100%安全なシステムは<strong>使えないシステム</strong>です。セキュリティの目的はビジネスの継続性を守ること。セキュリティ単独の判断ではなくビジネスインパクトを必ず考慮します。</div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          Q: 強固なセキュリティのために業務システムを停止すべきか？<br>
+          <span class="wrong">✗ セキュリティ最優先で停止する</span><br>
+          <span class="right">✓ リスクを評価し、業務継続とのバランスで判断する</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">ビジネス整合性</span><span class="tag">リスク評価</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="priority">
+      <div class="card-top"><span class="card-num">#05</span><span class="cat-badge priority">優先順位</span></div>
+      <div class="pattern-name">リスク評価は対策より先に行う</div>
+      <div class="pattern-rule">何かを実装する前に、必ずリスクアセスメントを先に行う</div>
+      <div class="pattern-why">評価なしの対策は<strong>コスト過多か無意味</strong>になります。「何のリスクに対処するのか」を明確にしてから実装します。</div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          Q: セキュリティ強化のため最初にすべきことは？<br>
+          <span class="wrong">✗ ファイアウォールやIDSを導入する</span><br>
+          <span class="right">✓ リスクアセスメントを実施して脅威と脆弱性を特定する</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">リスクマネジメント</span><span class="tag">セキュリティ計画</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="priority">
+      <div class="card-top"><span class="card-num">#06</span><span class="cat-badge priority">優先順位</span></div>
+      <div class="pattern-name">コンプライアンスはセキュリティの最低ライン</div>
+      <div class="pattern-rule">法令・規制への準拠は出発点であり、完全なセキュリティを意味しない</div>
+      <div class="pattern-why">準拠していても攻撃される可能性はあります。<strong>コンプライアンスはベースライン</strong>であり、セキュリティはそれ以上を目指すものです。</div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          「PCI DSS に準拠しているので安全です」→ <span class="wrong">✗ 準拠≠セキュア</span><br>
+          <span class="right">✓ 準拠はスタート地点。脅威に合わせた追加対策も必要</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">コンプライアンス</span><span class="tag">規制対応</span></div>
+    </div>
+
+    <!-- ===== リスク管理 ===== -->
+    <div class="pattern-card" data-cat="risk">
+      <div class="card-top"><span class="card-num">#07</span><span class="cat-badge risk">リスク管理</span></div>
+      <div class="pattern-name">リスク対応の4択を使い分ける</div>
+      <div class="pattern-rule">軽減・移転・受容・回避 ── コストと影響度で判断する</div>
+      <div class="pattern-why">
+        リスクの完全排除は不可能です。コスト対効果を考えて対応方法を選びます。<br>
+        · <strong>軽減（Mitigate）</strong>: 対策してリスクを下げる<br>
+        · <strong>移転（Transfer）</strong>: 保険・外部委託でリスクを移す<br>
+        · <strong>受容（Accept）</strong>: 低リスクなら許容する<br>
+        · <strong>回避（Avoid）</strong>: その活動自体をやめる
+      </div>
+      <div class="pattern-example">
+        <div class="example-label">選び方の目安</div>
+        <div class="example-text">
+          小確率・低損害 → <span class="right">受容</span>／大損害・対策コスト過大 → <span class="right">移転（保険）</span><br>
+          高損害・高発生率 → <span class="right">軽減</span>／リスクが許容できない → <span class="right">回避</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">リスクマネジメント</span><span class="tag">意思決定</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="risk">
+      <div class="card-top"><span class="card-num">#08</span><span class="cat-badge risk">リスク管理</span></div>
+      <div class="pattern-name">CIA の重み：機密性が最重要</div>
+      <div class="pattern-rule">セキュリティ問題では、機密性の侵害が最も深刻とされることが多い</div>
+      <div class="pattern-why">CIA（機密性・完全性・可用性）は等価ではありません。<strong>データ漏えいは取り返しがつかない</strong>ため、機密性を最優先に考えます。可用性の問題（ダウンタイム）は回復できますが、漏えいたデータは戻りません。</div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          サーバーダウン vs 顧客データ漏えい、どちらが深刻？<br>
+          <span class="wrong">✗ サーバーダウン → 可用性問題（回復可能）</span><br>
+          <span class="right">✓ 顧客データ漏えい → 機密性侵害（取り戻せない）</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">CIA トライアド</span><span class="tag">資産保護</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="risk">
+      <div class="card-top"><span class="card-num">#09</span><span class="cat-badge risk">リスク管理</span></div>
+      <div class="pattern-name">残留リスクは経営層が受容する</div>
+      <div class="pattern-rule">セキュリティ担当者が残留リスクを勝手に受容してはいけない。それは経営層の判断</div>
+      <div class="pattern-why">リスク受容 = 組織としての意思決定です。<strong>権限を持つ経営層がリスクを把握した上で判断</strong>する必要があります。担当者が独断で「このリスクは許容範囲」と決めることは越権行為です。</div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          <span class="wrong">✗ セキュリティ担当者が「このリスクは低いので許容」と判断する</span><br>
+          <span class="right">✓ リスクを経営層に提示し、書面で承認を得る</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">ガバナンス</span><span class="tag">リスク受容</span><span class="tag">説明責任</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="risk">
+      <div class="card-top"><span class="card-num">#10</span><span class="cat-badge risk">リスク管理</span></div>
+      <div class="pattern-name">定量的分析 vs 定性的分析</div>
+      <div class="pattern-rule">金額で表せる場合は定量的、難しい場合は定性的を使う</div>
+      <div class="pattern-why">
+        <strong>定量的分析</strong>: 金額・数値でリスクを表す（SLE, ALE, ARO）。精度は高いが時間とコストがかかる。<br>
+        <strong>定性的分析</strong>: 高・中・低などの相対評価。迅速だが主観的になりやすい。
+      </div>
+      <div class="pattern-example">
+        <div class="example-label">使い分け</div>
+        <div class="example-text">
+          SLE/ALE計算で年間期待損失を算出 → <span class="right">定量的</span><br>
+          リスクマトリクスで高・中・低を評価 → <span class="right">定性的</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">SLE</span><span class="tag">ALE</span><span class="tag">リスク分析</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="risk">
+      <div class="card-top"><span class="card-num">#11</span><span class="cat-badge risk">リスク管理</span></div>
+      <div class="pattern-name">リスク = 脅威 × 脆弱性 × 資産価値</div>
+      <div class="pattern-rule">リスクはこの3要素の組み合わせ。どれかがゼロに近ければリスクも低い</div>
+      <div class="pattern-why">
+        · <strong>脅威（Threat）</strong>: 悪意ある行為者、自然災害など<br>
+        · <strong>脆弱性（Vulnerability）</strong>: システムの弱点・欠陥<br>
+        · <strong>資産価値（Asset Value）</strong>: 守るべき情報・システムの価値<br>
+        3つの掛け合わせでリスクの大きさが決まります。
+      </div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          パッチ未適用（脆弱性大）でも、インターネット非接続（脅威なし）なら<br>
+          <span class="right">→ リスクは低い</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">脅威分析</span><span class="tag">脆弱性管理</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="risk">
+      <div class="card-top"><span class="card-num">#12</span><span class="cat-badge risk">リスク管理</span></div>
+      <div class="pattern-name">Due Diligence と Due Care の区別</div>
+      <div class="pattern-rule">Due Diligence = 調査・評価する責任 ／ Due Care = 適切に実施する責任</div>
+      <div class="pattern-why">
+        · <strong>Due Diligence（デュー・ディリジェンス）</strong>: 意思決定前に適切な調査・評価を行うこと<br>
+        · <strong>Due Care（デュー・ケア）</strong>: 実施後も継続して適切に管理・運用すること<br>
+        両方を果たすことで「合理的な注意義務」を果たしたと言えます。
+      </div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          新ベンダー選定前にセキュリティ審査 → <span class="right">Due Diligence</span><br>
+          契約後も定期的に監査・評価を継続 → <span class="right">Due Care</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">ガバナンス</span><span class="tag">サードパーティ</span><span class="tag">法的責任</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="risk">
+      <div class="card-top"><span class="card-num">#13</span><span class="cat-badge risk">リスク管理</span></div>
+      <div class="pattern-name">サードパーティリスクは自社のリスク</div>
+      <div class="pattern-rule">委託先・ベンダーのセキュリティ問題は自社の責任でもある</div>
+      <div class="pattern-why">データを預けた先での漏えいも、最終的に<strong>顧客への責任は自社が負います</strong>。「ベンダーのせい」では通用しません。委託してもリスクは移転できても責任は残ります。</div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          クラウドベンダーが侵害された場合の責任は？<br>
+          <span class="wrong">✗ ベンダーが悪いので自社に責任はない</span><br>
+          <span class="right">✓ 顧客データの管理責任は自社にある。ベンダー選定・監視も義務</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">サードパーティリスク</span><span class="tag">委託管理</span></div>
+    </div>
+
+    <!-- ===== コントロール ===== -->
+    <div class="pattern-card" data-cat="control">
+      <div class="card-top"><span class="card-num">#14</span><span class="cat-badge control">コントロール</span></div>
+      <div class="pattern-name">管理的 ＞ 技術的 ＞ 物理的</div>
+      <div class="pattern-rule">ポリシー・手順（管理的コントロール）を最初に検討する</div>
+      <div class="pattern-why">技術的コントロールは、<strong>管理的コントロールを実装するための手段</strong>に過ぎません。まずポリシーや手順を整備し、それを技術や物理で実現します。「ツールを入れる前にルールを作る」がCISSPの考え方です。</div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          Q: 強いパスワードを強制するには？<br>
+          <span class="wrong">✗ システムで文字数を強制する → 技術的（先走り）</span><br>
+          <span class="right">✓ パスワードポリシーを策定する → 管理的（先に来る）</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">コントロール種別</span><span class="tag">ポリシー設計</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="control">
+      <div class="card-top"><span class="card-num">#15</span><span class="cat-badge control">コントロール</span></div>
+      <div class="pattern-name">デフォルト拒否（Default Deny）</div>
+      <div class="pattern-rule">明示的に許可されていないものはすべて拒否する</div>
+      <div class="pattern-why">「許可リスト（Allowlist）方式」とも呼ばれます。<strong>何も指定しなければ拒否</strong>が正しいデフォルト状態です。「とりあえず許可」は攻撃者に隙を与えます。</div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          <span class="wrong">✗ 全通信を許可し、危険なものだけブロック（ブラックリスト方式）</span><br>
+          <span class="right">✓ 全通信を拒否し、必要なものだけ許可（ホワイトリスト方式）</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">ファイアウォール</span><span class="tag">アクセス制御</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="control">
+      <div class="card-top"><span class="card-num">#16</span><span class="cat-badge control">コントロール</span></div>
+      <div class="pattern-name">多層防御（Defense in Depth）</div>
+      <div class="pattern-rule">単一のコントロールに依存せず、複数の層でセキュリティを確保する</div>
+      <div class="pattern-why">一つが突破されても次の層が守る設計です。<strong>完璧なコントロールは存在しない</strong>という前提に立ち、重ね合わせることで全体のリスクを下げます。</div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          <span class="wrong">✗ 強力なファイアウォールがあれば他の対策は不要</span><br>
+          <span class="right">✓ ファイアウォール + IDS + EDR + ログ監視の多層構成</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">セキュリティアーキテクチャ</span><span class="tag">多層防御</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="control">
+      <div class="card-top"><span class="card-num">#17</span><span class="cat-badge control">コントロール</span></div>
+      <div class="pattern-name">補償的コントロールの使いどころ</div>
+      <div class="pattern-rule">理想のコントロールが実装できない場合、代替として補償的コントロールを使う</div>
+      <div class="pattern-why">現実のシステムには<strong>制約（レガシー・コスト・互換性）</strong>があります。理想を実現できない場合、補償的コントロールで同等のリスク低減効果を得ます。</div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          レガシーシステムにパッチが当てられない場合<br>
+          <span class="wrong">✗ パッチ適用できないのでリスクを受容する</span><br>
+          <span class="right">✓ ネットワーク分離・追加監視で補償的コントロールを実装</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">レガシーシステム</span><span class="tag">PCI DSS</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="control">
+      <div class="card-top"><span class="card-num">#18</span><span class="cat-badge control">コントロール</span></div>
+      <div class="pattern-name">コントロールのコストはリスクを超えない</div>
+      <div class="pattern-rule">セキュリティ対策の費用が、守る資産の価値やリスクの期待損失を超えてはいけない</div>
+      <div class="pattern-why">セキュリティは<strong>リスクマネジメントであり費用対効果</strong>が必要です。対策コスト &lt; (ALE削減額) であることを確認します。</div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          年間期待損失（ALE）が50万円のリスクに対し<br>
+          <span class="wrong">✗ 500万円の対策システムを導入する → コスト過多</span><br>
+          <span class="right">✓ 30万円の対策で十分なリスク低減が可能なら合理的</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">費用対効果</span><span class="tag">ROI</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="control">
+      <div class="card-top"><span class="card-num">#19</span><span class="cat-badge control">コントロール</span></div>
+      <div class="pattern-name">ユーザビリティ vs セキュリティはトレードオフ</div>
+      <div class="pattern-rule">セキュリティを高めると使いにくくなる。バランスを取ることが重要</div>
+      <div class="pattern-why">セキュリティが強すぎると<strong>迂回・回避が起きてかえって危険</strong>になります。ユーザーが抜け道を使い始めたら本末転倒です。受容できるレベルでのバランスが求められます。</div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          超複雑なパスワード要件を設定した結果<br>
+          <span class="wrong">✗ ユーザーがパスワードをメモに書いてモニターに貼る</span><br>
+          <span class="right">✓ 適切な複雑度 + MFA の組み合わせで利便性も確保</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">ユーザビリティ</span><span class="tag">パスワードポリシー</span></div>
+    </div>
+
+    <!-- ===== アクセス制御 ===== -->
+    <div class="pattern-card" data-cat="access">
+      <div class="card-top"><span class="card-num">#20</span><span class="cat-badge access">アクセス制御</span></div>
+      <div class="pattern-name">最小権限（Least Privilege）</div>
+      <div class="pattern-rule">業務に必要な最低限の権限のみを付与する</div>
+      <div class="pattern-why">権限を絞ることで、アカウント侵害時の<strong>被害範囲を最小化</strong>できます。「とりあえず広い権限を与えておく」はCISSP的に完全にNGです。</div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          <span class="wrong">✗ 全員に管理者権限を付与する（便利だから）</span><br>
+          <span class="right">✓ 業務に必要な権限のみを個別に付与する</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">IAM</span><span class="tag">Need-to-Know</span><span class="tag">権限管理</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="access">
+      <div class="card-top"><span class="card-num">#21</span><span class="cat-badge access">アクセス制御</span></div>
+      <div class="pattern-name">職務分離（Separation of Duties）</div>
+      <div class="pattern-rule">単一人物が不正を完結できる権限を持たせない</div>
+      <div class="pattern-why">一人が「申請・承認・実行」をすべてできる状態は危険です。<strong>職務を分けることで内部不正や誤りを防止</strong>します。2人の協力なしに不正が成立しない設計が理想です。</div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          <span class="wrong">✗ 経理担当が支払い申請・承認・実行をすべて行える</span><br>
+          <span class="right">✓ 申請者と承認者を必ず別の人物にする</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">内部統制</span><span class="tag">不正防止</span><span class="tag">Two-Person Rule</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="access">
+      <div class="card-top"><span class="card-num">#22</span><span class="cat-badge access">アクセス制御</span></div>
+      <div class="pattern-name">Need-to-Know 原則</div>
+      <div class="pattern-rule">業務上「知る必要がある」情報にのみアクセスを許可する</div>
+      <div class="pattern-why">最小権限の「情報版」です。<strong>権限があっても関係のない情報にはアクセスさせない</strong>ことで、内部からの情報漏えいリスクを減らします。</div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          役員に全データへのアクセス権を付与すべきか？<br>
+          <span class="wrong">✗ 役員なのでフルアクセスが適切</span><br>
+          <span class="right">✓ 業務上必要なデータのみ。Need-to-Knowに基づく</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">情報分類</span><span class="tag">機密性</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="access">
+      <div class="card-top"><span class="card-num">#23</span><span class="cat-badge access">アクセス制御</span></div>
+      <div class="pattern-name">AAA フレームワーク</div>
+      <div class="pattern-rule">認証（誰か）→ 認可（何ができるか）→ アカウンタビリティ（何をしたか）の3段階</div>
+      <div class="pattern-why">
+        · <strong>認証（Authentication）</strong>: IDとパスワード等で本人確認<br>
+        · <strong>認可（Authorization）</strong>: その人物に何のアクセスを許可するか<br>
+        · <strong>アカウンタビリティ（Accountability）</strong>: 誰がいつ何をしたかのログ記録<br>
+        3つすべてが揃って初めて適切なアクセス制御と言えます。
+      </div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          ログイン(認証) → 権限チェック(認可) → <span class="right">ログ記録(アカウンタビリティ)</span> の順で実装
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">AAA</span><span class="tag">ログ管理</span><span class="tag">監査証跡</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="access">
+      <div class="card-top"><span class="card-num">#24</span><span class="cat-badge access">アクセス制御</span></div>
+      <div class="pattern-name">MFA の効果と限界</div>
+      <div class="pattern-rule">MFA はパスワード単体より大幅に強固だが、すべての攻撃を防げるわけではない</div>
+      <div class="pattern-why">
+        MFAの要素: <strong>知識（パスワード）</strong>・<strong>所持（デバイス）</strong>・<strong>生体（指紋等）</strong><br>
+        SMS認証はSIMスワッピング攻撃に脆弱です。<strong>FIDO2/WebAuthn</strong>がより強固です。MFAは万能ではなく、フィッシングに対応したMFAが重要です。
+      </div>
+      <div class="pattern-example">
+        <div class="example-label">強度の比較</div>
+        <div class="example-text">
+          SMS OTP → <span class="wrong">SIMスワップに脆弱</span><br>
+          TOTP（認証アプリ）→ <span class="right">より強固</span><br>
+          FIDO2/ハードウェアキー → <span class="right">フィッシング耐性あり・最強</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">多要素認証</span><span class="tag">認証強化</span><span class="tag">フィッシング対策</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="access">
+      <div class="card-top"><span class="card-num">#25</span><span class="cat-badge access">アクセス制御</span></div>
+      <div class="pattern-name">Zero Trust の基本原則</div>
+      <div class="pattern-rule">内部ネットワークでも信頼しない。すべてのアクセスを常に検証する</div>
+      <div class="pattern-why">従来の境界型セキュリティ（内側は安全）の限界を補う考え方です。<strong>「決して信頼せず、常に検証する（Never Trust, Always Verify）」</strong>が基本。内部からの攻撃・侵害後の横移動を防ぎます。</div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          <span class="wrong">✗ VPN接続済みなので社内ネットワーク内のリソースは自由にアクセス可</span><br>
+          <span class="right">✓ VPN内でも都度認証・認可を確認。最小権限で接続</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">Zero Trust</span><span class="tag">ネットワークセキュリティ</span></div>
+    </div>
+
+    <!-- ===== 暗号・技術 ===== -->
+    <div class="pattern-card" data-cat="crypto">
+      <div class="card-top"><span class="card-num">#26</span><span class="cat-badge crypto">暗号・技術</span></div>
+      <div class="pattern-name">対称 vs 非対称暗号の使い分け</div>
+      <div class="pattern-rule">対称 = 高速・大量データ向け ／ 非対称 = 鍵配送・デジタル署名向け</div>
+      <div class="pattern-why">
+        · <strong>対称暗号（AES等）</strong>: 同じ鍵で暗号化・復号。高速だが鍵の安全な共有が課題<br>
+        · <strong>非対称暗号（RSA等）</strong>: 公開鍵・秘密鍵のペア。遅いが鍵配送問題を解決<br>
+        実際のTLSは<strong>ハイブリッド方式</strong>（非対称で鍵交換→対称で通信暗号化）を採用。
+      </div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          TLS通信 → <span class="right">非対称で鍵交換し、対称鍵で実際の通信を暗号化</span><br>
+          デジタル署名 → <span class="right">非対称（秘密鍵で署名・公開鍵で検証）</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">暗号化</span><span class="tag">PKI</span><span class="tag">TLS</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="crypto">
+      <div class="card-top"><span class="card-num">#27</span><span class="cat-badge crypto">暗号・技術</span></div>
+      <div class="pattern-name">ハッシュ = 完全性の確認</div>
+      <div class="pattern-rule">ハッシュは一方向関数。暗号化ではなく、データ改ざんの検出に使う</div>
+      <div class="pattern-why">ハッシュ（SHA-256等）は<strong>復号できません</strong>。暗号化との混同が最も多い誤解です。同じ入力からは常に同じハッシュ値が得られるため、改ざん検出に使われます。</div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          Q: ハッシュ値が一致した → 何が保証される？<br>
+          <span class="wrong">✗ データが暗号化されている</span><br>
+          <span class="right">✓ データが改ざんされていない（完全性の確認）</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">完全性</span><span class="tag">SHA-256</span><span class="tag">MD5</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="crypto">
+      <div class="card-top"><span class="card-num">#28</span><span class="cat-badge crypto">暗号・技術</span></div>
+      <div class="pattern-name">デジタル署名 = 送信者確認 + 否認防止</div>
+      <div class="pattern-rule">送信者の秘密鍵で署名→受信者が公開鍵で検証。なりすましと否認防止が目的</div>
+      <div class="pattern-why">デジタル署名の目的は<strong>機密性ではなく真正性・否認防止</strong>です。「この人が確かに送った・署名した」ことを証明します。暗号化（機密性）とは目的が異なります。</div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          Q: デジタル署名が提供するのは？<br>
+          <span class="wrong">✗ メッセージの機密性（暗号化）</span><br>
+          <span class="right">✓ 真正性（送信者確認）と否認防止</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">デジタル署名</span><span class="tag">否認防止</span><span class="tag">PKI</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="crypto">
+      <div class="card-top"><span class="card-num">#29</span><span class="cat-badge crypto">暗号・技術</span></div>
+      <div class="pattern-name">セキュリティは設計段階から（Shift Left）</div>
+      <div class="pattern-rule">後からセキュリティを付け足すより、設計段階から組み込む方がコストが低く効果的</div>
+      <div class="pattern-why">開発の後工程でセキュリティ問題を修正するコストは、設計段階の<strong>数十倍</strong>になると言われています。要件定義・設計段階での脅威モデリングが最も費用対効果が高いです。</div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          <span class="wrong">✗ リリース後にペネトレーションテストで脆弱性を発見・修正</span><br>
+          <span class="right">✓ 設計段階で脅威モデリングを実施し、安全な設計を行う</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">SDLC</span><span class="tag">脅威モデリング</span><span class="tag">セキュア開発</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="crypto">
+      <div class="card-top"><span class="card-num">#30</span><span class="cat-badge crypto">暗号・技術</span></div>
+      <div class="pattern-name">入力検証はサーバーサイドで必ず行う</div>
+      <div class="pattern-rule">クライアントサイドの検証は利便性のため。セキュリティはサーバーサイドで実施</div>
+      <div class="pattern-why">クライアントサイド（ブラウザ）のJavaScript検証は<strong>攻撃者に容易にバイパスされます</strong>。セキュリティとして機能するのはサーバーサイドの検証のみです。</div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          SQLインジェクション対策に有効なのは？<br>
+          <span class="wrong">✗ フロントエンドJSで特殊文字を除去する（バイパス可）</span><br>
+          <span class="right">✓ サーバーでパラメータ化クエリ（Prepared Statement）を使用</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">入力検証</span><span class="tag">SQLインジェクション</span><span class="tag">Webセキュリティ</span></div>
+    </div>
+
+    <!-- ===== マネージャー思考 ===== -->
+    <div class="pattern-card" data-cat="mindset">
+      <div class="card-top"><span class="card-num">#31</span><span class="cat-badge mindset">マネージャー思考</span></div>
+      <div class="pattern-name">技術者ではなくCISOとして考える</div>
+      <div class="pattern-rule">「技術的に正しい」より「ビジネスリスクとして適切か」を問う</div>
+      <div class="pattern-why">CISSPは技術試験ではなく<strong>セキュリティマネジメントの試験</strong>です。エンジニアが選ぶ答えより、リスク・コスト・ビジネスへの影響を考えた答えが正解になります。</div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          重大な脆弱性を発見した。最善の対応は？<br>
+          <span class="wrong">✗ すぐにパッチを適用する → エンジニア的思考</span><br>
+          <span class="right">✓ リスクを評価し、変更管理プロセスに従って承認を得てから適用</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">ガバナンス</span><span class="tag">変更管理</span><span class="tag">リスク評価</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="mindset">
+      <div class="card-top"><span class="card-num">#32</span><span class="cat-badge mindset">マネージャー思考</span></div>
+      <div class="pattern-name">セキュリティ投資はROIで判断する</div>
+      <div class="pattern-rule">(ALE削減額 - 対策コスト) がプラスなら投資する価値がある</div>
+      <div class="pattern-why">セキュリティは「お金をかければ良い」ではなく<strong>費用対効果</strong>が重要です。計算式: ROI = ALE_before - ALE_after - 対策コスト。これがプラスなら投資合理性あり。</div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          年間期待損失(ALE) 1,000万円 → 300万円の対策で700万円に削減できるなら<br>
+          <span class="right">✓ ROI = 1,000 - 700 - 300 = 0万円（採算ライン）→ 投資合理性あり</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">ROI</span><span class="tag">ALE</span><span class="tag">費用対効果</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="mindset">
+      <div class="card-top"><span class="card-num">#33</span><span class="cat-badge mindset">マネージャー思考</span></div>
+      <div class="pattern-name">ポリシーは定期的に見直す</div>
+      <div class="pattern-rule">セキュリティポリシーは一度作ったら終わりではなく、定期的にレビューする</div>
+      <div class="pattern-why">技術・脅威・ビジネス環境は常に変化します。<strong>古いポリシーは有名無実化</strong>し、コンプライアンス違反や実態との乖離を生みます。年1回以上のレビューがベストプラクティスです。</div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          3年前に作ったパスワードポリシーがまだ運用されている<br>
+          <span class="wrong">✗ 問題ない。一度作ったポリシーは変えなくていい</span><br>
+          <span class="right">✓ 定期的にレビューし、現在の脅威環境に合わせて更新する</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">ポリシー管理</span><span class="tag">ISMS</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="mindset">
+      <div class="card-top"><span class="card-num">#34</span><span class="cat-badge mindset">マネージャー思考</span></div>
+      <div class="pattern-name">セキュリティとプライバシーはセットで考える</div>
+      <div class="pattern-rule">個人データを守るセキュリティと、その利用の透明性（プライバシー）は別物</div>
+      <div class="pattern-why">セキュリティが強固でも、<strong>過剰収集・目的外利用はプライバシー侵害</strong>です。GDPRなどでは「データ最小化の原則」があります。セキュリティとプライバシーの両立が必要です。</div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          セキュリティ監視のために全従業員の行動ログを詳細に記録する<br>
+          <span class="right">✓ セキュリティ的には有効だが、プライバシーポリシー・法令への準拠も必要</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">プライバシー</span><span class="tag">GDPR</span><span class="tag">データ最小化</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="mindset">
+      <div class="card-top"><span class="card-num">#35</span><span class="cat-badge mindset">マネージャー思考</span></div>
+      <div class="pattern-name">教育・訓練は継続的に行う</div>
+      <div class="pattern-rule">セキュリティ意識向上トレーニングは一度の研修で完結しない</div>
+      <div class="pattern-why">攻撃手法は進化し続けます。<strong>人間は技術的対策を迂回する攻撃（ソーシャルエンジニアリング）の最大の標的</strong>です。継続的なトレーニングとフィッシングシミュレーションが必要です。</div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          Q: フィッシング対策として最も効果的なのは？<br>
+          <span class="wrong">✗ 入社時に一度フィッシング対策研修を実施する</span><br>
+          <span class="right">✓ 定期的な研修 + 模擬フィッシング訓練を継続実施する</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">セキュリティ教育</span><span class="tag">ソーシャルエンジニアリング</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="mindset">
+      <div class="card-top"><span class="card-num">#36</span><span class="cat-badge mindset">マネージャー思考</span></div>
+      <div class="pattern-name">セキュリティは全員の責任</div>
+      <div class="pattern-rule">セキュリティチームだけでなく、全社員がセキュリティに責任を持つ</div>
+      <div class="pattern-why">ソーシャルエンジニアリングは<strong>技術より人間を狙います</strong>。CISOがどれだけ優秀でも、全社員がフィッシングに引っかかればアウトです。セキュリティカルチャーの醸成が重要です。</div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          Q: セキュリティの最終責任者は？<br>
+          <span class="wrong">✗ CISOやセキュリティチームのみ</span><br>
+          <span class="right">✓ 経営層が最終責任を持ち、全社員が実践する</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">セキュリティカルチャー</span><span class="tag">全社員教育</span></div>
+    </div>
+
+    <!-- ===== インシデント対応 ===== -->
+    <div class="pattern-card" data-cat="incident">
+      <div class="card-top"><span class="card-num">#37</span><span class="cat-badge incident">インシデント対応</span></div>
+      <div class="pattern-name">インシデント対応の正しい順序</div>
+      <div class="pattern-rule">検知 → 封じ込め → 根絶 → 復旧 → 事後分析</div>
+      <div class="pattern-why">順序を守ることが重要です。<strong>封じ込めを飛ばして復旧しようとするのが最も多い間違い</strong>です。復旧の前に必ず「封じ込め（被害拡大防止）」と「根絶（原因除去）」を行います。</div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          Q: ランサムウェア感染を確認した。最初にすべきことは？<br>
+          <span class="wrong">✗ バックアップからシステムを復旧する → 復旧（早すぎる）</span><br>
+          <span class="right">✓ 感染端末をネットワークから切断する → 封じ込め</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">NIST SP 800-61</span><span class="tag">BCP/DR</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="incident">
+      <div class="card-top"><span class="card-num">#38</span><span class="cat-badge incident">インシデント対応</span></div>
+      <div class="pattern-name">フォレンジックは証拠保全が最優先</div>
+      <div class="pattern-rule">インシデント調査では、まず証拠を保全してから分析・復旧を行う</div>
+      <div class="pattern-why">証拠の改ざん・消失を防ぐことが最優先です。<strong>揮発性の高い情報（メモリ・一時ファイル等）から先に収集</strong>します。シャットダウンするとメモリ上の証拠が消えます。</div>
+      <div class="pattern-example">
+        <div class="example-label">揮発性の順序（高→低）</div>
+        <div class="example-text">
+          <span class="right">メモリ（RAM）→ スワップ・一時ファイル → ネットワーク接続状態 → ディスク → バックアップ</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">デジタルフォレンジック</span><span class="tag">証拠保全</span><span class="tag">Chain of Custody</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="incident">
+      <div class="card-top"><span class="card-num">#39</span><span class="cat-badge incident">インシデント対応</span></div>
+      <div class="pattern-name">BCP と DR の違い</div>
+      <div class="pattern-rule">BCP = 事業継続計画（事業全体）／ DR = 災害復旧計画（ITシステム）</div>
+      <div class="pattern-why">
+        · <strong>BCP（Business Continuity Plan）</strong>: 災害・障害時に事業を継続するための包括的な計画。ビジネス全体を対象とする<br>
+        · <strong>DR（Disaster Recovery）</strong>: ITシステム・インフラの復旧計画。BCPの一部<br>
+        DR は BCP の<strong>サブセット</strong>です。
+      </div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          工場が使えない時の代替生産計画 → <span class="right">BCP（ビジネス継続）</span><br>
+          サーバーをバックアップから復旧する → <span class="right">DR（システム復旧）</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">BCP</span><span class="tag">DR</span><span class="tag">事業継続</span></div>
+    </div>
+
+    <div class="pattern-card" data-cat="incident">
+      <div class="card-top"><span class="card-num">#40</span><span class="cat-badge incident">インシデント対応</span></div>
+      <div class="pattern-name">RTO と RPO の定義と優先順位</div>
+      <div class="pattern-rule">RTO = 復旧目標時間（どのくらいで戻すか）／ RPO = 復旧目標時点（どこまで戻るか）</div>
+      <div class="pattern-why">
+        · <strong>RTO（Recovery Time Objective）</strong>: 障害発生から復旧までの目標時間。短いほどコストが高い<br>
+        · <strong>RPO（Recovery Point Objective）</strong>: 許容できるデータ損失の時間的範囲。短いほど頻繁なバックアップが必要<br>
+        どちらも<strong>ビジネスニーズとコストのバランス</strong>で決める。
+      </div>
+      <div class="pattern-example">
+        <div class="example-label">例題の考え方</div>
+        <div class="example-text">
+          RTO 4時間 → <span class="right">障害から4時間以内にシステム復旧</span><br>
+          RPO 1時間 → <span class="right">最大1時間分のデータ損失まで許容</span>
+        </div>
+      </div>
+      <div class="pattern-tags"><span class="tag">RTO</span><span class="tag">RPO</span><span class="tag">DR計画</span></div>
+    </div>
+
+  </div><!-- /.pattern-grid -->
+
+  <div class="page-footer">
+    <span class="footer-note">⚠️ このガイドはAIによって生成されています。正確な情報はISC²公式資料をご確認ください。</span>
+    <a href="./" class="btn-secondary btn-sm" style="text-decoration:none; display:inline-block;">← トップに戻る</a>
+  </div>
+
+</div>
+
+<script>
+  // 認証チェック（未認証ならトップへ）
+  if (sessionStorage.getItem('cissp_thinking_auth') !== '1') {
+    location.href = './';
+  }
+
+  // フィルター
+  const filterTabs   = document.querySelectorAll('.filter-tab');
+  const cards        = document.querySelectorAll('.pattern-card');
+  const visibleCount = document.getElementById('visible-count');
+
+  function updateCount() {
+    const visible = document.querySelectorAll('.pattern-card:not(.hidden)').length;
+    visibleCount.textContent = visible;
+  }
+
+  filterTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      filterTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const filter = tab.dataset.filter;
+      cards.forEach(card => {
+        card.classList.toggle('hidden', filter !== 'all' && card.dataset.cat !== filter);
+      });
+      updateCount();
+    });
+  });
+
+  // テーマ切替
+  const themeBtn = document.getElementById('theme-btn');
+  const themes   = ['auto','dark','light'];
+  const icons    = { auto:'🌙', dark:'🌙', light:'☀️' };
+  let current    = localStorage.getItem('theme') || 'auto';
+  document.documentElement.setAttribute('data-theme', current);
+  themeBtn.textContent = icons[current];
+  themeBtn.addEventListener('click', () => {
+    const idx = themes.indexOf(current);
+    current = themes[(idx + 1) % themes.length];
+    document.documentElement.setAttribute('data-theme', current);
+    themeBtn.textContent = icons[current];
+    localStorage.setItem('theme', current);
+  });
+</script>
+
+</body>
+</html>
