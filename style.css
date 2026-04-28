@@ -158,41 +158,65 @@ html, body {
 
 /* シンキングガイドバナー */
 .thinking-banner {
-  display: flex; align-items: center; gap: 16px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
+  display: block;
+  background: linear-gradient(135deg, rgba(139,92,246,0.12) 0%, rgba(59,130,246,0.08) 100%);
+  border: 1px solid rgba(139,92,246,0.3);
   border-radius: var(--radius);
-  padding: 20px 24px;
+  padding: 24px 28px;
   text-decoration: none; color: inherit;
   margin-bottom: 32px;
   transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
-  border-left: 4px solid #8b5cf6;
+  position: relative; overflow: hidden;
+}
+.thinking-banner::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, #8b5cf6, var(--accent), #06b6d4);
 }
 .thinking-banner:hover {
-  border-color: #8b5cf6;
+  border-color: rgba(139,92,246,0.6);
   transform: translateY(-2px);
-  box-shadow: var(--shadow);
+  box-shadow: 0 8px 32px rgba(139,92,246,0.15);
 }
-.thinking-banner-icon {
-  font-size: 32px; flex-shrink: 0;
-  width: 52px; height: 52px;
-  background: linear-gradient(135deg, #8b5cf6, var(--accent));
-  border-radius: 14px;
-  display: flex; align-items: center; justify-content: center;
+.thinking-banner-label {
+  display: inline-block;
+  font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+  color: #8b5cf6; text-transform: uppercase;
+  margin-bottom: 8px;
 }
-.thinking-banner-body { flex: 1; min-width: 0; }
+.thinking-banner-top {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px; gap: 12px;
+}
 .thinking-banner-title {
-  font-size: 16px; font-weight: 700; color: var(--text-primary);
-  margin-bottom: 4px;
+  font-size: 20px; font-weight: 800;
+  color: var(--text-primary);
+  text-decoration: none;
 }
-.thinking-banner-desc {
-  font-size: 13px; color: var(--text-secondary); line-height: 1.5;
+.thinking-banner-cta {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #8b5cf6; color: white;
+  font-size: 13px; font-weight: 700;
+  padding: 8px 16px; border-radius: 20px;
+  flex-shrink: 0;
+  transition: background 0.15s, transform 0.15s;
 }
-.thinking-banner-arrow {
-  font-size: 20px; color: #8b5cf6; flex-shrink: 0;
-  transition: transform 0.2s;
+.thinking-banner:hover .thinking-banner-cta {
+  background: #7c3aed;
+  transform: translateX(2px);
 }
-.thinking-banner:hover .thinking-banner-arrow { transform: translateX(4px); }
+.thinking-banner-pills {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.thinking-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; font-weight: 600;
+  padding: 4px 12px; border-radius: 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  text-decoration: none;
+}
 
 /* モードカード */
 .mode-cards {
