@@ -379,7 +379,7 @@
   // テーマ切替
   const themeBtn = document.getElementById('theme-btn');
   const themes = ['auto','dark','light'];
-  const icons  = { auto:'🌙', dark:'🌙', light:'☀️' };
+  const icons  = { auto:'🌓', dark:'🌙', light:'☀️' };
   let current  = localStorage.getItem('theme') || 'auto';
   document.documentElement.setAttribute('data-theme', current);
   themeBtn.textContent = icons[current];
