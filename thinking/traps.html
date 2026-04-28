@@ -65,6 +65,7 @@
     .trap-card[data-cat="technology"] { border-left-color: #3498db; }
     .trap-card[data-cat="policy"]     { border-left-color: #9b59b6; }
     .trap-card[data-cat="order"]      { border-left-color: #2ecc71; }
+    .trap-card[data-cat="model"]      { border-left-color: #1abc9c; }
 
     .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
     .trap-num { font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--text-muted); }
@@ -77,6 +78,7 @@
     .cat-badge.technology { background: rgba(52,152,219,0.15); color: #3498db; }
     .cat-badge.policy     { background: rgba(155,89,182,0.15); color: #9b59b6; }
     .cat-badge.order      { background: rgba(46,204,113,0.15); color: #2ecc71; }
+    .cat-badge.model      { background: rgba(26,188,156,0.15); color: #1abc9c; }
 
     .trap-name { font-size: 18px; font-weight: 800; color: var(--text-primary); line-height: 1.3; }
 
@@ -92,6 +94,7 @@
     .trap-card[data-cat="technology"] .trap-pattern { border-color: #3498db; }
     .trap-card[data-cat="policy"]     .trap-pattern { border-color: #9b59b6; }
     .trap-card[data-cat="order"]      .trap-pattern { border-color: #2ecc71; }
+    .trap-card[data-cat="model"]      .trap-pattern { border-color: #1abc9c; }
 
     .trap-why { font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
     .trap-why strong { color: var(--text-primary); }
@@ -146,6 +149,10 @@
 
 <div class="page-wrap">
 
+  <div class="ai-disclaimer">
+    ⚠️ このガイドはAIによって生成されています。内容に誤りが含まれる可能性があります。正確な情報はISC²の公式資料をご確認ください。
+  </div>
+
   <a href="./" class="back-link">← シンキングガイドに戻る</a>
 
   <div class="page-header">
@@ -156,18 +163,19 @@
       </div>
     </div>
     <div class="count-bar">
-      表示中 <span class="count-total" id="visible-count">30</span> パターン
+      表示中 <span class="count-total" id="visible-count">38</span> パターン
     </div>
   </div>
 
   <div class="filter-wrap">
     <div class="filter-tabs">
-      <button class="filter-tab active" data-filter="all">すべて (30)</button>
+      <button class="filter-tab active" data-filter="all">すべて (38)</button>
       <button class="filter-tab" data-filter="management">管理・報告の罠 (8)</button>
       <button class="filter-tab" data-filter="process">手順・プロセスの罠 (7)</button>
       <button class="filter-tab" data-filter="technology">技術解決策の罠 (7)</button>
       <button class="filter-tab" data-filter="policy">ポリシー・コンプライアンスの罠 (4)</button>
       <button class="filter-tab" data-filter="order">順序・優先度の罠 (4)</button>
+      <button class="filter-tab" data-filter="model">セキュリティモデル選択の罠 (8)</button>
     </div>
   </div>
 
@@ -778,10 +786,170 @@
       </div>
     </div>
 
+    <!-- ===== セキュリティモデル選択の罠 ===== -->
+    <div class="trap-card" data-cat="model">
+      <div class="card-top">
+        <div class="trap-num">T-31</div>
+        <span class="cat-badge model">セキュリティモデル選択の罠</span>
+      </div>
+      <div class="trap-name">「機密性も完全性もBLPで守れる」罠</div>
+      <div class="trap-pattern">データの完全性を保護したいシナリオ → 「Bell-LaPadulaを採用する」が包括的に見える</div>
+      <div class="trap-why">BLPは<strong>機密性（Confidentiality）専用</strong>モデル。No Read Up / No Write Downという設計は「機密情報が低い区分に漏れるのを防ぐ」ためのもので、完全性（Integrity）については一切規定しない。完全性を守りたいならBibaを使う。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">財務データの完全性を保護するためBell-LaPadulaモデルを採用する</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>完全性保護にはBibaモデルを採用する（No Read Down / No Write Up）</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="model">
+      <div class="card-top">
+        <div class="trap-num">T-32</div>
+        <span class="cat-badge model">セキュリティモデル選択の罠</span>
+      </div>
+      <div class="trap-name">「商用完全性 = Biba一択」罠</div>
+      <div class="trap-pattern">「銀行・財務システムのデータ完全性を保証したい」→ 完全性モデルとしてBibaが正しそうに見える</div>
+      <div class="trap-why">Bibaは<strong>完全性レベル（格付け）の大小</strong>でアクセスを制御するが、「承認された手順を経由した操作」という概念を持たない。商用システムでは<strong>Clark-Wilson</strong>が適切：TP（Transformation Procedures）を通じてのみCDI（保護対象データ）を操作させ、職務分離と監査を組み込む。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">銀行の取引データ完全性保護にBibaモデルの完全性レベルでアクセス制御する</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>商用システムの完全性保証にはClark-Wilsonを採用し、承認済みTP経由でのみデータ操作を許可する</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="model">
+      <div class="card-top">
+        <div class="trap-num">T-33</div>
+        <span class="cat-badge model">セキュリティモデル選択の罠</span>
+      </div>
+      <div class="trap-name">「軍事機密管理 = Clark-Wilson」罠</div>
+      <div class="trap-pattern">「政府・軍の機密文書管理システム」のシナリオ → 職務分離・承認手順を持つClark-Wilsonが正しそうに見える</div>
+      <div class="trap-why">Clark-Wilsonは<strong>商用完全性</strong>のために設計されており、「承認された手順で操作する」ことが中心。軍の<strong>機密区分（Classified / Secret / Top Secret）による情報の上下漏洩制御</strong>にはBell-LaPadulaが直接対応する。BLPのNo Read Up（上位機密は読めない）/ No Write Down（下位へ書けない）が多段階機密ラベルに適合する。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">国防省の機密文書管理に、承認済み手順によるデータ操作を保証するClark-Wilsonを採用する</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>軍・政府の機密区分管理にはBell-LaPadulaを採用する（No Read Up / No Write Down）</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="model">
+      <div class="card-top">
+        <div class="trap-num">T-34</div>
+        <span class="cat-badge model">セキュリティモデル選択の罠</span>
+      </div>
+      <div class="trap-name">「利益相反防止 = BLP」罠</div>
+      <div class="trap-pattern">「コンサルタントが競合企業の情報にアクセスしないよう制御したい」→ BLPで機密レベルを設定すれば良さそうに見える</div>
+      <div class="trap-why">BLPは機密レベルの<strong>静的な上下関係</strong>でアクセスを制御する。利益相反防止では「A社データにアクセスした後、競合B社データへのアクセスを動的に禁止する」という<strong>履歴ベースの動的制御</strong>が必要。これはBLPでは表現できない。Brewer-Nash（Chinese Wall）モデルの設計そのもの。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">投資銀行のアナリストが競合クライアントの情報に触れないよう、Bell-LaPadulaで機密レベルを設定する</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>利益相反防止にはBrewers-Nash（Chinese Wall）を採用し、アクセス履歴に基づいて動的に競合クラスへのアクセスを制限する</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="model">
+      <div class="card-top">
+        <div class="trap-num">T-35</div>
+        <span class="cat-badge model">セキュリティモデル選択の罠</span>
+      </div>
+      <div class="trap-name">BLPとBibaの「方向」混同罠</div>
+      <div class="trap-pattern">「BLPはNo Read Down（下を読むな）、BibaはNo Read Up（上を読むな）」と覚えている</div>
+      <div class="trap-why">方向が<strong>逆</strong>。BLPは「上を読むな（No Read Up）・下に書くな（No Write Down）」=機密情報の下方漏洩を防ぐ。BibaはBLPの正反対：「下を読むな（No Read Down）・上に書くな（No Write Up）」=低品質データによる上位への汚染を防ぐ。覚え方：<strong>BLPは漏洩防止（高→低への流出を止める）、Bibaは汚染防止（低→高への流入を止める）</strong>と目的から導く。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">BLPはNo Read Down / No Write Up — Bibaはその逆のNo Read Up / No Write Down</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>BLP = No Read Up / No Write Down（機密漏洩防止）　Biba = No Read Down / No Write Up（汚染防止）</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="model">
+      <div class="card-top">
+        <div class="trap-num">T-36</div>
+        <span class="cat-badge model">セキュリティモデル選択の罠</span>
+      </div>
+      <div class="trap-name">「TCB＝参照モニター」混同罠</div>
+      <div class="trap-pattern">「参照モニターとTCBは同じもの」として、どちらの用語でも同じ意味で選んでしまう</div>
+      <div class="trap-why">TCB（Trusted Computing Base）はセキュリティポリシーを強制する<strong>H/W・S/W・ファームウェアの総体（集合）</strong>。参照モニター（Reference Monitor）はTCBの中に含まれる<strong>概念的なコンポーネント</strong>で、すべてのアクセスを仲介する抽象的なメカニズム。参照モニターの3条件：①常に呼び出される、②改ざん不可、③検証可能な小ささ。TCBは参照モニターを<strong>実装した全体集合</strong>であり、参照モニターはTCBの<strong>中核概念</strong>。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">参照モニターとはTCB全体のことであり、同義語として扱える</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>TCBはセキュリティ機能全体の集合。参照モニターはその中核にある「常に呼び出される・改ざん不可・検証可能」な仲介概念</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="model">
+      <div class="card-top">
+        <div class="trap-num">T-37</div>
+        <span class="cat-badge model">セキュリティモデル選択の罠</span>
+      </div>
+      <div class="trap-name">「アクセス権伝播の分析 = BLP/Biba」罠</div>
+      <div class="trap-pattern">「誰が誰にアクセス権を渡せるかを形式的に証明したい」→ BLPやBibaで分析するのが正しそうに見える</div>
+      <div class="trap-why">BLPとBibaは「このアクセスを<strong>許可するかしないか</strong>の判定規則」を定義するモデルであり、「権限がどう伝播するか」を形式証明するために設計されていない。<strong>Take-Grantモデル</strong>がTake（権限取得）・Grant（権限付与）・Create（主体/客体作成）・Remove（権限削除）の4操作でアクセス権の伝播経路をグラフ理論で形式的に分析する専用モデル。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">あるユーザーが別のユーザーへ権限を委譲できるかを形式的に証明するためBibaモデルを使う</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>アクセス権の伝播・委譲の形式的分析にはTake-Grantモデルを使う（Take/Grant/Create/Removeの4操作でグラフ分析）</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trap-card" data-cat="model">
+      <div class="card-top">
+        <div class="trap-num">T-38</div>
+        <span class="cat-badge model">セキュリティモデル選択の罠</span>
+      </div>
+      <div class="trap-name">「Brewer-NashはBLPの拡張版」誤解罠</div>
+      <div class="trap-pattern">「Brewer-Nashは利益相反という特殊な機密性制御なので、BLPの拡張として機密性保護にも使える」</div>
+      <div class="trap-why">BLPは機密レベルの静的な上下関係に基づく<strong>機密性保護のMACモデル</strong>。Brewer-Nash（Chinese Wall）は<strong>利益相反防止</strong>を目的とし、「競合利益クラス（Conflict of Interest Class）」というビジネス上の分類を使う。設計思想が根本的に異なる独立したモデル。Brewer-NashはBLPの拡張でも派生でもなく、アクセス履歴による動的制御が核心。</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <div class="compare-label wrong">✗</div>
+          <div class="compare-text">Brewer-NashはBLPを利益相反防止に特化させた拡張モデルなので機密性保護にも使える</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label right">✓</div>
+          <div class="compare-text"><strong>Brewer-Nashは独立したモデル。アクセス履歴に基づく動的な競合クラス制御が設計思想の核心で、BLPの機密レベル制御とは根本的に異なる</strong></div>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /trap-grid -->
 
   <div class="page-footer">
-    <span>⚠️ このガイドはAIによって生成されています。正確な情報はISC²公式資料をご確認ください。</span>
     <a href="./" style="text-decoration:none; color: var(--accent); font-weight: 600;">← シンキングガイドに戻る</a>
   </div>
 
