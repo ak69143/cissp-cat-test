@@ -156,6 +156,44 @@ html, body {
   font-size: 15px;
 }
 
+/* シンキングガイドバナー */
+.thinking-banner {
+  display: flex; align-items: center; gap: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  text-decoration: none; color: inherit;
+  margin-bottom: 32px;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  border-left: 4px solid #8b5cf6;
+}
+.thinking-banner:hover {
+  border-color: #8b5cf6;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.thinking-banner-icon {
+  font-size: 32px; flex-shrink: 0;
+  width: 52px; height: 52px;
+  background: linear-gradient(135deg, #8b5cf6, var(--accent));
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+}
+.thinking-banner-body { flex: 1; min-width: 0; }
+.thinking-banner-title {
+  font-size: 16px; font-weight: 700; color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.thinking-banner-desc {
+  font-size: 13px; color: var(--text-secondary); line-height: 1.5;
+}
+.thinking-banner-arrow {
+  font-size: 20px; color: #8b5cf6; flex-shrink: 0;
+  transition: transform 0.2s;
+}
+.thinking-banner:hover .thinking-banner-arrow { transform: translateX(4px); }
+
 /* モードカード */
 .mode-cards {
   display: grid;
