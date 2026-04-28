@@ -830,7 +830,7 @@
   const themeBtn = document.getElementById('theme-btn');
   const themes = ['auto','dark','light'];
   const icons  = { auto:'🌓', dark:'🌙', light:'☀️' };
-  let current  = localStorage.getItem('theme') || 'auto';
+  let current  = localStorage.getItem('cissp_theme') || 'dark';
   document.documentElement.setAttribute('data-theme', current);
   themeBtn.textContent = icons[current];
   themeBtn.addEventListener('click', () => {
@@ -838,7 +838,7 @@
     current = themes[(idx + 1) % themes.length];
     document.documentElement.setAttribute('data-theme', current);
     themeBtn.textContent = icons[current];
-    localStorage.setItem('theme', current);
+    localStorage.setItem('cissp_theme', current);
   });
 </script>
 
