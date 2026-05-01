@@ -45,10 +45,15 @@ const BADGE_DEFS = [
   { id: 'domain-8', name: 'D8マスター', category: 'domain', shape: 'circle', condition: 'D8を70%以上（20問以上）', domainIdx: 7 },
   { id: 'all-domains',     name: '全ドメイン制覇', category: 'domain', shape: 'circle', condition: '全8ドメイン70%以上' },
   // 習慣系（星形・緑）
-  { id: 'night-owl',       name: '夜型学習者',     category: 'habit',  shape: 'star',   condition: '22時〜3時の間に学習' },
-  { id: 'early-bird',      name: '早起き学習者',   category: 'habit',  shape: 'star',   condition: '5時〜8時の間に学習' },
-  { id: 'streak-7days',    name: '7日連続',        category: 'habit',  shape: 'star',   condition: '7日連続アクセス' },
-  { id: 'streak-30days',   name: '1ヶ月皆勤',      category: 'habit',  shape: 'star',   condition: '30日連続アクセス' },
+  { id: 'night-owl',       name: '夜型学習者',     category: 'habit',  shape: 'star',     condition: '22時〜3時の間に学習' },
+  { id: 'early-bird',      name: '早起き学習者',   category: 'habit',  shape: 'star',     condition: '5時〜8時の間に学習' },
+  { id: 'streak-7days',    name: '7日連続',        category: 'habit',  shape: 'star',     condition: '7日連続アクセス' },
+  { id: 'streak-30days',   name: '1ヶ月皆勤',      category: 'habit',  shape: 'star',     condition: '30日連続アクセス' },
+  // 用語系（六角形・紫）
+  { id: 'terms-first',     name: '用語初制覇',     category: 'terms',  shape: 'hex-terms', condition: '用語テストで初めて正解' },
+  { id: 'terms-100',       name: '用語100選',      category: 'terms',  shape: 'hex-terms', condition: '用語テスト累計100問正解' },
+  { id: 'terms-500',       name: '用語500選',      category: 'terms',  shape: 'hex-terms', condition: '用語テスト累計500問正解' },
+  { id: 'terms-perfect',   name: '用語パーフェクト', category: 'terms', shape: 'hex-terms', condition: '用語テスト全問正解（10問以上）' },
 ];
 
 const HABIT_BADGE_IDS = ['night-owl', 'early-bird', 'streak-7days', 'streak-30days'];
@@ -88,7 +93,7 @@ function _defaultGamif() {
     xp: 0,
     title: 'セキュリティ候補生',
     badges,
-    stats: { totalCorrect: 0, totalAnswered: 0, correctStreak: 0, maxCorrectStreak: 0, sessionsCompleted: 0, examsPassed: 0, consecutiveExamsPassed: 0 },
+    stats: { totalCorrect: 0, totalAnswered: 0, correctStreak: 0, maxCorrectStreak: 0, sessionsCompleted: 0, examsPassed: 0, consecutiveExamsPassed: 0, termsCorrect: 0 },
     streak: { current: 0, max: 0, lastDate: '' },
   };
 }
@@ -181,6 +186,13 @@ function checkAndAwardBadges(data, ctx) {
     const h = new Date().getHours();
     check('night-owl',  h >= 22 || h < 3);
     check('early-bird', h >= 5 && h < 8);
+
+    // 用語系バッジ
+    if (session?.mode === 'terms' && isCorrect) {
+      check('terms-first', true);
+      check('terms-100',   data.stats.termsCorrect >= 100);
+      check('terms-500',   data.stats.termsCorrect >= 500);
+    }
   }
 
   // ドメインバッジ（毎回チェック）
@@ -240,6 +252,10 @@ function _symbol(id) {
     'streak-7days':    `<rect x="22" y="26" width="36" height="30" rx="3" stroke="white" stroke-width="2" fill="none"/><line x1="22" y1="34" x2="58" y2="34" stroke="white" stroke-width="2"/><line x1="32" y1="26" x2="32" y2="30" stroke="white" stroke-width="2" stroke-linecap="round"/><line x1="48" y1="26" x2="48" y2="30" stroke="white" stroke-width="2" stroke-linecap="round"/><text x="40" y="50" text-anchor="middle" font-size="12" fill="white" font-weight="bold">7</text>`,
     'streak-30days':   `<rect x="22" y="26" width="36" height="30" rx="3" stroke="white" stroke-width="2" fill="none"/><line x1="22" y1="34" x2="58" y2="34" stroke="white" stroke-width="2"/><line x1="32" y1="26" x2="32" y2="30" stroke="white" stroke-width="2" stroke-linecap="round"/><line x1="48" y1="26" x2="48" y2="30" stroke="white" stroke-width="2" stroke-linecap="round"/><text x="40" y="50" text-anchor="middle" font-size="11" fill="white" font-weight="bold">30</text>`,
     'all-domains':     `<path d="M40 22 L45 34 L58 34 L48 43 L52 56 L40 48 L28 56 L32 43 L22 34 L35 34 Z" stroke="white" stroke-width="2.5" fill="rgba(255,255,255,0.2)" stroke-linecap="round" stroke-linejoin="round"/>`,
+    'terms-first':     `<text x="40" y="53" text-anchor="middle" font-size="28" font-family="serif" fill="white" font-weight="bold">T</text>`,
+    'terms-100':       `<path d="M26 54 L26 30 C30 27 36 26 40 28 C44 26 50 27 54 30 L54 54 C50 51 44 50 40 52 C36 50 30 51 26 54 M40 28 L40 52 M30 34 L38 34 M30 38 L38 38 M30 42 L38 42" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+    'terms-500':       `<text x="40" y="38" text-anchor="middle" font-size="13" fill="white" font-weight="bold">500</text><path d="M26 44 L54 44 M30 48 L50 48 M34 52 L46 52" stroke="white" stroke-width="2" stroke-linecap="round"/>`,
+    'terms-perfect':   `<path d="M26 42 L36 54 L54 30" stroke="white" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M26 54 L26 32 C34 28 46 28 54 32 L54 54" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>`,
   };
   if (id.startsWith('domain-')) {
     const n = id.split('-')[1];
@@ -256,6 +272,9 @@ function getBadgeSvg(id, earned, size = 56) {
   let gradDef = '', shape = '';
   if (def.shape === 'hex') {
     gradDef = `<linearGradient id="g${uid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#6366f1"/></linearGradient>`;
+    shape   = `<polygon points="40,4 72,22 72,58 40,76 8,58 8,22" fill="url(#g${uid})"/>`;
+  } else if (def.shape === 'hex-terms') {
+    gradDef = `<linearGradient id="g${uid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#a855f7"/></linearGradient>`;
     shape   = `<polygon points="40,4 72,22 72,58 40,76 8,58 8,22" fill="url(#g${uid})"/>`;
   } else if (def.shape === 'shield') {
     gradDef = `<linearGradient id="g${uid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#d97706"/></linearGradient>`;
@@ -409,6 +428,7 @@ function showBadgeCollection() {
     { key: 'exam',   label: '試験系' },
     { key: 'domain', label: 'ドメイン系' },
     { key: 'habit',  label: '習慣系' },
+    { key: 'terms',  label: '用語系' },
   ];
 
   body.innerHTML = categories.map(cat => {
@@ -437,6 +457,7 @@ function _fmtXp(n) {
 function onAnswerGamif(isCorrect, q, sess) {
   if (!sess) return;
   const data = loadGamif();
+  const isTerms   = sess.mode === 'terms';
 
   // 統計更新
   data.stats.totalAnswered++;
@@ -444,13 +465,13 @@ function onAnswerGamif(isCorrect, q, sess) {
     data.stats.totalCorrect++;
     data.stats.correctStreak++;
     data.stats.maxCorrectStreak = Math.max(data.stats.maxCorrectStreak, data.stats.correctStreak);
+    if (isTerms) data.stats.termsCorrect++;
   } else {
     data.stats.correctStreak = 0;
   }
 
   // XP計算
   let xp = 0;
-  const isTerms   = sess.mode === 'terms';
   const isExamMode = sess.mode === 'cat' && sess.isExamMode;
   if (isCorrect) {
     if (isTerms)         xp += XP_RULES.termsCorrect;
@@ -510,7 +531,8 @@ function onResultGamif(sess, score, verdict) {
     awardR('exam-triple',   data.stats.consecutiveExamsPassed >= 3);
     awardR('exam-brutal',   verdict === 'FAIL — BRUTAL');
   }
-  awardR('perfect-session', total >= 10 && correct === total);
+  awardR('perfect-session', sess.mode !== 'terms' && total >= 10 && correct === total);
+  awardR('terms-perfect',  sess.mode === 'terms' && total >= 10 && correct === total);
 
   // ドメイン・連続日数バッジも再チェック
   const extraBadges = checkAndAwardBadges(data, {});
