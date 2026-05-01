@@ -61,8 +61,8 @@ const XP_RULES = {
   examCorrect:     15,
   examWrong:       3,
   hardBonus:       5,
-  termsCorrect:    5,
-  termsWrong:      1,
+  termsCorrect:    1,
+  termsWrong:      0,
   examCompletion:  50,
   examPass:        150,
   streak5Bonus:    20,  // every multiple of 5
