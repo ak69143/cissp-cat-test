@@ -963,10 +963,6 @@
 
 <script src="quiz-data.js"></script>
 <script>
-  // 認証チェック（未認証ならトップへ）
-  if (sessionStorage.getItem('cissp_thinking_auth') !== '1') {
-    location.href = './';
-  }
 
   // フィルター
   const filterTabs   = document.querySelectorAll('.filter-tab');

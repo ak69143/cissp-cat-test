@@ -7,54 +7,6 @@
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../style.css">
   <style>
-    /* ===== 認証画面 ===== */
-    .auth-overlay {
-      position: fixed; inset: 0;
-      background: var(--bg-primary);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 9999; padding: 24px;
-    }
-    .auth-box {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 40px; width: 100%; max-width: 400px;
-      box-shadow: var(--shadow); text-align: center;
-    }
-    .auth-icon { font-size: 40px; margin-bottom: 16px; }
-    .auth-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
-    .auth-subtitle { font-size: 14px; color: var(--text-secondary); margin-bottom: 28px; }
-    .auth-input-wrap { position: relative; margin-bottom: 12px; }
-    .auth-input {
-      width: 100%; background: var(--bg-secondary);
-      border: 1px solid var(--border); border-radius: var(--radius-sm);
-      color: var(--text-primary); font-size: 16px;
-      padding: 14px 48px 14px 16px; outline: none;
-      transition: border-color 0.15s; letter-spacing: 2px;
-    }
-    .auth-input:focus { border-color: var(--accent); }
-    .auth-input.error { border-color: var(--danger); animation: shake 0.3s ease; }
-    .auth-toggle {
-      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
-      background: none; border: none; color: var(--text-muted);
-      cursor: pointer; font-size: 18px; padding: 4px;
-    }
-    .auth-toggle:hover { color: var(--text-secondary); }
-    .auth-error { font-size: 13px; color: var(--danger); margin-bottom: 16px; min-height: 20px; }
-    .auth-btn {
-      width: 100%; padding: 14px; background: var(--accent); color: white;
-      border: none; border-radius: var(--radius-sm);
-      font-size: 15px; font-weight: 700; cursor: pointer; transition: background 0.15s;
-    }
-    .auth-btn:hover { background: var(--accent-hover); }
-    .auth-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-    @keyframes shake {
-      0%,100% { transform: translateX(0); }
-      25% { transform: translateX(-6px); }
-      75% { transform: translateX(6px); }
-    }
-    .page-wrap.locked { display: none; }
-
     /* ===== ハブページ ===== */
     .page-wrap {
       max-width: 1000px; margin: 0 auto; padding: 48px 24px;
@@ -186,24 +138,10 @@
 </head>
 <body>
 
-<!-- 認証オーバーレイ -->
-<div class="auth-overlay" id="auth-overlay">
-  <div class="auth-box">
-    <div class="auth-icon">🔒</div>
-    <div class="auth-title">CISSP シンキングガイド</div>
-    <div class="auth-subtitle">アクセスにはパスワードが必要です</div>
-    <div class="auth-input-wrap">
-      <input type="password" class="auth-input" id="auth-input" placeholder="パスワードを入力" autocomplete="current-password">
-      <button class="auth-toggle" id="auth-toggle" type="button">👁</button>
-    </div>
-    <div class="auth-error" id="auth-error"></div>
-    <button class="auth-btn" id="auth-btn">入る</button>
-  </div>
-</div>
 
 <button class="theme-toggle-btn floating-theme-btn" id="theme-btn" title="テーマ切替">🌙</button>
 
-<div class="page-wrap locked" id="page-wrap">
+<div class="page-wrap" id="page-wrap">
 
   <div class="ai-disclaimer">
     ⚠️ このガイドはAIによって生成されています。内容に誤りが含まれる可能性があります。正確な情報はISC²の公式資料をご確認ください。
@@ -323,56 +261,6 @@
 </div>
 
 <script>
-  const HASH = '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08';
-  const SESSION_KEY = 'cissp_thinking_auth';
-
-  const authOverlay = document.getElementById('auth-overlay');
-  const pageWrap    = document.getElementById('page-wrap');
-  const authInput   = document.getElementById('auth-input');
-  const authBtn     = document.getElementById('auth-btn');
-  const authError   = document.getElementById('auth-error');
-  const authToggle  = document.getElementById('auth-toggle');
-
-  async function sha256(str) {
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
-  }
-
-  function unlock() {
-    authOverlay.style.display = 'none';
-    pageWrap.classList.remove('locked');
-    sessionStorage.setItem(SESSION_KEY, '1');
-  }
-
-  if (sessionStorage.getItem(SESSION_KEY) === '1') unlock();
-
-  authBtn.addEventListener('click', async () => {
-    const val = authInput.value;
-    if (!val) return;
-    authBtn.disabled = true;
-    const hash = await sha256(val);
-    if (hash === HASH) {
-      unlock();
-    } else {
-      authError.textContent = 'パスワードが違います';
-      authInput.classList.add('error');
-      authInput.value = '';
-      setTimeout(() => authInput.classList.remove('error'), 400);
-      authBtn.disabled = false;
-      authInput.focus();
-    }
-  });
-
-  authInput.addEventListener('keydown', e => { if (e.key === 'Enter') authBtn.click(); });
-
-  let visible = false;
-  authToggle.addEventListener('click', () => {
-    visible = !visible;
-    authInput.type = visible ? 'text' : 'password';
-    authToggle.textContent = visible ? '🙈' : '👁';
-  });
-
-  authInput.focus();
 
   // テーマ切替
   const themeBtn = document.getElementById('theme-btn');
