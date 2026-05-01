@@ -47,8 +47,12 @@ const BADGE_DEFS = [
   // 習慣系（星形・緑）
   { id: 'night-owl',       name: '夜型学習者',     category: 'habit',  shape: 'star',     condition: '22時〜3時の間に学習' },
   { id: 'early-bird',      name: '早起き学習者',   category: 'habit',  shape: 'star',     condition: '5時〜8時の間に学習' },
-  { id: 'streak-7days',    name: '7日連続',        category: 'habit',  shape: 'star',     condition: '7日連続アクセス' },
+  { id: 'streak-7days',    name: '7日連続',         category: 'habit',  shape: 'star',     condition: '7日連続アクセス' },
   { id: 'streak-30days',   name: '1ヶ月皆勤',      category: 'habit',  shape: 'star',     condition: '30日連続アクセス' },
+  { id: 'streak-50days',   name: '50日連続',        category: 'habit',  shape: 'star',     condition: '50日連続アクセス' },
+  { id: 'streak-100days',  name: '100日連続',       category: 'habit',  shape: 'star',     condition: '100日連続アクセス' },
+  { id: 'streak-200days',  name: '200日連続',       category: 'habit',  shape: 'star',     condition: '200日連続アクセス' },
+  { id: 'streak-365days',  name: '1年皆勤',         category: 'habit',  shape: 'star',     condition: '365日連続アクセス' },
   // 用語系（六角形・紫）
   { id: 'terms-first',     name: '用語初制覇',     category: 'terms',  shape: 'hex-terms', condition: '用語テストで初めて正解' },
   { id: 'terms-100',       name: '用語100選',      category: 'terms',  shape: 'hex-terms', condition: '用語テスト累計100問正解' },
@@ -207,8 +211,12 @@ function checkAndAwardBadges(data, ctx) {
   check('all-domains', allMastered);
 
   // 連続日数バッジ
-  check('streak-7days',  data.streak.current >= 7);
-  check('streak-30days', data.streak.current >= 30);
+  check('streak-7days',   data.streak.current >= 7);
+  check('streak-30days',  data.streak.current >= 30);
+  check('streak-50days',  data.streak.current >= 50);
+  check('streak-100days', data.streak.current >= 100);
+  check('streak-200days', data.streak.current >= 200);
+  check('streak-365days', data.streak.current >= 365);
 
   return newBadges;
 }
@@ -251,6 +259,10 @@ function _symbol(id) {
     'early-bird':      `<circle cx="40" cy="42" r="9" stroke="white" stroke-width="2.5" fill="rgba(255,255,255,0.15)"/><path d="M40 26 L40 33 M55 32 L49 38 M25 32 L31 38 M58 42 L51 42 M29 42 L22 42 M55 52 L49 46" stroke="white" stroke-width="2" stroke-linecap="round"/>`,
     'streak-7days':    `<rect x="22" y="26" width="36" height="30" rx="3" stroke="white" stroke-width="2" fill="none"/><line x1="22" y1="34" x2="58" y2="34" stroke="white" stroke-width="2"/><line x1="32" y1="26" x2="32" y2="30" stroke="white" stroke-width="2" stroke-linecap="round"/><line x1="48" y1="26" x2="48" y2="30" stroke="white" stroke-width="2" stroke-linecap="round"/><text x="40" y="50" text-anchor="middle" font-size="12" fill="white" font-weight="bold">7</text>`,
     'streak-30days':   `<rect x="22" y="26" width="36" height="30" rx="3" stroke="white" stroke-width="2" fill="none"/><line x1="22" y1="34" x2="58" y2="34" stroke="white" stroke-width="2"/><line x1="32" y1="26" x2="32" y2="30" stroke="white" stroke-width="2" stroke-linecap="round"/><line x1="48" y1="26" x2="48" y2="30" stroke="white" stroke-width="2" stroke-linecap="round"/><text x="40" y="50" text-anchor="middle" font-size="11" fill="white" font-weight="bold">30</text>`,
+    'streak-50days':   `<rect x="22" y="26" width="36" height="30" rx="3" stroke="white" stroke-width="2" fill="none"/><line x1="22" y1="34" x2="58" y2="34" stroke="white" stroke-width="2"/><line x1="32" y1="26" x2="32" y2="30" stroke="white" stroke-width="2" stroke-linecap="round"/><line x1="48" y1="26" x2="48" y2="30" stroke="white" stroke-width="2" stroke-linecap="round"/><text x="40" y="50" text-anchor="middle" font-size="11" fill="white" font-weight="bold">50</text>`,
+    'streak-100days':  `<rect x="22" y="26" width="36" height="30" rx="3" stroke="white" stroke-width="2" fill="rgba(255,255,255,0.1)"/><line x1="22" y1="34" x2="58" y2="34" stroke="white" stroke-width="2"/><line x1="32" y1="26" x2="32" y2="30" stroke="white" stroke-width="2" stroke-linecap="round"/><line x1="48" y1="26" x2="48" y2="30" stroke="white" stroke-width="2" stroke-linecap="round"/><text x="40" y="50" text-anchor="middle" font-size="10" fill="white" font-weight="bold">100</text>`,
+    'streak-200days':  `<rect x="22" y="26" width="36" height="30" rx="3" stroke="white" stroke-width="2" fill="rgba(255,255,255,0.15)"/><line x1="22" y1="34" x2="58" y2="34" stroke="white" stroke-width="2"/><line x1="32" y1="26" x2="32" y2="30" stroke="white" stroke-width="2" stroke-linecap="round"/><line x1="48" y1="26" x2="48" y2="30" stroke="white" stroke-width="2" stroke-linecap="round"/><text x="40" y="50" text-anchor="middle" font-size="10" fill="white" font-weight="bold">200</text>`,
+    'streak-365days':  `<path d="M40 22 L44.9 36.2 L60 36.2 L47.6 44.8 L52.4 59 L40 50.4 L27.6 59 L32.4 44.8 L20 36.2 L35.1 36.2 Z" stroke="white" stroke-width="2" fill="rgba(255,255,255,0.2)" stroke-linecap="round" stroke-linejoin="round"/><text x="40" y="46" text-anchor="middle" font-size="8" fill="white" font-weight="bold">365</text>`,
     'all-domains':     `<path d="M40 22 L45 34 L58 34 L48 43 L52 56 L40 48 L28 56 L32 43 L22 34 L35 34 Z" stroke="white" stroke-width="2.5" fill="rgba(255,255,255,0.2)" stroke-linecap="round" stroke-linejoin="round"/>`,
     'terms-first':     `<text x="40" y="53" text-anchor="middle" font-size="28" font-family="serif" fill="white" font-weight="bold">T</text>`,
     'terms-100':       `<path d="M26 54 L26 30 C30 27 36 26 40 28 C44 26 50 27 54 30 L54 54 C50 51 44 50 40 52 C36 50 30 51 26 54 M40 28 L40 52 M30 34 L38 34 M30 38 L38 38 M30 42 L38 42" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
