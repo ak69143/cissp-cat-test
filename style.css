@@ -1810,7 +1810,7 @@ body.brutal-mode .brutal-badge { display: block; }
 .gamif-xp-bar-wrap {
   flex: 1;
   height: 8px;
-  background: var(--bg-secondary);
+  background: var(--border);
   border-radius: 4px;
   overflow: hidden;
 }
@@ -1888,7 +1888,7 @@ body.brutal-mode .brutal-badge { display: block; }
 }
 .gamif-result-bar-wrap {
   height: 8px;
-  background: var(--bg-secondary);
+  background: var(--border);
   border-radius: 4px;
   overflow: hidden;
   margin-bottom: 14px;
