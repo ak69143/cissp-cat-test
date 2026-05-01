@@ -276,40 +276,66 @@ function _symbol(id) {
   return s[id] || '';
 }
 
+function _hexLighten(hex, amt) {
+  return `rgb(${Math.min(255,parseInt(hex.slice(1,3),16)+amt)},${Math.min(255,parseInt(hex.slice(3,5),16)+amt)},${Math.min(255,parseInt(hex.slice(5,7),16)+amt)})`;
+}
+function _hexDarken(hex, amt) {
+  return `rgb(${Math.max(0,parseInt(hex.slice(1,3),16)-amt)},${Math.max(0,parseInt(hex.slice(3,5),16)-amt)},${Math.max(0,parseInt(hex.slice(5,7),16)-amt)})`;
+}
+
 function getBadgeSvg(id, earned, size = 56) {
   const def = BADGE_DEFS.find(b => b.id === id);
   if (!def) return '';
   const uid = id.replace(/[^a-z0-9]/g, '');
 
-  let gradDef = '', shape = '';
-  if (def.shape === 'hex') {
-    gradDef = `<linearGradient id="g${uid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#6366f1"/></linearGradient>`;
-    shape   = `<polygon points="40,4 72,22 72,58 40,76 8,58 8,22" fill="url(#g${uid})"/>`;
-  } else if (def.shape === 'hex-terms') {
-    gradDef = `<linearGradient id="g${uid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#a855f7"/></linearGradient>`;
-    shape   = `<polygon points="40,4 72,22 72,58 40,76 8,58 8,22" fill="url(#g${uid})"/>`;
+  let gradDef = '', shapeMain = '', shapeRing = '', shapeShine = '', glowColor = '#888', outerStroke = 'rgba(255,255,255,0.4)';
+
+  if (def.shape === 'hex' || def.shape === 'hex-terms') {
+    const isT = def.shape === 'hex-terms';
+    const [c0, c1, c2] = isT ? ['#c084fc','#9333ea','#6d28d9'] : ['#93c5fd','#3b82f6','#4338ca'];
+    glowColor = c1; outerStroke = c0;
+    gradDef   = `<linearGradient id="g${uid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${c0}"/><stop offset="50%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></linearGradient>`;
+    shapeMain = `<polygon points="40,4 72,22 72,58 40,76 8,58 8,22" fill="url(#g${uid})" stroke="${outerStroke}" stroke-width="1.5"/>`;
+    shapeRing = `<polygon points="40,10 66,25 66,55 40,70 14,55 14,25" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>`;
+    shapeShine= `<polygon points="40,4 72,22 72,58 40,76 8,58 8,22" fill="url(#sh${uid})"/>`;
+
   } else if (def.shape === 'shield') {
-    gradDef = `<linearGradient id="g${uid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#d97706"/></linearGradient>`;
-    shape   = `<path d="M40 4 L72 16 L72 46 Q72 66 40 76 Q8 66 8 46 L8 16 Z" fill="url(#g${uid})"/>`;
+    glowColor = '#f59e0b'; outerStroke = '#fde68a';
+    gradDef   = `<linearGradient id="g${uid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fde68a"/><stop offset="45%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#92400e"/></linearGradient>`;
+    shapeMain = `<path d="M40 4 L72 16 L72 46 Q72 66 40 76 Q8 66 8 46 L8 16 Z" fill="url(#g${uid})" stroke="${outerStroke}" stroke-width="1.5"/>`;
+    shapeRing = `<path d="M40 11 L65 21 L65 45 Q65 61 40 70 Q15 61 15 45 L15 21 Z" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>`;
+    shapeShine= `<path d="M40 4 L72 16 L72 46 Q72 66 40 76 Q8 66 8 46 L8 16 Z" fill="url(#sh${uid})"/>`;
+
   } else if (def.shape === 'circle') {
+    outerStroke = 'rgba(255,255,255,0.45)';
     if (def.id === 'all-domains') {
-      gradDef = `<linearGradient id="g${uid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#4f8ef7"/></linearGradient>`;
-      shape   = `<circle cx="40" cy="40" r="36" fill="url(#g${uid})"/>`;
+      glowColor = '#7c3aed';
+      gradDef   = `<linearGradient id="g${uid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#c4b5fd"/><stop offset="50%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#3730a3"/></linearGradient>`;
     } else {
-      const color = DOMAIN_COLORS_G[def.domainIdx] || '#4f8ef7';
-      shape = `<circle cx="40" cy="40" r="36" fill="${color}"/>`;
+      const bc = DOMAIN_COLORS_G[def.domainIdx] || '#4f8ef7';
+      glowColor = bc;
+      gradDef   = `<radialGradient id="g${uid}" cx="38%" cy="32%" r="68%"><stop offset="0%" stop-color="${_hexLighten(bc,55)}"/><stop offset="50%" stop-color="${bc}"/><stop offset="100%" stop-color="${_hexDarken(bc,45)}"/></radialGradient>`;
     }
+    shapeMain = `<circle cx="40" cy="40" r="36" fill="url(#g${uid})" stroke="${outerStroke}" stroke-width="1.5"/>`;
+    shapeRing = `<circle cx="40" cy="40" r="30" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>`;
+    shapeShine= `<circle cx="40" cy="40" r="36" fill="url(#sh${uid})"/>`;
+
   } else if (def.shape === 'star') {
-    gradDef = `<linearGradient id="g${uid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#10b981"/><stop offset="100%" stop-color="#059669"/></linearGradient>`;
-    shape   = `<polygon points="40,4 48.8,27.9 74.2,28.9 54.3,44.6 61.2,69.1 40,55 18.8,69.1 25.7,44.6 5.8,28.9 31.2,27.9" fill="url(#g${uid})"/>`;
+    glowColor = '#10b981'; outerStroke = '#6ee7b7';
+    gradDef   = `<linearGradient id="g${uid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6ee7b7"/><stop offset="50%" stop-color="#10b981"/><stop offset="100%" stop-color="#065f46"/></linearGradient>`;
+    shapeMain = `<polygon points="40,4 48.8,27.9 74.2,28.9 54.3,44.6 61.2,69.1 40,55 18.8,69.1 25.7,44.6 5.8,28.9 31.2,27.9" fill="url(#g${uid})" stroke="${outerStroke}" stroke-width="1.5"/>`;
+    shapeRing = `<polygon points="40,10.5 47.2,30.1 68.0,30.9 51.7,43.8 57.4,63.9 40,52.3 22.6,63.9 28.3,43.8 12.0,30.9 32.8,30.1" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>`;
+    shapeShine= `<polygon points="40,4 48.8,27.9 74.2,28.9 54.3,44.6 61.2,69.1 40,55 18.8,69.1 25.7,44.6 5.8,28.9 31.2,27.9" fill="url(#sh${uid})"/>`;
   }
 
-  const glowDef  = earned ? `<filter id="gf${uid}" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>` : '';
+  const shineDef = `<linearGradient id="sh${uid}" x1="0.1" y1="0" x2="0.7" y2="1"><stop offset="0%" stop-color="white" stop-opacity="0.45"/><stop offset="40%" stop-color="white" stop-opacity="0.1"/><stop offset="100%" stop-color="white" stop-opacity="0"/></linearGradient>`;
+  const glowDef  = earned ? `<filter id="gf${uid}" x="-35%" y="-35%" width="170%" height="170%"><feDropShadow dx="0" dy="1" stdDeviation="4" flood-color="${glowColor}" flood-opacity="0.65"/></filter>` : '';
   const filterA  = earned ? `filter="url(#gf${uid})"` : '';
   const grayA    = earned ? '' : ' style="filter:grayscale(1) opacity(0.28)"';
   const lock     = earned ? '' : `<path d="M34 44 L34 38 Q34 32 40 32 Q46 32 46 38 L46 44" stroke="rgba(255,255,255,0.6)" stroke-width="2" fill="none" stroke-linecap="round"/><rect x="30" y="44" width="20" height="14" rx="3" fill="rgba(0,0,0,0.55)" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><circle cx="40" cy="50" r="2.5" fill="rgba(255,255,255,0.7)"/>`;
 
-  return `<svg viewBox="0 0 80 80" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg"${grayA}><defs>${gradDef}${glowDef}</defs><g ${filterA}>${shape}</g>${earned ? _symbol(id) : lock}</svg>`;
+  const inner = earned ? `${shapeRing}${shapeShine}${_symbol(id)}` : lock;
+  return `<svg viewBox="0 0 80 80" width="${size}" height="${size}" overflow="visible" xmlns="http://www.w3.org/2000/svg"${grayA}><defs>${gradDef}${shineDef}${glowDef}</defs><g ${filterA}>${shapeMain}</g>${inner}</svg>`;
 }
 
 // ===== UI レンダリング =====
