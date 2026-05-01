@@ -475,7 +475,7 @@ function showBadgeCollection() {
       const isEarned = !!data.badges[def.id]?.earned;
       const dateStr  = isEarned ? new Date(data.badges[def.id].date).toLocaleDateString('ja-JP') : def.condition;
       const isNew    = isEarned && Date.now() - new Date(data.badges[def.id].date).getTime() < 90000;
-      return `<div class="badge-col-item${isNew ? ' badge-col-new' : ''}">
+      return `<div class="badge-col-item${isNew ? ' badge-col-new' : ''}" data-badge-id="${def.id}" onclick="showBadgeDetail('${def.id}')">
         <div class="badge-col-svg">${getBadgeSvg(def.id, isEarned, 64)}</div>
         <div class="badge-col-name${isEarned ? '' : ' badge-col-locked'}">${def.name}</div>
         <div class="badge-col-cond">${dateStr}</div>
@@ -485,6 +485,53 @@ function showBadgeCollection() {
   }).join('');
 
   overlay.classList.remove('hidden');
+}
+
+function _ensureBadgeDetailPanel() {
+  if (document.getElementById('badge-detail-overlay')) return;
+  const el = document.createElement('div');
+  el.id = 'badge-detail-overlay';
+  el.className = 'badge-detail-overlay hidden';
+  el.innerHTML = `
+    <div class="badge-detail-box">
+      <button class="badge-detail-close" id="badge-detail-close" aria-label="閉じる">✕</button>
+      <div id="badge-detail-svg" class="badge-detail-svg"></div>
+      <div id="badge-detail-name" class="badge-detail-name"></div>
+      <div id="badge-detail-cat" class="badge-detail-cat"></div>
+      <div id="badge-detail-cond" class="badge-detail-cond"></div>
+      <div id="badge-detail-status" class="badge-detail-status"></div>
+    </div>
+  `;
+  document.body.appendChild(el);
+  el.addEventListener('click', e => { if (e.target === el) el.classList.add('hidden'); });
+  document.getElementById('badge-detail-close').addEventListener('click', () => el.classList.add('hidden'));
+}
+
+function showBadgeDetail(id) {
+  _ensureBadgeDetailPanel();
+  const data = loadGamif();
+  const def  = BADGE_DEFS.find(b => b.id === id);
+  if (!def) return;
+
+  const isEarned = !!data.badges[id]?.earned;
+  const dateStr  = isEarned
+    ? new Date(data.badges[id].date).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })
+    : null;
+
+  const catLabels = { study: '学習系', exam: '試験系', domain: 'ドメイン系', habit: '習慣系', terms: '用語系' };
+  const catColors = { study: '#3b82f6', exam: '#f59e0b', domain: '#7c3aed', habit: '#10b981', terms: '#9333ea' };
+  const cc = catColors[def.category] || '#888';
+
+  document.getElementById('badge-detail-svg').innerHTML = getBadgeSvg(id, isEarned, 96);
+  document.getElementById('badge-detail-name').textContent = def.name;
+  document.getElementById('badge-detail-cat').innerHTML =
+    `<span class="badge-detail-cat-pill" style="background:${cc}20;color:${cc};border:1px solid ${cc}40">${catLabels[def.category] || def.category}</span>`;
+  document.getElementById('badge-detail-cond').textContent = def.condition;
+  document.getElementById('badge-detail-status').innerHTML = isEarned
+    ? `<span class="badge-detail-earned">✓ 取得済み — ${dateStr}</span>`
+    : `<span class="badge-detail-locked">🔒 未取得</span>`;
+
+  document.getElementById('badge-detail-overlay').classList.remove('hidden');
 }
 
 function _fmtXp(n) {

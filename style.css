@@ -1996,11 +1996,12 @@ body.brutal-mode .brutal-badge { display: block; }
   padding: 10px 6px;
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
-  transition: border-color 0.15s;
-  cursor: default;
+  transition: border-color 0.15s, transform 0.1s;
+  cursor: pointer;
 }
 .badge-col-item:hover {
   border-color: var(--border);
+  transform: translateY(-2px);
 }
 .badge-col-item.badge-col-new {
   animation: badge-shimmer 1.2s ease;
@@ -2084,4 +2085,77 @@ body.brutal-mode .brutal-badge { display: block; }
 @keyframes sparkle-pulse {
   0%, 100% { transform: scale(1); }
   50%       { transform: scale(1.2); }
+}
+
+/* ===== バッジ詳細パネル ===== */
+.badge-detail-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+}
+.badge-detail-overlay.hidden { display: none; }
+.badge-detail-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px 28px 28px;
+  max-width: 300px;
+  width: 88%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  text-align: center;
+  animation: titleup-bounce 0.22s ease;
+}
+.badge-detail-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 16px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  line-height: 1;
+  transition: color 0.15s;
+}
+.badge-detail-close:hover { color: var(--text-primary); }
+.badge-detail-svg { margin: 8px 0 4px; }
+.badge-detail-name {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: 0.3px;
+}
+.badge-detail-cat { display: flex; justify-content: center; }
+.badge-detail-cat-pill {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 12px;
+  border-radius: 999px;
+}
+.badge-detail-cond {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-top: 2px;
+}
+.badge-detail-status { margin-top: 4px; }
+.badge-detail-earned {
+  font-size: 12px;
+  color: #10b981;
+  font-weight: 700;
+}
+.badge-detail-locked {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
 }
