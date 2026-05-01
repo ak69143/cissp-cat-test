@@ -1149,6 +1149,7 @@ function selectAnswer(selectedIndex) {
 
   // 統計保存
   saveAnswerToStats(q.domainIndex, isCorrect, session.mode);
+  if (typeof onAnswerGamif === 'function') onAnswerGamif(isCorrect, q, session);
 
   // 回答直後にも保存（リロード対策）
   saveSessionToStorage();
@@ -1416,11 +1417,12 @@ function showResultScreen(reason) {
     const reportData = total >= REPORT_MIN_QUESTIONS ? generateReport() : null;
     saveExamHistory({ date: new Date().toISOString(), score, verdict, total, correct, accuracy, elapsed, reportData });
   }
+  if (typeof onResultGamif === 'function') onResultGamif(session, score, verdict);
 
   // ボタン
   document.getElementById('btn-retry').onclick = () => {
     if (session.mode === 'cat') startCatExam();
-    else if (session.mode === 'terms') { session = null; clearSessionStorage(); renderStats(); showScreen('home'); }
+    else if (session.mode === 'terms') { session = null; clearSessionStorage(); renderStats(); showScreen('home'); if (typeof renderGamifHome === 'function') renderGamifHome(); }
     else location.reload();
   };
   document.getElementById('btn-home').onclick = () => {
@@ -1428,6 +1430,7 @@ function showResultScreen(reason) {
     clearSessionStorage();
     renderStats();
     showScreen('home');
+    if (typeof renderGamifHome === 'function') renderGamifHome();
   };
   document.getElementById('btn-review').onclick = () => {
     document.getElementById('report-section').classList.add('hidden');

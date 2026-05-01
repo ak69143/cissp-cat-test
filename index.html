@@ -118,6 +118,23 @@
         </div>
       </a>
 
+      <!-- ゲーミフィケーション -->
+      <div class="gamif-section" id="gamif-section">
+        <div class="gamif-title-row">
+          <svg class="gamif-hex-icon" viewBox="0 0 24 24" width="20" height="20"><polygon points="12,1 21,6.5 21,17.5 12,23 3,17.5 3,6.5" fill="currentColor"/></svg>
+          <span class="gamif-title-name" id="gamif-title-name">セキュリティ候補生</span>
+        </div>
+        <div class="gamif-xp-row">
+          <div class="gamif-xp-bar-wrap">
+            <div class="gamif-xp-bar-fill" id="gamif-xp-bar-fill"></div>
+          </div>
+          <span class="gamif-xp-text" id="gamif-xp-text">0 / 3,000 XP</span>
+        </div>
+        <div class="gamif-next-row" id="gamif-next-row"></div>
+        <div class="gamif-badges-row" id="gamif-badges-row"></div>
+        <button class="gamif-collection-btn" id="gamif-collection-btn">バッジをすべて見る →</button>
+      </div>
+
       <!-- 成績サマリー -->
       <div class="stats-section" id="stats-section">
         <button class="stats-accordion-trigger" id="stats-toggle">
@@ -230,6 +247,15 @@
         <div class="result-verdict" id="result-verdict"></div>
         <div class="result-score" id="result-score"></div>
         <div class="result-detail" id="result-detail"></div>
+      </div>
+
+      <!-- ゲーミフィケーション結果 -->
+      <div class="gamif-result-section" id="gamif-result-section" style="display:none">
+        <div class="gamif-result-xp" id="gamif-result-xp">+0 XP 獲得！</div>
+        <div class="gamif-result-bar-wrap">
+          <div class="gamif-result-bar-fill" id="gamif-result-bar-fill"></div>
+        </div>
+        <div class="gamif-result-badges" id="gamif-result-badges"></div>
       </div>
 
       <div class="result-stats">
@@ -431,6 +457,30 @@
     </div>
   </div>
 
+  <!-- 称号アップモーダル -->
+  <div id="titleup-modal-overlay" class="modal-overlay hidden">
+    <div class="modal-box titleup-modal-box">
+      <div class="titleup-sparkle">✦</div>
+      <div class="titleup-label">称号アップ！</div>
+      <div class="titleup-name" id="titleup-name"></div>
+      <button id="titleup-close" class="btn-primary" style="margin-top:24px">確認する</button>
+    </div>
+  </div>
+
+  <!-- バッジコレクションモーダル -->
+  <div id="badge-collection-overlay" class="modal-overlay hidden">
+    <div class="modal-box badge-collection-box">
+      <div class="badge-collection-header">
+        <div>
+          <div class="badge-collection-title">バッジコレクション</div>
+          <div class="badge-collection-count" id="badge-collection-count">取得済み: 0 / 25</div>
+        </div>
+        <button class="quiz-close-btn" id="badge-collection-close" aria-label="閉じる">✕</button>
+      </div>
+      <div id="badge-collection-body"></div>
+    </div>
+  </div>
+
   <!-- ローディング -->
   <div id="loading-overlay" class="loading-overlay">
     <div class="loading-spinner"></div>
@@ -441,6 +491,7 @@
   <button class="theme-toggle-btn floating-theme-btn" title="テーマ切り替え">🌙</button>
   <div class="brutal-badge">BRUTAL MODE</div>
 
+  <script src="gamification.js"></script>
   <script src="app.js?v=3"></script>
 </body>
 </html>
