@@ -61,6 +61,8 @@ const XP_RULES = {
   examCorrect:     15,
   examWrong:       3,
   hardBonus:       5,
+  termsCorrect:    5,
+  termsWrong:      1,
   examCompletion:  50,
   examPass:        150,
   streak5Bonus:    20,  // every multiple of 5
@@ -433,7 +435,7 @@ function _fmtXp(n) {
 
 // ===== App.js フック =====
 function onAnswerGamif(isCorrect, q, sess) {
-  if (!sess || sess.mode === 'terms') return; // 用語テストはXP対象外
+  if (!sess) return;
   const data = loadGamif();
 
   // 統計更新
@@ -448,14 +450,17 @@ function onAnswerGamif(isCorrect, q, sess) {
 
   // XP計算
   let xp = 0;
+  const isTerms   = sess.mode === 'terms';
   const isExamMode = sess.mode === 'cat' && sess.isExamMode;
   if (isCorrect) {
-    xp += isExamMode ? XP_RULES.examCorrect : XP_RULES.practiceCorrect;
-    if (q && q.difficulty === 3) xp += XP_RULES.hardBonus;
-    if (data.stats.correctStreak % 5 === 0) xp += XP_RULES.streak5Bonus;
+    if (isTerms)         xp += XP_RULES.termsCorrect;
+    else if (isExamMode) xp += XP_RULES.examCorrect;
+    else                 xp += XP_RULES.practiceCorrect;
+    if (!isTerms && q && q.difficulty === 3) xp += XP_RULES.hardBonus;
+    if (data.stats.correctStreak % 5 === 0)  xp += XP_RULES.streak5Bonus;
     if (data.stats.correctStreak % 10 === 0) xp += XP_RULES.streak10Bonus;
   } else {
-    xp += isExamMode ? XP_RULES.examWrong : XP_RULES.practiceWrong;
+    xp += isTerms ? XP_RULES.termsWrong : isExamMode ? XP_RULES.examWrong : XP_RULES.practiceWrong;
   }
   data.xp += xp;
 
