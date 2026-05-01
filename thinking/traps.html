@@ -141,6 +141,46 @@
       .page-title-row h1 { font-size: 22px; }
       .page-wrap { padding: 32px 16px; }
     }
+
+    /* ===== 練習問題ボタン & モーダル ===== */
+    .quiz-start-btn {
+      margin-top: 8px; width: 100%;
+      background: transparent; border: 1px solid var(--accent);
+      color: var(--accent); border-radius: var(--radius-sm);
+      padding: 8px 14px; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s; text-align: left;
+    }
+    .quiz-start-btn:hover { background: var(--accent); color: white; }
+    .quiz-modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 20px; padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .quiz-modal-title { font-size: 16px; font-weight: 800; }
+    .quiz-close-btn { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; padding: 4px 8px; }
+    .quiz-q-block { margin-bottom: 28px; }
+    .quiz-q-num { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; font-weight: 700; letter-spacing: 1px; }
+    .quiz-q-text { font-size: 14px; font-weight: 700; margin-bottom: 12px; line-height: 1.6; color: var(--text-primary); }
+    .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+    .quiz-option {
+      background: var(--bg-secondary); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 10px 14px;
+      font-size: 13px; cursor: pointer; text-align: left;
+      transition: all 0.15s; color: var(--text-secondary); width: 100%;
+    }
+    .quiz-option:hover:not(:disabled) { border-color: var(--accent); color: var(--text-primary); }
+    .quiz-option.correct { background: rgba(46,204,113,0.12); border-color: #2ecc71; color: #2ecc71; font-weight: 700; }
+    .quiz-option.incorrect { background: rgba(231,76,60,0.12); border-color: #e74c3c; color: #e74c3c; }
+    .quiz-explanation {
+      margin-top: 10px; padding: 10px 14px;
+      background: var(--bg-primary); border-left: 3px solid var(--accent);
+      border-radius: var(--radius-sm); font-size: 13px;
+      color: var(--text-secondary); line-height: 1.7; display: none;
+    }
+    .quiz-explanation.show { display: block; }
+    .quiz-result { text-align: center; padding: 24px 0 8px; border-top: 1px solid var(--border); margin-top: 16px; }
+    .quiz-score { font-size: 32px; font-weight: 800; color: var(--accent); }
+    .quiz-score-label { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
   </style>
 </head>
 <body>
@@ -200,6 +240,7 @@
           <div class="compare-text"><strong>インシデント対応手順に従い、まず上司・インシデント対応チームに報告する</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t01">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="management">
@@ -220,6 +261,7 @@
           <div class="compare-text"><strong>リスクを経営層に報告し、適切な対応リソースが割り当てられるよう調整する</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t02">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="management">
@@ -240,6 +282,7 @@
           <div class="compare-text"><strong>ビジネス目標とリスク許容度を踏まえた、バランスの取れたセキュリティ対策を提案する</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t03">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="management">
@@ -260,6 +303,7 @@
           <div class="compare-text"><strong>技術的対策・ポリシー・ユーザー教育を組み合わせた包括的なプログラムを実施する</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t04">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="management">
@@ -280,6 +324,7 @@
           <div class="compare-text"><strong>リスク評価・対策オプション・コスト試算を含む報告書を作成し、経営層の意思決定を支援する</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t05">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="management">
@@ -300,6 +345,7 @@
           <div class="compare-text"><strong>確立されたインシデント報告チャネルを通じて、管理者または適切な部署に報告する</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t06">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="management">
@@ -320,6 +366,7 @@
           <div class="compare-text"><strong>リスク低減効果と対策コストを比較し、費用対効果が最も高い対策を選択する</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t07">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="management">
@@ -340,6 +387,7 @@
           <div class="compare-text"><strong>クラウド利用でもデータの最終的な説明責任は自組織にある。SLAと責任分界点を明確化する</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t08">練習問題を解く →</button>
     </div>
 
     <!-- ===== 手順・プロセスの罠 ===== -->
@@ -361,6 +409,7 @@
           <div class="compare-text"><strong>リスクアセスメントを実施して脅威の影響と可能性を評価し、適切な対策を選択する</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t09">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="process">
@@ -381,6 +430,7 @@
           <div class="compare-text"><strong>脆弱性スキャンと評価を先に実施し、その結果をペネトレーションテストで検証する</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t10">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="process">
@@ -401,6 +451,7 @@
           <div class="compare-text"><strong>緊急変更手順を使って迅速に承認を得た上でパッチを適用し、その後に正式な文書化を行う</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t11">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="process">
@@ -421,6 +472,7 @@
           <div class="compare-text"><strong>システムのイメージを取得して証拠を保全した後、復旧作業を開始する</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t12">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="process">
@@ -441,6 +493,7 @@
           <div class="compare-text"><strong>要件定義フェーズからセキュリティ要件を定義し、各開発フェーズでセキュリティを組み込む</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t13">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="process">
@@ -461,6 +514,7 @@
           <div class="compare-text"><strong>技術的対策（メールフィルタリング・MFA）とユーザー教育を組み合わせた多層防御を実施する</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t14">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="process">
@@ -481,6 +535,7 @@
           <div class="compare-text"><strong>ロールバック計画を準備した上で、段階的に本番環境へ展開する</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t15">練習問題を解く →</button>
     </div>
 
     <!-- ===== 技術解決策の罠 ===== -->
@@ -502,6 +557,7 @@
           <div class="compare-text"><strong>暗号化に加え、鍵管理・アクセス制御・完全性検証・バックアップを組み合わせた対策を実施する</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t16">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="technology">
@@ -522,6 +578,7 @@
           <div class="compare-text"><strong>多層防御とゼロトラスト原則に基づき、内部ネットワークも継続的に検証・監視する</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t17">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="technology">
@@ -542,6 +599,7 @@
           <div class="compare-text"><strong>MFA（多要素認証）を導入し、パスワードに加えて追加認証要素を求める</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t18">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="technology">
@@ -562,6 +620,7 @@
           <div class="compare-text"><strong>まずUSBメモリの使用ポリシーを策定し、技術的ブロックと組み合わせる</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t19">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="technology">
@@ -582,6 +641,7 @@
           <div class="compare-text"><strong>ソルトを付加したbcryptやArgon2等の適切なパスワードハッシュ関数を使用する</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t20">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="technology">
@@ -602,6 +662,7 @@
           <div class="compare-text"><strong>公開しても安全な暗号・設計に基づいた対策を実施し、隠蔽に依存しない</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t21">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="technology">
@@ -622,6 +683,7 @@
           <div class="compare-text"><strong>RTO・RPOに基づいたDRPを策定し、代替サイトの準備と定期的なDRテストを実施する</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t22">練習問題を解く →</button>
     </div>
 
     <!-- ===== ポリシー・コンプライアンスの罠 ===== -->
@@ -643,6 +705,7 @@
           <div class="compare-text"><strong>コンプライアンスを最低ラインとして、リスクベースで追加のセキュリティ対策を継続的に実施する</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t23">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="policy">
@@ -663,6 +726,7 @@
           <div class="compare-text"><strong>ポリシー策定・教育・施行・監視・レビューのサイクルを継続的に回す</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t24">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="policy">
@@ -683,6 +747,7 @@
           <div class="compare-text"><strong>正式な例外申請・承認・記録プロセスを設け、例外は管理された形で認める</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t25">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="policy">
@@ -703,6 +768,7 @@
           <div class="compare-text"><strong>Privacy by Designの原則に基づき、データ最小化とユーザーの権利を最大限尊重する設計を行う</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t26">練習問題を解く →</button>
     </div>
 
     <!-- ===== 順序・優先度の罠 ===== -->
@@ -724,6 +790,7 @@
           <div class="compare-text"><strong>BCPでは人命安全を最優先とし、次に重要ビジネス機能の継続、その後にシステム復旧の順で計画する</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t27">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="order">
@@ -744,6 +811,7 @@
           <div class="compare-text"><strong>要件定義から設計・実装・テスト・デプロイの全フェーズでセキュリティを組み込む（Shift Left）</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t28">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="order">
@@ -764,6 +832,7 @@
           <div class="compare-text"><strong>自組織の資産価値・悪用可能性・ビジネス影響を考慮したリスクベースの優先順位付けを行う</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t29">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="order">
@@ -784,6 +853,7 @@
           <div class="compare-text"><strong>公衆の安全を守るために、倫理的義務として適切な当局への報告（内部告発）を検討する</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t30">練習問題を解く →</button>
     </div>
 
     <!-- ===== セキュリティモデル選択の罠 ===== -->
@@ -805,6 +875,7 @@
           <div class="compare-text"><strong>完全性保護にはBibaモデルを採用する（No Read Down / No Write Up）</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t31">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="model">
@@ -825,6 +896,7 @@
           <div class="compare-text"><strong>商用システムの完全性保証にはClark-Wilsonを採用し、承認済みTP経由でのみデータ操作を許可する</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t32">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="model">
@@ -845,6 +917,7 @@
           <div class="compare-text"><strong>軍・政府の機密区分管理にはBell-LaPadulaを採用する（No Read Up / No Write Down）</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t33">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="model">
@@ -865,6 +938,7 @@
           <div class="compare-text"><strong>利益相反防止にはBrewers-Nash（Chinese Wall）を採用し、アクセス履歴に基づいて動的に競合クラスへのアクセスを制限する</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t34">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="model">
@@ -885,6 +959,7 @@
           <div class="compare-text"><strong>BLP = No Read Up / No Write Down（機密漏洩防止）　Biba = No Read Down / No Write Up（汚染防止）</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t35">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="model">
@@ -905,6 +980,7 @@
           <div class="compare-text"><strong>TCBはセキュリティ機能全体の集合。参照モニターはその中核にある「常に呼び出される・改ざん不可・検証可能」な仲介概念</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t36">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="model">
@@ -925,6 +1001,7 @@
           <div class="compare-text"><strong>アクセス権の伝播・委譲の形式的分析にはTake-Grantモデルを使う（Take/Grant/Create/Removeの4操作でグラフ分析）</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t37">練習問題を解く →</button>
     </div>
 
     <div class="trap-card" data-cat="model">
@@ -945,9 +1022,22 @@
           <div class="compare-text"><strong>Brewer-Nashは独立したモデル。アクセス履歴に基づく動的な競合クラス制御が設計思想の核心で、BLPの機密レベル制御とは根本的に異なる</strong></div>
         </div>
       </div>
+      <button class="quiz-start-btn" data-card-id="t38">練習問題を解く →</button>
     </div>
 
   </div><!-- /trap-grid -->
+
+<!-- 練習問題モーダル -->
+<div class="modal-overlay" id="quiz-overlay" style="display:none; align-items:center; justify-content:center;">
+  <div class="modal-box" style="max-width:640px; width:90%; max-height:82vh; overflow-y:auto; padding:28px;">
+    <div class="quiz-modal-header">
+      <div class="quiz-modal-title" id="quiz-modal-title">練習問題</div>
+      <button class="quiz-close-btn" id="quiz-close" aria-label="閉じる">✕</button>
+    </div>
+    <div id="quiz-questions-area"></div>
+    <div id="quiz-result-area" style="display:none"></div>
+  </div>
+</div>
 
   <div class="page-footer">
     <a href="./" style="text-decoration:none; color: var(--accent); font-weight: 600;">← シンキングガイドに戻る</a>
@@ -955,6 +1045,7 @@
 
 </div><!-- /page-wrap -->
 
+<script src="quiz-data.js"></script>
 <script>
   // 認証チェック
   if (sessionStorage.getItem('cissp_thinking_auth') !== '1') {
@@ -994,6 +1085,63 @@
     document.documentElement.setAttribute('data-theme', current);
     themeBtn.textContent = icons[current];
     localStorage.setItem('cissp_theme', current);
+  });
+
+  // ===== 練習問題モーダル =====
+  document.querySelectorAll('.quiz-start-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const cardId = btn.dataset.cardId;
+      const qs = QUIZ_DATA && QUIZ_DATA[cardId];
+      if (!qs || qs.length === 0) { alert('このカードの練習問題は準備中です'); return; }
+      const cardEl = btn.closest('.trap-card');
+      const title = cardEl ? (cardEl.querySelector('.trap-name')?.textContent?.trim() || '練習問題') : '練習問題';
+      openQuizModal(qs, title);
+    });
+  });
+
+  function openQuizModal(questions, title) {
+    document.getElementById('quiz-modal-title').textContent = title;
+    const area = document.getElementById('quiz-questions-area');
+    const resultArea = document.getElementById('quiz-result-area');
+    resultArea.style.display = 'none';
+    area.innerHTML = '';
+    let answered = 0, correct = 0;
+    questions.forEach((q, qi) => {
+      const block = document.createElement('div');
+      block.className = 'quiz-q-block';
+      block.innerHTML = `<div class="quiz-q-num">Q${qi + 1} / ${questions.length}</div><div class="quiz-q-text">${q.question}</div><div class="quiz-options">${q.options.map((opt, oi) => `<button class="quiz-option" data-oi="${oi}">${opt}</button>`).join('')}</div><div class="quiz-explanation">${q.explanation}</div>`;
+      block.querySelectorAll('.quiz-option').forEach(optBtn => {
+        optBtn.addEventListener('click', () => {
+          if (optBtn.disabled) return;
+          block.querySelectorAll('.quiz-option').forEach(b => b.disabled = true);
+          const sel = parseInt(optBtn.dataset.oi);
+          const ok = sel === q.answer;
+          optBtn.classList.add(ok ? 'correct' : 'incorrect');
+          if (!ok) block.querySelectorAll('.quiz-option')[q.answer].classList.add('correct');
+          block.querySelector('.quiz-explanation').classList.add('show');
+          answered++;
+          if (ok) correct++;
+          if (answered === questions.length) {
+            const r = document.getElementById('quiz-result-area');
+            r.style.display = 'block';
+            r.innerHTML = `<div class="quiz-result"><div class="quiz-score">${correct} / ${questions.length}</div><div class="quiz-score-label">正解数（正答率 ${Math.round(correct/questions.length*100)}%）</div></div>`;
+            r.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        });
+      });
+      area.appendChild(block);
+    });
+    const overlay = document.getElementById('quiz-overlay');
+    overlay.style.display = 'flex';
+    overlay.querySelector('.modal-box').scrollTop = 0;
+  }
+
+  document.getElementById('quiz-close').addEventListener('click', () => {
+    document.getElementById('quiz-overlay').style.display = 'none';
+  });
+  document.getElementById('quiz-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('quiz-overlay'))
+      document.getElementById('quiz-overlay').style.display = 'none';
   });
 </script>
 

@@ -177,6 +177,46 @@
     @media (max-width: 480px) {
       .vars-grid { grid-template-columns: 1fr; }
     }
+
+    /* ===== 練習問題ボタン & モーダル ===== */
+    .quiz-start-btn {
+      margin-top: 8px; width: 100%;
+      background: transparent; border: 1px solid var(--accent);
+      color: var(--accent); border-radius: var(--radius-sm);
+      padding: 8px 14px; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s; text-align: left;
+    }
+    .quiz-start-btn:hover { background: var(--accent); color: white; }
+    .quiz-modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 20px; padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .quiz-modal-title { font-size: 16px; font-weight: 800; }
+    .quiz-close-btn { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; padding: 4px 8px; }
+    .quiz-q-block { margin-bottom: 28px; }
+    .quiz-q-num { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; font-weight: 700; letter-spacing: 1px; }
+    .quiz-q-text { font-size: 14px; font-weight: 700; margin-bottom: 12px; line-height: 1.6; color: var(--text-primary); }
+    .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+    .quiz-option {
+      background: var(--bg-secondary); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 10px 14px;
+      font-size: 13px; cursor: pointer; text-align: left;
+      transition: all 0.15s; color: var(--text-secondary); width: 100%;
+    }
+    .quiz-option:hover:not(:disabled) { border-color: var(--accent); color: var(--text-primary); }
+    .quiz-option.correct { background: rgba(46,204,113,0.12); border-color: #2ecc71; color: #2ecc71; font-weight: 700; }
+    .quiz-option.incorrect { background: rgba(231,76,60,0.12); border-color: #e74c3c; color: #e74c3c; }
+    .quiz-explanation {
+      margin-top: 10px; padding: 10px 14px;
+      background: var(--bg-primary); border-left: 3px solid var(--accent);
+      border-radius: var(--radius-sm); font-size: 13px;
+      color: var(--text-secondary); line-height: 1.7; display: none;
+    }
+    .quiz-explanation.show { display: block; }
+    .quiz-result { text-align: center; padding: 24px 0 8px; border-top: 1px solid var(--border); margin-top: 16px; }
+    .quiz-score { font-size: 32px; font-weight: 800; color: var(--accent); }
+    .quiz-score-label { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
   </style>
 </head>
 <body>
@@ -302,6 +342,7 @@
         <span class="exam-tip-icon">💡</span>
         <div>EFは<strong>0〜1の小数</strong>（%ではない）で代入することに注意。問題文で「40%」と書かれていたら0.4として計算する。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="calc-sle">練習問題を解く →</button>
     </div>
 
     <!-- ALE -->
@@ -341,6 +382,7 @@
         <span class="exam-tip-icon">💡</span>
         <div>ARO = 0.1 は「10年に1回」= 年0.1回。<strong>2年に1回 = ARO 0.5、毎年 = ARO 1.0、年2回 = ARO 2.0</strong>と換算できるようにしておく。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="calc-ale">練習問題を解く →</button>
     </div>
 
     <!-- ROSI -->
@@ -368,6 +410,7 @@
         <span class="exam-tip-icon">💡</span>
         <div>ROSIが<strong>正の値</strong>なら対策コストよりリスク削減効果が大きい。試験では「対策コストがALE削減額より大きい場合は正当化されない」パターンも出る。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="calc-rosi">練習問題を解く →</button>
     </div>
 
     <!-- TCO / Value at Risk -->
@@ -402,6 +445,7 @@
         <span class="exam-tip-icon">💡</span>
         <div>試験では「どの指標を使うべきか」という問いが出る。<strong>定量的リスク分析 = SLE/ALE/ARO</strong>、<strong>投資判断 = ROSI/ROI/NPV</strong>と使い分けを把握する。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="calc-tco">練習問題を解く →</button>
     </div>
 
   </div><!-- /section-block -->
@@ -460,6 +504,7 @@
         <span class="exam-tip-icon">💡</span>
         <div><strong>RTO vs RPO の違い</strong>：RTOは「時間（どれだけ早く復旧）」、RPOは「データ（どこまで遡れるか）」。混同しやすいので要注意。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="calc-time">練習問題を解く →</button>
     </div>
   </div>
 
@@ -506,12 +551,25 @@
     </div>
   </div>
 
+<!-- 練習問題モーダル -->
+<div class="modal-overlay" id="quiz-overlay" style="display:none; align-items:center; justify-content:center;">
+  <div class="modal-box" style="max-width:640px; width:90%; max-height:82vh; overflow-y:auto; padding:28px;">
+    <div class="quiz-modal-header">
+      <div class="quiz-modal-title" id="quiz-modal-title">練習問題</div>
+      <button class="quiz-close-btn" id="quiz-close" aria-label="閉じる">✕</button>
+    </div>
+    <div id="quiz-questions-area"></div>
+    <div id="quiz-result-area" style="display:none"></div>
+  </div>
+</div>
+
   <div class="page-footer">
     <a href="./" style="text-decoration:none; color: var(--accent); font-weight: 600;">← シンキングガイドに戻る</a>
   </div>
 
 </div><!-- /page-wrap -->
 
+<script src="quiz-data.js"></script>
 <script>
   // 認証チェック
   if (sessionStorage.getItem('cissp_thinking_auth') !== '1') {
@@ -531,6 +589,63 @@
     document.documentElement.setAttribute('data-theme', current);
     themeBtn.textContent = icons[current];
     localStorage.setItem('cissp_theme', current);
+  });
+
+  // ===== 練習問題モーダル =====
+  document.querySelectorAll('.quiz-start-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const cardId = btn.dataset.cardId;
+      const qs = QUIZ_DATA && QUIZ_DATA[cardId];
+      if (!qs || qs.length === 0) { alert('このカードの練習問題は準備中です'); return; }
+      const cardEl = btn.closest('.calc-card');
+      const title = cardEl ? (cardEl.querySelector('.calc-name')?.textContent?.trim() || '練習問題') : '練習問題';
+      openQuizModal(qs, title);
+    });
+  });
+
+  function openQuizModal(questions, title) {
+    document.getElementById('quiz-modal-title').textContent = title;
+    const area = document.getElementById('quiz-questions-area');
+    const resultArea = document.getElementById('quiz-result-area');
+    resultArea.style.display = 'none';
+    area.innerHTML = '';
+    let answered = 0, correct = 0;
+    questions.forEach((q, qi) => {
+      const block = document.createElement('div');
+      block.className = 'quiz-q-block';
+      block.innerHTML = `<div class="quiz-q-num">Q${qi + 1} / ${questions.length}</div><div class="quiz-q-text">${q.question}</div><div class="quiz-options">${q.options.map((opt, oi) => `<button class="quiz-option" data-oi="${oi}">${opt}</button>`).join('')}</div><div class="quiz-explanation">${q.explanation}</div>`;
+      block.querySelectorAll('.quiz-option').forEach(optBtn => {
+        optBtn.addEventListener('click', () => {
+          if (optBtn.disabled) return;
+          block.querySelectorAll('.quiz-option').forEach(b => b.disabled = true);
+          const sel = parseInt(optBtn.dataset.oi);
+          const ok = sel === q.answer;
+          optBtn.classList.add(ok ? 'correct' : 'incorrect');
+          if (!ok) block.querySelectorAll('.quiz-option')[q.answer].classList.add('correct');
+          block.querySelector('.quiz-explanation').classList.add('show');
+          answered++;
+          if (ok) correct++;
+          if (answered === questions.length) {
+            const r = document.getElementById('quiz-result-area');
+            r.style.display = 'block';
+            r.innerHTML = `<div class="quiz-result"><div class="quiz-score">${correct} / ${questions.length}</div><div class="quiz-score-label">正解数（正答率 ${Math.round(correct/questions.length*100)}%）</div></div>`;
+            r.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        });
+      });
+      area.appendChild(block);
+    });
+    const overlay = document.getElementById('quiz-overlay');
+    overlay.style.display = 'flex';
+    overlay.querySelector('.modal-box').scrollTop = 0;
+  }
+
+  document.getElementById('quiz-close').addEventListener('click', () => {
+    document.getElementById('quiz-overlay').style.display = 'none';
+  });
+  document.getElementById('quiz-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('quiz-overlay'))
+      document.getElementById('quiz-overlay').style.display = 'none';
   });
 </script>
 

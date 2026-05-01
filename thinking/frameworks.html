@@ -130,6 +130,46 @@
       .page-title-row h1 { font-size: 22px; }
       .page-wrap { padding: 32px 16px; }
     }
+
+    /* ===== 練習問題ボタン & モーダル ===== */
+    .quiz-start-btn {
+      margin-top: 8px; width: 100%;
+      background: transparent; border: 1px solid var(--accent);
+      color: var(--accent); border-radius: var(--radius-sm);
+      padding: 8px 14px; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s; text-align: left;
+    }
+    .quiz-start-btn:hover { background: var(--accent); color: white; }
+    .quiz-modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 20px; padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .quiz-modal-title { font-size: 16px; font-weight: 800; }
+    .quiz-close-btn { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; padding: 4px 8px; }
+    .quiz-q-block { margin-bottom: 28px; }
+    .quiz-q-num { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; font-weight: 700; letter-spacing: 1px; }
+    .quiz-q-text { font-size: 14px; font-weight: 700; margin-bottom: 12px; line-height: 1.6; color: var(--text-primary); }
+    .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+    .quiz-option {
+      background: var(--bg-secondary); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 10px 14px;
+      font-size: 13px; cursor: pointer; text-align: left;
+      transition: all 0.15s; color: var(--text-secondary); width: 100%;
+    }
+    .quiz-option:hover:not(:disabled) { border-color: var(--accent); color: var(--text-primary); }
+    .quiz-option.correct { background: rgba(46,204,113,0.12); border-color: #2ecc71; color: #2ecc71; font-weight: 700; }
+    .quiz-option.incorrect { background: rgba(231,76,60,0.12); border-color: #e74c3c; color: #e74c3c; }
+    .quiz-explanation {
+      margin-top: 10px; padding: 10px 14px;
+      background: var(--bg-primary); border-left: 3px solid var(--accent);
+      border-radius: var(--radius-sm); font-size: 13px;
+      color: var(--text-secondary); line-height: 1.7; display: none;
+    }
+    .quiz-explanation.show { display: block; }
+    .quiz-result { text-align: center; padding: 24px 0 8px; border-top: 1px solid var(--border); margin-top: 16px; }
+    .quiz-score { font-size: 32px; font-weight: 800; color: var(--accent); }
+    .quiz-score-label { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
   </style>
 </head>
 <body>
@@ -192,6 +232,7 @@
         <div class="point-label">▶ CISSP 出題ポイント</div>
         <div class="point-text">v2.0で<strong>Governが追加</strong>されたことを必ず覚える。「組織のリスク管理体制の構築」はGovern。強制力なし（任意のフレームワーク）。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="fw01">練習問題を解く →</button>
     </div>
 
     <div class="fw-card" data-cat="nist">
@@ -217,6 +258,7 @@
         <div class="point-label">▶ CISSP 出題ポイント</div>
         <div class="point-text">ステップ順序を覚える。<strong>Authorizeステップ</strong>でシステムの運用が承認される。Rev.2で<strong>Prepare</strong>が先頭に追加された点も問われる。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="fw02">練習問題を解く →</button>
     </div>
 
     <div class="fw-card" data-cat="nist">
@@ -240,6 +282,7 @@
         <div class="point-label">▶ CISSP 出題ポイント</div>
         <div class="point-text">RMFのSelectステップで参照するカタログ。<strong>Rev.5でプライバシーを統合</strong>。コントロールはBaseline（Low/Moderate/High）に分類される。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="fw03">練習問題を解く →</button>
     </div>
 
     <div class="fw-card" data-cat="nist">
@@ -262,6 +305,7 @@
         <div class="point-label">▶ CISSP 出題ポイント</div>
         <div class="point-text">「政府の請負業者がCUIを扱う場合の要件」= SP 800-171。SP 800-53との違いは<strong>連邦機関か否か</strong>。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="fw04">練習問題を解く →</button>
     </div>
 
     <!-- ===== ISO ===== -->
@@ -285,6 +329,7 @@
         <div class="point-label">▶ CISSP 出題ポイント</div>
         <div class="point-text"><strong>「認証取得できる」のは27001のみ</strong>。27002はガイダンスで認証なし。SoA（Statement of Applicability）でコントロールの適用可否を宣言する。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="fw05">練習問題を解く →</button>
     </div>
 
     <div class="fw-card" data-cat="iso">
@@ -308,6 +353,7 @@
         <div class="point-label">▶ CISSP 出題ポイント</div>
         <div class="point-text">27001の「要件（MUST）」に対し、27002は「推奨（SHOULD）」。<strong>認証は27001、実装ガイドは27002</strong>と覚える。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="fw06">練習問題を解く →</button>
     </div>
 
     <div class="fw-card" data-cat="iso">
@@ -330,6 +376,7 @@
         <div class="point-label">▶ CISSP 出題ポイント</div>
         <div class="point-text">「ISMSのリスク管理方法論」= 27005。<strong>リスク対応の4択</strong>（回避・軽減・移転・受容）はここで定義。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="fw07">練習問題を解く →</button>
     </div>
 
     <div class="fw-card" data-cat="iso">
@@ -351,6 +398,7 @@
         <div class="point-label">▶ CISSP 出題ポイント</div>
         <div class="point-text">「プライバシー + ISMS = 27701」。GDPRのDPIA（データ保護影響評価）実施にも活用される。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="fw08">練習問題を解く →</button>
     </div>
 
     <div class="fw-card" data-cat="iso">
@@ -372,6 +420,7 @@
         <div class="point-label">▶ CISSP 出題ポイント</div>
         <div class="point-text">「情報セキュリティのリスク管理」=27005、「組織全体のリスク管理」=31000と区別する。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="fw09">練習問題を解く →</button>
     </div>
 
     <!-- ===== セキュリティモデル ===== -->
@@ -394,6 +443,7 @@
         <div class="point-label">▶ CISSP 出題ポイント</div>
         <div class="point-text"><strong>機密性（Confidentiality）のみ</strong>を保護。完全性は扱わない。「政府・軍の機密システム」に適した場面で選ぶ。Bibaとセットで覚える。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="fw10">練習問題を解く →</button>
     </div>
 
     <div class="fw-card" data-cat="model">
@@ -415,6 +465,7 @@
         <div class="point-label">▶ CISSP 出題ポイント</div>
         <div class="point-text"><strong>完全性（Integrity）のみ</strong>を保護。BLPとBibaは方向が逆。「データの完全性保証」「金融システム」のシナリオで選ぶ。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="fw11">練習問題を解く →</button>
     </div>
 
     <div class="fw-card" data-cat="model">
@@ -438,6 +489,7 @@
         <div class="point-label">▶ CISSP 出題ポイント</div>
         <div class="point-text">Bibaが「格付けレベル」で制御するのに対し、Clark-Wilsonは<strong>「承認された手順（TP）を通じてのみ」</strong>データを操作できる。職務分離・監査を組み込む。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="fw12">練習問題を解く →</button>
     </div>
 
     <div class="fw-card" data-cat="model">
@@ -459,6 +511,7 @@
         <div class="point-label">▶ CISSP 出題ポイント</div>
         <div class="point-text">「利益相反（Conflict of Interest）」の防止 = Brewer-Nash。<strong>動的に変化するアクセス制御</strong>が特徴。コンサルや投資銀行のシナリオで登場。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="fw13">練習問題を解く →</button>
     </div>
 
     <div class="fw-card" data-cat="model">
@@ -481,6 +534,7 @@
         <div class="point-label">▶ CISSP 出題ポイント</div>
         <div class="point-text">「アクセス権の伝播を分析するモデル」= Take-Grant。「誰が誰に権限を渡せるか」の形式的証明に使う。試験では名称と目的の照合が多い。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="fw14">練習問題を解く →</button>
     </div>
 
     <div class="fw-card" data-cat="model">
@@ -501,6 +555,7 @@
         <div class="point-label">▶ CISSP 出題ポイント</div>
         <div class="point-text">「8つの保護権限」が特徴。Take-Grantより詳細。試験では名称と「主体/客体の生成・削除」を管理するモデルとして問われる。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="fw15">練習問題を解く →</button>
     </div>
 
     <div class="fw-card" data-cat="model">
@@ -522,6 +577,7 @@
         <div class="point-label">▶ CISSP 出題ポイント</div>
         <div class="point-text">「アクセス行列で安全性を証明」= HRU。完全な安全性証明は一般的には決定不能（undecidable）であることが知られている。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="fw16">練習問題を解く →</button>
     </div>
 
     <div class="fw-card" data-cat="model">
@@ -543,6 +599,7 @@
         <div class="point-label">▶ CISSP 出題ポイント</div>
         <div class="point-text">「TCBは小さいほど良い」が基本原則。参照モニターの3条件：<strong>常に呼び出される・改ざん不可・検証可能な小ささ</strong>。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="fw17">練習問題を解く →</button>
     </div>
 
     <div class="fw-card" data-cat="model">
@@ -564,6 +621,7 @@
         <div class="point-label">▶ CISSP 出題ポイント</div>
         <div class="point-text">MACモデルの数学的基盤。「情報フロー制御」の文脈で登場。BLPやBibaの理論的土台として理解する。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="fw18">練習問題を解く →</button>
     </div>
 
     <div class="fw-card" data-cat="model">
@@ -585,6 +643,7 @@
         <div class="point-label">▶ CISSP 出題ポイント</div>
         <div class="point-text">「状態機械モデル」= セキュリティモデルの基礎理論。BLPやBibaが「どの状態でもセキュリティ特性を満たす」ことをこのモデルで証明する。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="fw19">練習問題を解く →</button>
     </div>
 
     <div class="fw-card" data-cat="model">
@@ -606,6 +665,7 @@
         <div class="point-label">▶ CISSP 出題ポイント</div>
         <div class="point-text">「コバートチャネル（隠れチャネル）」の防止モデル。情報の<strong>意図しない漏洩経路を理論的に排除</strong>したい場合のモデル。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="fw20">練習問題を解く →</button>
     </div>
 
     <!-- ===== ガバナンス ===== -->
@@ -629,6 +689,7 @@
         <div class="point-label">▶ CISSP 出題ポイント</div>
         <div class="point-text">「ITガバナンス」= COBIT。ITIL（IT運用/サービス管理）と混同しない。<strong>経営層がITを統治するためのフレームワーク</strong>。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="fw21">練習問題を解く →</button>
     </div>
 
     <div class="fw-card" data-cat="governance">
@@ -651,6 +712,7 @@
         <div class="point-label">▶ CISSP 出題ポイント</div>
         <div class="point-text">COBIT=ガバナンス、ITIL=<strong>サービス管理（運用）</strong>と区別する。「変更管理（Change Management）」「インシデント管理」のベストプラクティスとして登場。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="fw22">練習問題を解く →</button>
     </div>
 
     <div class="fw-card" data-cat="governance">
@@ -672,6 +734,7 @@
         <div class="point-label">▶ CISSP 出題ポイント</div>
         <div class="point-text">「エンタープライズセキュリティアーキテクチャ」= SABSA。<strong>ビジネス属性（Business Attributes）</strong>からセキュリティ要件を導出する点が特徴。TOGAFとの違いも問われる。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="fw23">練習問題を解く →</button>
     </div>
 
     <div class="fw-card" data-cat="governance">
@@ -693,6 +756,7 @@
         <div class="point-label">▶ CISSP 出題ポイント</div>
         <div class="point-text">「財務報告の内部統制」= COSO。SOX法対応に使われる。セキュリティ試験では<strong>「どのフレームワークが財務統制向けか」</strong>という問いで登場。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="fw24">練習問題を解く →</button>
     </div>
 
     <!-- ===== コンプライアンス ===== -->
@@ -718,6 +782,7 @@
         <div class="point-label">▶ CISSP 出題ポイント</div>
         <div class="point-text">「12要件」が頻出。カード情報（PAN）は<strong>保存不可が原則</strong>。v4.0では認証強化とカスタマイズドアプローチが追加された。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="fw25">練習問題を解く →</button>
     </div>
 
     <div class="fw-card" data-cat="compliance">
@@ -740,6 +805,7 @@
         <div class="point-label">▶ CISSP 出題ポイント</div>
         <div class="point-text"><strong>72時間通知</strong>・<strong>忘れられる権利（消去権）</strong>・DPO（データ保護責任者）の選任義務を覚える。「域外適用」（EU市民データを扱えば非EU企業にも適用）も頻出。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="fw26">練習問題を解く →</button>
     </div>
 
     <div class="fw-card" data-cat="compliance">
@@ -762,6 +828,7 @@
         <div class="point-label">▶ CISSP 出題ポイント</div>
         <div class="point-text">「医療情報」= HIPAA。<strong>PHIとePHIの区別</strong>・BAA（Business Associate Agreement）の締結義務・60日通知を覚える。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="fw27">練習問題を解く →</button>
     </div>
 
     <div class="fw-card" data-cat="compliance">
@@ -786,9 +853,22 @@
         <div class="point-label">▶ CISSP 出題ポイント</div>
         <div class="point-text">「クラウドプロバイダーへのセキュリティ要求」= SOC 2。<strong>Type II</strong>（6ヶ月以上の運用実績）が実質的に信頼性の証明。Securityのみ必須で他は任意。</div>
       </div>
+      <button class="quiz-start-btn" data-card-id="fw28">練習問題を解く →</button>
     </div>
 
   </div><!-- /fw-grid -->
+
+<!-- 練習問題モーダル -->
+<div class="modal-overlay" id="quiz-overlay" style="display:none; align-items:center; justify-content:center;">
+  <div class="modal-box" style="max-width:640px; width:90%; max-height:82vh; overflow-y:auto; padding:28px;">
+    <div class="quiz-modal-header">
+      <div class="quiz-modal-title" id="quiz-modal-title">練習問題</div>
+      <button class="quiz-close-btn" id="quiz-close" aria-label="閉じる">✕</button>
+    </div>
+    <div id="quiz-questions-area"></div>
+    <div id="quiz-result-area" style="display:none"></div>
+  </div>
+</div>
 
   <div class="page-footer">
     <a href="./" style="text-decoration:none; color: var(--accent); font-weight: 600;">← シンキングガイドに戻る</a>
@@ -796,6 +876,7 @@
 
 </div><!-- /page-wrap -->
 
+<script src="quiz-data.js"></script>
 <script>
   // 認証チェック
   if (sessionStorage.getItem('cissp_thinking_auth') !== '1') {
@@ -835,6 +916,63 @@
     document.documentElement.setAttribute('data-theme', current);
     themeBtn.textContent = icons[current];
     localStorage.setItem('cissp_theme', current);
+  });
+
+  // ===== 練習問題モーダル =====
+  document.querySelectorAll('.quiz-start-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const cardId = btn.dataset.cardId;
+      const qs = QUIZ_DATA && QUIZ_DATA[cardId];
+      if (!qs || qs.length === 0) { alert('このカードの練習問題は準備中です'); return; }
+      const cardEl = btn.closest('.fw-card');
+      const title = cardEl ? (cardEl.querySelector('.fw-name')?.textContent?.trim() || '練習問題') : '練習問題';
+      openQuizModal(qs, title);
+    });
+  });
+
+  function openQuizModal(questions, title) {
+    document.getElementById('quiz-modal-title').textContent = title;
+    const area = document.getElementById('quiz-questions-area');
+    const resultArea = document.getElementById('quiz-result-area');
+    resultArea.style.display = 'none';
+    area.innerHTML = '';
+    let answered = 0, correct = 0;
+    questions.forEach((q, qi) => {
+      const block = document.createElement('div');
+      block.className = 'quiz-q-block';
+      block.innerHTML = `<div class="quiz-q-num">Q${qi + 1} / ${questions.length}</div><div class="quiz-q-text">${q.question}</div><div class="quiz-options">${q.options.map((opt, oi) => `<button class="quiz-option" data-oi="${oi}">${opt}</button>`).join('')}</div><div class="quiz-explanation">${q.explanation}</div>`;
+      block.querySelectorAll('.quiz-option').forEach(optBtn => {
+        optBtn.addEventListener('click', () => {
+          if (optBtn.disabled) return;
+          block.querySelectorAll('.quiz-option').forEach(b => b.disabled = true);
+          const sel = parseInt(optBtn.dataset.oi);
+          const ok = sel === q.answer;
+          optBtn.classList.add(ok ? 'correct' : 'incorrect');
+          if (!ok) block.querySelectorAll('.quiz-option')[q.answer].classList.add('correct');
+          block.querySelector('.quiz-explanation').classList.add('show');
+          answered++;
+          if (ok) correct++;
+          if (answered === questions.length) {
+            const r = document.getElementById('quiz-result-area');
+            r.style.display = 'block';
+            r.innerHTML = `<div class="quiz-result"><div class="quiz-score">${correct} / ${questions.length}</div><div class="quiz-score-label">正解数（正答率 ${Math.round(correct/questions.length*100)}%）</div></div>`;
+            r.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        });
+      });
+      area.appendChild(block);
+    });
+    const overlay = document.getElementById('quiz-overlay');
+    overlay.style.display = 'flex';
+    overlay.querySelector('.modal-box').scrollTop = 0;
+  }
+
+  document.getElementById('quiz-close').addEventListener('click', () => {
+    document.getElementById('quiz-overlay').style.display = 'none';
+  });
+  document.getElementById('quiz-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('quiz-overlay'))
+      document.getElementById('quiz-overlay').style.display = 'none';
   });
 </script>
 

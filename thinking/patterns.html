@@ -153,6 +153,46 @@
       .pattern-name { font-size: 16px; }
       .page-footer { flex-direction: column; align-items: flex-start; }
     }
+
+    /* ===== 練習問題ボタン & モーダル ===== */
+    .quiz-start-btn {
+      margin-top: 8px; width: 100%;
+      background: transparent; border: 1px solid var(--accent);
+      color: var(--accent); border-radius: var(--radius-sm);
+      padding: 8px 14px; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s; text-align: left;
+    }
+    .quiz-start-btn:hover { background: var(--accent); color: white; }
+    .quiz-modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 20px; padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .quiz-modal-title { font-size: 16px; font-weight: 800; }
+    .quiz-close-btn { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; padding: 4px 8px; }
+    .quiz-q-block { margin-bottom: 28px; }
+    .quiz-q-num { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; font-weight: 700; letter-spacing: 1px; }
+    .quiz-q-text { font-size: 14px; font-weight: 700; margin-bottom: 12px; line-height: 1.6; color: var(--text-primary); }
+    .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+    .quiz-option {
+      background: var(--bg-secondary); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 10px 14px;
+      font-size: 13px; cursor: pointer; text-align: left;
+      transition: all 0.15s; color: var(--text-secondary); width: 100%;
+    }
+    .quiz-option:hover:not(:disabled) { border-color: var(--accent); color: var(--text-primary); }
+    .quiz-option.correct { background: rgba(46,204,113,0.12); border-color: #2ecc71; color: #2ecc71; font-weight: 700; }
+    .quiz-option.incorrect { background: rgba(231,76,60,0.12); border-color: #e74c3c; color: #e74c3c; }
+    .quiz-explanation {
+      margin-top: 10px; padding: 10px 14px;
+      background: var(--bg-primary); border-left: 3px solid var(--accent);
+      border-radius: var(--radius-sm); font-size: 13px;
+      color: var(--text-secondary); line-height: 1.7; display: none;
+    }
+    .quiz-explanation.show { display: block; }
+    .quiz-result { text-align: center; padding: 24px 0 8px; border-top: 1px solid var(--border); margin-top: 16px; }
+    .quiz-score { font-size: 32px; font-weight: 800; color: var(--accent); }
+    .quiz-score-label { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
   </style>
 </head>
 <body>
@@ -211,6 +251,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">コントロール選択</span><span class="tag">セキュリティ設計</span></div>
+      <button class="quiz-start-btn" data-card-id="p01">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="priority">
@@ -227,6 +268,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">ガバナンス</span><span class="tag">インシデント対応</span></div>
+      <button class="quiz-start-btn" data-card-id="p02">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="priority">
@@ -243,6 +285,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">ISC²倫理規定</span><span class="tag">BCP/DR</span><span class="tag">物理セキュリティ</span></div>
+      <button class="quiz-start-btn" data-card-id="p03">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="priority">
@@ -259,6 +302,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">ビジネス整合性</span><span class="tag">リスク評価</span></div>
+      <button class="quiz-start-btn" data-card-id="p04">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="priority">
@@ -275,6 +319,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">リスクマネジメント</span><span class="tag">セキュリティ計画</span></div>
+      <button class="quiz-start-btn" data-card-id="p05">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="priority">
@@ -290,6 +335,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">コンプライアンス</span><span class="tag">規制対応</span></div>
+      <button class="quiz-start-btn" data-card-id="p06">練習問題を解く →</button>
     </div>
 
     <!-- ===== リスク管理 ===== -->
@@ -312,6 +358,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">リスクマネジメント</span><span class="tag">意思決定</span></div>
+      <button class="quiz-start-btn" data-card-id="p07">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="risk">
@@ -328,6 +375,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">CIA トライアド</span><span class="tag">資産保護</span></div>
+      <button class="quiz-start-btn" data-card-id="p08">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="risk">
@@ -343,6 +391,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">ガバナンス</span><span class="tag">リスク受容</span><span class="tag">説明責任</span></div>
+      <button class="quiz-start-btn" data-card-id="p09">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="risk">
@@ -361,6 +410,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">SLE</span><span class="tag">ALE</span><span class="tag">リスク分析</span></div>
+      <button class="quiz-start-btn" data-card-id="p10">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="risk">
@@ -381,6 +431,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">脅威分析</span><span class="tag">脆弱性管理</span></div>
+      <button class="quiz-start-btn" data-card-id="p11">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="risk">
@@ -400,6 +451,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">ガバナンス</span><span class="tag">サードパーティ</span><span class="tag">法的責任</span></div>
+      <button class="quiz-start-btn" data-card-id="p12">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="risk">
@@ -416,6 +468,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">サードパーティリスク</span><span class="tag">委託管理</span></div>
+      <button class="quiz-start-btn" data-card-id="p13">練習問題を解く →</button>
     </div>
 
     <!-- ===== コントロール ===== -->
@@ -433,6 +486,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">コントロール種別</span><span class="tag">ポリシー設計</span></div>
+      <button class="quiz-start-btn" data-card-id="p14">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="control">
@@ -448,6 +502,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">ファイアウォール</span><span class="tag">アクセス制御</span></div>
+      <button class="quiz-start-btn" data-card-id="p15">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="control">
@@ -463,6 +518,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">セキュリティアーキテクチャ</span><span class="tag">多層防御</span></div>
+      <button class="quiz-start-btn" data-card-id="p16">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="control">
@@ -479,6 +535,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">レガシーシステム</span><span class="tag">PCI DSS</span></div>
+      <button class="quiz-start-btn" data-card-id="p17">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="control">
@@ -495,6 +552,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">費用対効果</span><span class="tag">ROI</span></div>
+      <button class="quiz-start-btn" data-card-id="p18">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="control">
@@ -511,6 +569,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">ユーザビリティ</span><span class="tag">パスワードポリシー</span></div>
+      <button class="quiz-start-btn" data-card-id="p19">練習問題を解く →</button>
     </div>
 
     <!-- ===== アクセス制御 ===== -->
@@ -527,6 +586,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">IAM</span><span class="tag">Need-to-Know</span><span class="tag">権限管理</span></div>
+      <button class="quiz-start-btn" data-card-id="p20">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="access">
@@ -542,6 +602,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">内部統制</span><span class="tag">不正防止</span><span class="tag">Two-Person Rule</span></div>
+      <button class="quiz-start-btn" data-card-id="p21">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="access">
@@ -558,6 +619,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">情報分類</span><span class="tag">機密性</span></div>
+      <button class="quiz-start-btn" data-card-id="p22">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="access">
@@ -577,6 +639,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">AAA</span><span class="tag">ログ管理</span><span class="tag">監査証跡</span></div>
+      <button class="quiz-start-btn" data-card-id="p23">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="access">
@@ -596,6 +659,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">多要素認証</span><span class="tag">認証強化</span><span class="tag">フィッシング対策</span></div>
+      <button class="quiz-start-btn" data-card-id="p24">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="access">
@@ -611,6 +675,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">Zero Trust</span><span class="tag">ネットワークセキュリティ</span></div>
+      <button class="quiz-start-btn" data-card-id="p25">練習問題を解く →</button>
     </div>
 
     <!-- ===== 暗号・技術 ===== -->
@@ -631,6 +696,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">暗号化</span><span class="tag">PKI</span><span class="tag">TLS</span></div>
+      <button class="quiz-start-btn" data-card-id="p26">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="crypto">
@@ -647,6 +713,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">完全性</span><span class="tag">SHA-256</span><span class="tag">MD5</span></div>
+      <button class="quiz-start-btn" data-card-id="p27">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="crypto">
@@ -663,6 +730,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">デジタル署名</span><span class="tag">否認防止</span><span class="tag">PKI</span></div>
+      <button class="quiz-start-btn" data-card-id="p28">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="crypto">
@@ -678,6 +746,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">SDLC</span><span class="tag">脅威モデリング</span><span class="tag">セキュア開発</span></div>
+      <button class="quiz-start-btn" data-card-id="p29">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="crypto">
@@ -694,6 +763,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">入力検証</span><span class="tag">SQLインジェクション</span><span class="tag">Webセキュリティ</span></div>
+      <button class="quiz-start-btn" data-card-id="p30">練習問題を解く →</button>
     </div>
 
     <!-- ===== マネージャー思考 ===== -->
@@ -711,6 +781,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">ガバナンス</span><span class="tag">変更管理</span><span class="tag">リスク評価</span></div>
+      <button class="quiz-start-btn" data-card-id="p31">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="mindset">
@@ -726,6 +797,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">ROI</span><span class="tag">ALE</span><span class="tag">費用対効果</span></div>
+      <button class="quiz-start-btn" data-card-id="p32">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="mindset">
@@ -742,6 +814,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">ポリシー管理</span><span class="tag">ISMS</span></div>
+      <button class="quiz-start-btn" data-card-id="p33">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="mindset">
@@ -757,6 +830,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">プライバシー</span><span class="tag">GDPR</span><span class="tag">データ最小化</span></div>
+      <button class="quiz-start-btn" data-card-id="p34">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="mindset">
@@ -773,6 +847,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">セキュリティ教育</span><span class="tag">ソーシャルエンジニアリング</span></div>
+      <button class="quiz-start-btn" data-card-id="p35">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="mindset">
@@ -789,6 +864,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">セキュリティカルチャー</span><span class="tag">全社員教育</span></div>
+      <button class="quiz-start-btn" data-card-id="p36">練習問題を解く →</button>
     </div>
 
     <!-- ===== インシデント対応 ===== -->
@@ -806,6 +882,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">NIST SP 800-61</span><span class="tag">BCP/DR</span></div>
+      <button class="quiz-start-btn" data-card-id="p37">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="incident">
@@ -820,6 +897,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">デジタルフォレンジック</span><span class="tag">証拠保全</span><span class="tag">Chain of Custody</span></div>
+      <button class="quiz-start-btn" data-card-id="p38">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="incident">
@@ -839,6 +917,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">BCP</span><span class="tag">DR</span><span class="tag">事業継続</span></div>
+      <button class="quiz-start-btn" data-card-id="p39">練習問題を解く →</button>
     </div>
 
     <div class="pattern-card" data-cat="incident">
@@ -858,6 +937,7 @@
         </div>
       </div>
       <div class="pattern-tags"><span class="tag">RTO</span><span class="tag">RPO</span><span class="tag">DR計画</span></div>
+      <button class="quiz-start-btn" data-card-id="p40">練習問題を解く →</button>
     </div>
 
   </div><!-- /.pattern-grid -->
@@ -866,8 +946,22 @@
     <a href="./" class="btn-secondary btn-sm" style="text-decoration:none; display:inline-block;">← トップに戻る</a>
   </div>
 
+
+<!-- 練習問題モーダル -->
+<div class="modal-overlay" id="quiz-overlay" style="display:none; align-items:center; justify-content:center;">
+  <div class="modal-box" style="max-width:640px; width:90%; max-height:82vh; overflow-y:auto; padding:28px;">
+    <div class="quiz-modal-header">
+      <div class="quiz-modal-title" id="quiz-modal-title">練習問題</div>
+      <button class="quiz-close-btn" id="quiz-close" aria-label="閉じる">✕</button>
+    </div>
+    <div id="quiz-questions-area"></div>
+    <div id="quiz-result-area" style="display:none"></div>
+  </div>
 </div>
 
+</div>
+
+<script src="quiz-data.js"></script>
 <script>
   // 認証チェック（未認証ならトップへ）
   if (sessionStorage.getItem('cissp_thinking_auth') !== '1') {
@@ -909,6 +1003,63 @@
     document.documentElement.setAttribute('data-theme', current);
     themeBtn.textContent = icons[current];
     localStorage.setItem('cissp_theme', current);
+  });
+
+  // ===== 練習問題モーダル =====
+  document.querySelectorAll('.quiz-start-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const cardId = btn.dataset.cardId;
+      const qs = QUIZ_DATA && QUIZ_DATA[cardId];
+      if (!qs || qs.length === 0) return;
+      const cardEl = btn.closest('.pattern-card');
+      const title = cardEl ? (cardEl.querySelector('.pattern-name')?.textContent || '練習問題') : '練習問題';
+      openQuizModal(qs, title);
+    });
+  });
+
+  function openQuizModal(questions, title) {
+    document.getElementById('quiz-modal-title').textContent = title;
+    const area = document.getElementById('quiz-questions-area');
+    const resultArea = document.getElementById('quiz-result-area');
+    resultArea.style.display = 'none';
+    area.innerHTML = '';
+    let answered = 0, correct = 0;
+    questions.forEach((q, qi) => {
+      const block = document.createElement('div');
+      block.className = 'quiz-q-block';
+      block.innerHTML = `<div class="quiz-q-num">Q${qi + 1} / ${questions.length}</div><div class="quiz-q-text">${q.question}</div><div class="quiz-options">${q.options.map((opt, oi) => `<button class="quiz-option" data-oi="${oi}">${opt}</button>`).join('')}</div><div class="quiz-explanation">${q.explanation}</div>`;
+      block.querySelectorAll('.quiz-option').forEach(optBtn => {
+        optBtn.addEventListener('click', () => {
+          if (optBtn.disabled) return;
+          block.querySelectorAll('.quiz-option').forEach(b => b.disabled = true);
+          const sel = parseInt(optBtn.dataset.oi);
+          const ok = sel === q.answer;
+          optBtn.classList.add(ok ? 'correct' : 'incorrect');
+          if (!ok) block.querySelectorAll('.quiz-option')[q.answer].classList.add('correct');
+          block.querySelector('.quiz-explanation').classList.add('show');
+          answered++;
+          if (ok) correct++;
+          if (answered === questions.length) {
+            const r = document.getElementById('quiz-result-area');
+            r.style.display = 'block';
+            r.innerHTML = `<div class="quiz-result"><div class="quiz-score">${correct} / ${questions.length}</div><div class="quiz-score-label">正解数（正答率 ${Math.round(correct/questions.length*100)}%）</div></div>`;
+            r.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        });
+      });
+      area.appendChild(block);
+    });
+    const overlay = document.getElementById('quiz-overlay');
+    overlay.style.display = 'flex';
+    overlay.querySelector('.modal-box').scrollTop = 0;
+  }
+
+  document.getElementById('quiz-close').addEventListener('click', () => {
+    document.getElementById('quiz-overlay').style.display = 'none';
+  });
+  document.getElementById('quiz-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('quiz-overlay'))
+      document.getElementById('quiz-overlay').style.display = 'none';
   });
 </script>
 
