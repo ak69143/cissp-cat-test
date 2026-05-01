@@ -466,6 +466,8 @@ function _fmtXp(n) {
 }
 
 // ===== App.js フック =====
+let _sessionXpAccum = 0; // セッション中の累計XP（結果画面表示用）
+
 function onAnswerGamif(isCorrect, q, sess) {
   if (!sess) return;
   const data = loadGamif();
@@ -496,6 +498,7 @@ function onAnswerGamif(isCorrect, q, sess) {
     xp += isTerms ? XP_RULES.termsWrong : isExamMode ? XP_RULES.examWrong : XP_RULES.practiceWrong;
   }
   data.xp += xp;
+  _sessionXpAccum += xp;
 
   const newBadges = checkAndAwardBadges(data, { isCorrect, q, session: sess });
   const oldTitle  = data.title;
@@ -527,6 +530,10 @@ function onResultGamif(sess, score, verdict) {
   }
   data.xp += xp;
 
+  // セッション合計XP（1問ずつ積んだ分＋完走ボーナス）
+  const totalSessionXp = _sessionXpAccum + xp;
+  _sessionXpAccum = 0;
+
   // バッジチェック（試験完了系）
   const newBadges = [];
   function awardR(id, cond) {
@@ -554,7 +561,7 @@ function onResultGamif(sess, score, verdict) {
   data.title     = getCurrentTitle(data.xp, data.badges).title;
   saveGamif(data);
 
-  renderGamifResult(xp, newBadges);
+  renderGamifResult(totalSessionXp, newBadges);
 
   newBadges.forEach((id, i) => setTimeout(() => showBadgeToast(id), i * 900 + 800));
   if (data.title !== oldTitle) setTimeout(() => showTitleUpModal(data.title), newBadges.length * 900 + 1200);
