@@ -2,8 +2,8 @@ name: Daily CISSP Question
 
 on:
   schedule:
-    - cron: '0 1 * * *'   # 10:00 JST
-    - cron: '0 9 * * *'   # 18:00 JST
+    - cron: '0 1 * * 1-5'   # 10:00 JST 月〜金
+    - cron: '0 9 * * 1-5'   # 18:00 JST 月〜金
   workflow_dispatch:
     inputs:
       mode:
