@@ -17,26 +17,32 @@ on:
 
 jobs:
   post-question:
-    if: github.event.schedule == '0 1 * * *' || github.event.inputs.mode == 'question'
+    if: github.event.schedule == '0 1 * * 1-5' || github.event.inputs.mode == 'question'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+      - name: Install dependencies
+        run: npm ci
+        working-directory: .github/scripts
       - name: Post question to Slack
         run: node .github/scripts/daily-question.js question
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   post-answer:
-    if: github.event.schedule == '0 9 * * *' || github.event.inputs.mode == 'answer'
+    if: github.event.schedule == '0 9 * * 1-5' || github.event.inputs.mode == 'answer'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+      - name: Install dependencies
+        run: npm ci
+        working-directory: .github/scripts
       - name: Post answer to Slack
         run: node .github/scripts/daily-question.js answer
         env:

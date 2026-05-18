@@ -5,6 +5,7 @@
 const fs = require('fs');
 const https = require('https');
 const { URL } = require('url');
+const holidayJp = require('@holiday-jp/holiday_jp');
 
 const mode = process.argv[2] || 'question';
 const webhookUrl = process.env.SLACK_WEBHOOK_URL;
@@ -12,6 +13,14 @@ const webhookUrl = process.env.SLACK_WEBHOOK_URL;
 if (!webhookUrl) {
   console.error('SLACK_WEBHOOK_URL が未設定です');
   process.exit(1);
+}
+
+// 祝日チェック（JST基準）
+const todayJst = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
+if (holidayJp.isHoliday(todayJst)) {
+  const name = holidayJp.between(todayJst, todayJst)[0]?.name || '祝日';
+  console.log(`祝日のためスキップ: ${name}`);
+  process.exit(0);
 }
 
 // domain1.json〜domain8.json から全問題ロード
