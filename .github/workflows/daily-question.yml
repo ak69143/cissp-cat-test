@@ -1,0 +1,43 @@
+name: Daily CISSP Question
+
+on:
+  schedule:
+    - cron: '0 1 * * *'   # 10:00 JST
+    - cron: '0 9 * * *'   # 18:00 JST
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'question or answer'
+        required: true
+        default: 'question'
+        type: choice
+        options:
+          - question
+          - answer
+
+jobs:
+  post-question:
+    if: github.event.schedule == '0 1 * * *' || github.event.inputs.mode == 'question'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Post question to Slack
+        run: node .github/scripts/daily-question.js question
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  post-answer:
+    if: github.event.schedule == '0 9 * * *' || github.event.inputs.mode == 'answer'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Post answer to Slack
+        run: node .github/scripts/daily-question.js answer
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
