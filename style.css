@@ -836,6 +836,7 @@ body.mode-practice #domain-mini-block { display: none !important; }
   font-size: 14px;
   color: var(--text-secondary);
   line-height: 1.7;
+  white-space: pre-wrap;
 }
 
 /* アクションボタン */
