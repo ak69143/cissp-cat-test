@@ -57,28 +57,26 @@ function isSkipDay() {
 
 // ---- 今日の問題を取得 ----
 function getTodaysQuestion() {
-  const cache = CacheService.getScriptCache();
-  const cacheKey = 'questions_' + getTodayStr();
-  const cached = cache.get(cacheKey);
-
-  let allQuestions;
-  if (cached) {
-    allQuestions = JSON.parse(cached);
-  } else {
-    allQuestions = [];
-    for (let i = 1; i <= 8; i++) {
-      const res = UrlFetchApp.fetch(GITHUB_RAW_BASE + 'domain' + i + '.json');
-      const data = JSON.parse(res.getContentText());
-      data.questions.forEach(q => allQuestions.push(Object.assign({}, q, { domainName: data.domainName })));
-    }
-    // 最大6時間キャッシュ
-    cache.put(cacheKey, JSON.stringify(allQuestions), 21600);
-  }
-
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const dayIndex = Math.floor((today - EPOCH) / 86400000);
-  return allQuestions[dayIndex % allQuestions.length];
+
+  // 1問だけキャッシュ（全問キャッシュはCacheService 100KB制限を超える）
+  const cache = CacheService.getScriptCache();
+  const cacheKey = 'question_' + getTodayStr();
+  const cached = cache.get(cacheKey);
+  if (cached) return JSON.parse(cached);
+
+  const allQuestions = [];
+  for (let i = 1; i <= 8; i++) {
+    const res = UrlFetchApp.fetch(GITHUB_RAW_BASE + 'domain' + i + '.json');
+    const data = JSON.parse(res.getContentText());
+    data.questions.forEach(q => allQuestions.push(Object.assign({}, q, { domainName: data.domainName })));
+  }
+
+  const q = allQuestions[dayIndex % allQuestions.length];
+  cache.put(cacheKey, JSON.stringify(q), 21600);
+  return q;
 }
 
 // ---- Slackブロック生成 ----
