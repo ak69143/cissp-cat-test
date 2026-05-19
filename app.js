@@ -1058,13 +1058,22 @@ function renderExplanation(text, q) {
   // （A）形式をリマップ（本文中）
   let result = text.replace(/（([ABCD])）/g, (_, letter) => `（${remapLabel(letter)}）`);
 
-  // 不正解セクションの行頭ラベル（A. 形式）をリマップ
+  // 不正解セクションの行頭ラベルをリマップしてA/B/C/D順にソート
   const sep = '━━ 不正解の選択肢について ━━';
   const sepIdx = result.indexOf(sep);
   if (sepIdx !== -1) {
     const before = result.slice(0, sepIdx + sep.length);
-    const after = result.slice(sepIdx + sep.length).replace(/^([ABCD])\./gm, (_, letter) => `${remapLabel(letter)}.`);
-    result = before + after;
+    const rawAfter = result.slice(sepIdx + sep.length);
+    // 各エントリを「ラベル + テキスト」で分割
+    const entries = [];
+    rawAfter.replace(/^([ABCD])\.([^\n]*(?:\n(?![ABCD]\.)[^\n]*)*)/gm, (_, letter, body) => {
+      entries.push({ label: remapLabel(letter), body });
+    });
+    entries.sort((a, b) => a.label.localeCompare(b.label));
+    const sorted = entries.length
+      ? '\n' + entries.map(e => `${e.label}.${e.body}`).join('\n')
+      : rawAfter;
+    result = before + sorted;
   }
 
   return result;
