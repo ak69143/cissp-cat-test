@@ -1048,11 +1048,26 @@ function renderExplanation(text, q) {
     if (originalPos !== -1) originalToDisplay[originalPos] = displayPos;
   }
   const labels = 'ABCD';
-  return text.replace(/（([ABCD])）/g, (match, letter) => {
+
+  const remapLabel = (letter) => {
     const origIdx = labels.indexOf(letter);
     const displayIdx = originalToDisplay[origIdx];
-    return displayIdx !== undefined ? `（${labels[displayIdx]}）` : match;
-  });
+    return displayIdx !== undefined ? labels[displayIdx] : letter;
+  };
+
+  // （A）形式をリマップ（本文中）
+  let result = text.replace(/（([ABCD])）/g, (_, letter) => `（${remapLabel(letter)}）`);
+
+  // 不正解セクションの行頭ラベル（A. 形式）をリマップ
+  const sep = '━━ 不正解の選択肢について ━━';
+  const sepIdx = result.indexOf(sep);
+  if (sepIdx !== -1) {
+    const before = result.slice(0, sepIdx + sep.length);
+    const after = result.slice(sepIdx + sep.length).replace(/^([ABCD])\./gm, (_, letter) => `${remapLabel(letter)}.`);
+    result = before + after;
+  }
+
+  return result;
 }
 
 // 本番モード専用：選択肢をハイライトするだけ（確定しない）
