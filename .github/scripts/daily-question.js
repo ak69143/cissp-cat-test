@@ -35,7 +35,30 @@ const EPOCH = new Date('2024-01-01T00:00:00Z');
 const today = new Date();
 today.setUTCHours(0, 0, 0, 0);
 const dayIndex = Math.floor((today - EPOCH) / 86400000);
-const q = allQuestions[dayIndex % allQuestions.length];
+
+// dayIndexをシードにした疑似ランダムでシャッフル（毎日同じ順序が再現できる）
+function seededRandom(seed) {
+  let s = seed ^ 0xdeadbeef;
+  return () => {
+    s = Math.imul(s ^ (s >>> 16), 0x45d9f3b);
+    s = Math.imul(s ^ (s >>> 16), 0x45d9f3b);
+    s ^= s >>> 16;
+    return (s >>> 0) / 0x100000000;
+  };
+}
+
+function shuffle(arr, seed) {
+  const rng = seededRandom(seed);
+  const result = [...arr];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+const shuffled = shuffle(allQuestions, 20240101);
+const q = shuffled[dayIndex % shuffled.length];
 
 console.log(`mode: ${mode}, dayIndex: ${dayIndex}, question: ${q.id}`);
 
