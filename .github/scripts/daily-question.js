@@ -57,8 +57,17 @@ function shuffle(arr, seed) {
   return result;
 }
 
-const shuffled = shuffle(allQuestions, 20240101);
-const q = shuffled[dayIndex % shuffled.length];
+// 1日ごとにEasy→Medium→Hardをローテーション
+// OFFSET=252 は 2026-05-25 の問題を変えないための調整値
+const OFFSET = 252;
+const diffGroups = [
+  shuffle(allQuestions.filter(q => q.difficulty === 1), 20240101),
+  shuffle(allQuestions.filter(q => q.difficulty === 2), 20240101),
+  shuffle(allQuestions.filter(q => q.difficulty === 3), 20240101),
+];
+const eff = dayIndex + OFFSET;
+const group = diffGroups[eff % 3];
+const q = group[Math.floor(eff / 3) % group.length];
 
 console.log(`mode: ${mode}, dayIndex: ${dayIndex}, question: ${q.id}`);
 
