@@ -76,7 +76,9 @@ postToSlack({ blocks });
 
 // dayIndexをシードに選択肢をシャッフルし、問題・解答で同じ順序を再現する
 function shuffleOptionsSeeded(q, seed) {
-  const rng = seededRandom(seed);
+  // q.idのハッシュを混ぜることで、同じ問題が再出題された日も並びが変わる
+  const idHash = q.id.split('').reduce((acc, c) => Math.imul(acc, 31) + c.charCodeAt(0) | 0, 0);
+  const rng = seededRandom(seed ^ idHash);
   const indices = q.options.map((_, i) => i);
   for (let i = indices.length - 1; i > 0; i--) {
     const j = Math.floor(Math.floor(rng() * (i + 1)));
