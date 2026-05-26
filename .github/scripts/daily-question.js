@@ -74,8 +74,23 @@ console.log(`mode: ${mode}, dayIndex: ${dayIndex}, question: ${q.id}`);
 const blocks = mode === 'question' ? buildQuestionBlocks(q) : buildAnswerBlocks(q);
 postToSlack({ blocks });
 
+// dayIndexをシードに選択肢をシャッフルし、問題・解答で同じ順序を再現する
+function shuffleOptionsSeeded(q, seed) {
+  const rng = seededRandom(seed);
+  const indices = q.options.map((_, i) => i);
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.floor(rng() * (i + 1)));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  const labels = ['A', 'B', 'C', 'D'];
+  const shuffledOptions = indices.map((orig, pos) => `${labels[pos]}. ${q.options[orig].slice(3)}`);
+  const shuffledAnswer = indices.indexOf(q.answer);
+  return { shuffledOptions, shuffledAnswer };
+}
+
 function buildQuestionBlocks(q) {
   const diffLabel = ['', '⭐ Easy', '⭐⭐ Medium', '⭐⭐⭐ Hard'][q.difficulty];
+  const { shuffledOptions } = shuffleOptionsSeeded(q, dayIndex);
   return [
     {
       type: 'header',
@@ -95,7 +110,7 @@ function buildQuestionBlocks(q) {
     },
     {
       type: 'section',
-      text: { type: 'mrkdwn', text: q.options.map(o => `• ${o}`).join('\n') }
+      text: { type: 'mrkdwn', text: shuffledOptions.map(o => `• ${o}`).join('\n') }
     },
     {
       type: 'context',
@@ -105,7 +120,8 @@ function buildQuestionBlocks(q) {
 }
 
 function buildAnswerBlocks(q) {
-  const correct = q.options[q.answer];
+  const { shuffledOptions, shuffledAnswer } = shuffleOptionsSeeded(q, dayIndex);
+  const correct = shuffledOptions[shuffledAnswer];
   return [
     {
       type: 'header',
