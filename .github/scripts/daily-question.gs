@@ -13,14 +13,17 @@ const SLACK_WEBHOOK_URL_KEY = 'SLACK_WEBHOOK_URL';
 const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/ak69143/cissp-cat-test/main/questions/';
 const EPOCH = new Date('2024-01-01T00:00:00+09:00');
 
+// OFFSET=2 は 2026-05-27 をEasyとして開始するための調整値（dayIndex=877, eff=879, 879%3=0）
+const OFFSET = 2;
+
 // 10:00 JST に実行
 function postQuestion() {
   if (isSkipDay()) {
     console.log('土日祝のためスキップ');
     return;
   }
-  const q = getTodaysQuestion();
-  postToSlack(buildQuestionBlocks(q));
+  const { q, dayIndex } = getTodaysQuestion();
+  postToSlack(buildQuestionBlocks(q, dayIndex));
   console.log('問題投稿完了: ' + q.id);
 }
 
@@ -30,8 +33,8 @@ function postAnswer() {
     console.log('土日祝のためスキップ');
     return;
   }
-  const q = getTodaysQuestion();
-  postToSlack(buildAnswerBlocks(q));
+  const { q, dayIndex } = getTodaysQuestion();
+  postToSlack(buildAnswerBlocks(q, dayIndex));
   console.log('解答投稿完了: ' + q.id);
 }
 
@@ -55,7 +58,7 @@ function isSkipDay() {
   return false;
 }
 
-// ---- 今日の問題を取得 ----
+// ---- 今日の問題を取得（Easy→Medium→Hardローテーション） ----
 function getTodaysQuestion() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -63,9 +66,9 @@ function getTodaysQuestion() {
 
   // 1問だけキャッシュ（全問キャッシュはCacheService 100KB制限を超える）
   const cache = CacheService.getScriptCache();
-  const cacheKey = 'question_' + getTodayStr();
+  const cacheKey = 'question_v2_' + getTodayStr();
   const cached = cache.get(cacheKey);
-  if (cached) return JSON.parse(cached);
+  if (cached) return { q: JSON.parse(cached), dayIndex };
 
   const allQuestions = [];
   for (let i = 1; i <= 8; i++) {
@@ -74,29 +77,76 @@ function getTodaysQuestion() {
     data.questions.forEach(q => allQuestions.push(Object.assign({}, q, { domainName: data.domainName })));
   }
 
-  const q = allQuestions[dayIndex % allQuestions.length];
+  // 1日ごとにEasy→Medium→Hardをローテーション
+  const diffGroups = [
+    shuffle(allQuestions.filter(q => q.difficulty === 1), 20240101),
+    shuffle(allQuestions.filter(q => q.difficulty === 2), 20240101),
+    shuffle(allQuestions.filter(q => q.difficulty === 3), 20240101),
+  ];
+  const eff = dayIndex + OFFSET;
+  const group = diffGroups[eff % 3];
+  const q = group[Math.floor(eff / 3) % group.length];
+
   cache.put(cacheKey, JSON.stringify(q), 21600);
-  return q;
+  return { q, dayIndex };
+}
+
+// ---- 疑似乱数生成（シード付き） ----
+function seededRandom(seed) {
+  let s = seed ^ 0xdeadbeef;
+  return () => {
+    s = Math.imul(s ^ (s >>> 16), 0x45d9f3b);
+    s = Math.imul(s ^ (s >>> 16), 0x45d9f3b);
+    s ^= s >>> 16;
+    return (s >>> 0) / 0x100000000;
+  };
+}
+
+function shuffle(arr, seed) {
+  const rng = seededRandom(seed);
+  const result = [...arr];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+// dayIndexをシードに選択肢をシャッフルし、問題・解答で同じ順序を再現する
+function shuffleOptionsSeeded(q, dayIndex) {
+  // q.idのハッシュを混ぜることで、同じ問題が再出題された日も並びが変わる
+  const idHash = q.id.split('').reduce((acc, c) => Math.imul(acc, 31) + c.charCodeAt(0) | 0, 0);
+  const rng = seededRandom(dayIndex ^ idHash);
+  const indices = q.options.map((_, i) => i);
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  const labels = ['A', 'B', 'C', 'D'];
+  const shuffledOptions = indices.map((orig, pos) => `${labels[pos]}. ${q.options[orig].slice(3)}`);
+  const shuffledAnswer = indices.indexOf(q.answer);
+  return { shuffledOptions, shuffledAnswer };
 }
 
 // ---- Slackブロック生成 ----
-function buildQuestionBlocks(q) {
+function buildQuestionBlocks(q, dayIndex) {
   const diffLabel = ['', '⭐ Easy', '⭐⭐ Medium', '⭐⭐⭐ Hard'][q.difficulty];
+  const { shuffledOptions } = shuffleOptionsSeeded(q, dayIndex);
   return {
     blocks: [
       { type: 'header', text: { type: 'plain_text', text: '📚 今日のCISSP一問 (' + getTodayStr() + ')' } },
       { type: 'section', text: { type: 'mrkdwn', text: '*ドメイン:* ' + q.domainName + '　*難易度:* ' + diffLabel + '\n*トピック:* ' + q.topic } },
       { type: 'divider' },
       { type: 'section', text: { type: 'mrkdwn', text: '*Q. ' + q.question + '*' } },
-      { type: 'section', text: { type: 'mrkdwn', text: q.options.map(o => '• ' + o).join('\n') } },
+      { type: 'section', text: { type: 'mrkdwn', text: shuffledOptions.map(o => '• ' + o).join('\n') } },
       { type: 'context', elements: [{ type: 'mrkdwn', text: '💡 解答は18:00に投稿されます' }] }
     ]
   };
 }
 
-function buildAnswerBlocks(q) {
-  const correct = q.options[q.answer];
-  // explanationの不正解セクション区切り文字をSlack用に変換
+function buildAnswerBlocks(q, dayIndex) {
+  const { shuffledOptions, shuffledAnswer } = shuffleOptionsSeeded(q, dayIndex);
+  const correct = shuffledOptions[shuffledAnswer];
   const explanation = q.explanation.replace('━━ 不正解の選択肢について ━━', '━━ 不正解の選択肢について ━━');
   return {
     blocks: [
