@@ -125,7 +125,30 @@ function shuffleOptionsSeeded(q, dayIndex) {
   const labels = ['A', 'B', 'C', 'D'];
   const shuffledOptions = indices.map((orig, pos) => `${labels[pos]}. ${q.options[orig].slice(3)}`);
   const shuffledAnswer = indices.indexOf(q.answer);
-  return { shuffledOptions, shuffledAnswer };
+  return { shuffledOptions, shuffledAnswer, indices };
+}
+
+// 解説内の選択肢ラベル（A/B/C/D）をシャッフル後のラベルに置き換え、A→B→C→D順に並べ直す
+function remapExplanationLabels(explanation, indices) {
+  const labels = ['A', 'B', 'C', 'D'];
+  const origToNew = {};
+  indices.forEach((origPos, newPos) => { origToNew[labels[origPos]] = labels[newPos]; });
+
+  // 行頭の "X. " を新ラベルに置換
+  const remapped = explanation.replace(/^([A-D])\. /gm, (_, label) => (origToNew[label] || label) + '. ');
+
+  // 「不正解の選択肢について」セクション以降の行をA→D順にソート
+  const sep = '━━ 不正解の選択肢について ━━';
+  const sepIdx = remapped.indexOf(sep);
+  if (sepIdx === -1) return remapped;
+
+  const header = remapped.slice(0, sepIdx + sep.length);
+  const rest = remapped.slice(sepIdx + sep.length);
+  const lines = rest.split('\n');
+  const optionLines = lines.filter(l => /^[A-D]\. /.test(l)).sort();
+  let optIdx = 0;
+  const sorted = lines.map(l => /^[A-D]\. /.test(l) ? optionLines[optIdx++] : l);
+  return header + sorted.join('\n');
 }
 
 // ---- Slackブロック生成 ----
@@ -145,9 +168,9 @@ function buildQuestionBlocks(q, dayIndex) {
 }
 
 function buildAnswerBlocks(q, dayIndex) {
-  const { shuffledOptions, shuffledAnswer } = shuffleOptionsSeeded(q, dayIndex);
+  const { shuffledOptions, shuffledAnswer, indices } = shuffleOptionsSeeded(q, dayIndex);
   const correct = shuffledOptions[shuffledAnswer];
-  const explanation = q.explanation.replace('━━ 不正解の選択肢について ━━', '━━ 不正解の選択肢について ━━');
+  const explanation = remapExplanationLabels(q.explanation, indices);
   return {
     blocks: [
       { type: 'header', text: { type: 'plain_text', text: '✅ 今日の解答 (' + getTodayStr() + ')' } },
