@@ -276,6 +276,16 @@ html, body {
 
 .mode-details li::before { content: '✓ '; color: var(--success); }
 
+.new-version-row { margin-bottom: 16px; }
+
+.practice-main .new-version-row {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.practice-main .new-version-row .toggle-switch { margin-left: 0; }
+
 /* ドメイン選択 */
 .practice-card {
   display: flex;

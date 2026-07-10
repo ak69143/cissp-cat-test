@@ -23,6 +23,20 @@ const TERMS_FILES = [
   'questions/terms8.json',
 ];
 
+// 新問題バージョン（選択肢を短答形式にブラッシュアップしたもの）
+const DOMAIN_FILES_NEW = [
+  'questions/fix-domain1.json',
+  'questions/fix-domain2.json',
+  'questions/fix-domain3.json',
+  'questions/fix-domain4.json',
+  'questions/fix-domain5.json',
+  'questions/fix-domain6.json',
+  'questions/fix-domain7.json',
+  'questions/fix-domain8.json',
+];
+
+const NEW_QUESTION_VERSION_KEY = 'cissp_new_question_version';
+
 const DOMAIN_COLORS = [
   '#4f8ef7', '#2ecc71', '#9b59b6', '#e67e22',
   '#1abc9c', '#e74c3c', '#3498db', '#f39c12',
@@ -38,7 +52,8 @@ const PASSING_THETA = 1.2; // スコア700に対応するtheta値
 const CONFIDENCE_THRESHOLD = 1.0; // CAT停止の信頼区間閾値
 
 // ===== 状態管理 =====
-let allQuestions = []; // 全問題フラット配列（domainオブジェクト付き）
+let allQuestions = []; // 全問題フラット配列（domainオブジェクト付き・従来版）
+let allQuestionsNew = []; // 全問題フラット配列（新問題バージョン）
 let domainMeta = [];   // ドメインメタ情報
 let allTerms = [];     // 用語テスト問題
 let termsDomainMeta = [];
@@ -153,11 +168,13 @@ async function init() {
 
 // ===== 問題読み込み =====
 async function loadAllQuestions() {
-  const results = await Promise.all(
-    DOMAIN_FILES.map(f => fetch(f).then(r => r.json()))
-  );
+  const [results, resultsNew] = await Promise.all([
+    Promise.all(DOMAIN_FILES.map(f => fetch(f).then(r => r.json()))),
+    Promise.all(DOMAIN_FILES_NEW.map(f => fetch(f).then(r => r.json()))),
+  ]);
 
   allQuestions = [];
+  allQuestionsNew = [];
   domainMeta = [];
 
   results.forEach((data, i) => {
@@ -173,6 +190,27 @@ async function loadAllQuestions() {
       allQuestions.push({ ...q, domainIndex: i, domainName: data.domainName, weight: data.weight });
     });
   });
+
+  resultsNew.forEach((data, i) => {
+    data.questions.forEach(q => {
+      allQuestionsNew.push({ ...q, domainIndex: i, domainName: data.domainName, weight: data.weight });
+    });
+  });
+}
+
+// ===== 新問題バージョンのトグル状態 =====
+function isNewQuestionVersion() {
+  const raw = localStorage.getItem(NEW_QUESTION_VERSION_KEY);
+  return raw === null ? true : raw === 'true';
+}
+
+function setNewQuestionVersion(flag) {
+  localStorage.setItem(NEW_QUESTION_VERSION_KEY, flag ? 'true' : 'false');
+  document.querySelectorAll('.toggle-new-version').forEach(el => { el.checked = flag; });
+}
+
+function getActiveQuestions() {
+  return isNewQuestionVersion() ? allQuestionsNew : allQuestions;
 }
 
 // ===== 用語テスト読み込み =====
@@ -387,6 +425,7 @@ function bindHomeEvents() {
     const isOpen = document.getElementById('domain-selector').classList.toggle('open');
     document.getElementById('btn-practice').classList.toggle('expanded', isOpen);
   });
+  bindNewVersionToggles();
   document.getElementById('btn-terms').addEventListener('click', () => {
     document.getElementById('domain-selector').classList.remove('open');
     document.getElementById('btn-practice').classList.remove('expanded');
@@ -411,6 +450,21 @@ function bindHomeEvents() {
     }
   });
   bindModalEvents();
+}
+
+// ===== 新問題バージョントグル =====
+function bindNewVersionToggles() {
+  document.querySelectorAll('.new-version-row').forEach(row => {
+    row.addEventListener('click', e => e.stopPropagation());
+  });
+  const toggles = document.querySelectorAll('.toggle-new-version');
+  const initial = isNewQuestionVersion();
+  toggles.forEach(el => {
+    el.checked = initial;
+    el.addEventListener('change', e => {
+      setNewQuestionVersion(e.target.checked);
+    });
+  });
 }
 
 // ===== 試験開始モーダル =====
@@ -710,7 +764,8 @@ function startCatExam(settings = { showScore: true, showHints: true, showExplana
   showScreen('question');
   if (session.isExamMode) document.body.classList.add('mode-exam');
 
-  const modeLabel = session.isExamMode ? '本番試験モード（CAT）' : '模擬試験（CAT）';
+  const versionSuffix = isNewQuestionVersion() ? '（新問題版）' : '';
+  const modeLabel = (session.isExamMode ? '本番試験モード（CAT）' : '模擬試験（CAT）') + versionSuffix;
   document.getElementById('sidebar-mode-label').textContent = modeLabel;
   document.getElementById('q-total').textContent = `${CAT_MIN_QUESTIONS}〜${CAT_MAX_QUESTIONS}`;
   document.getElementById('timer-block').classList.remove('hidden');
@@ -739,8 +794,9 @@ function buildCatPool() {
 
   // ドメインごとにシャッフルして必要数取得
   const pool = [];
+  const activeQuestions = getActiveQuestions();
   domainMeta.forEach((d, i) => {
-    const domainQs = allQuestions.filter(q => q.domainIndex === i);
+    const domainQs = activeQuestions.filter(q => q.domainIndex === i);
     const shuffled = shuffle([...domainQs]);
     pool.push(...shuffled.slice(0, Math.min(targets[i], shuffled.length)));
   });
@@ -751,7 +807,7 @@ function buildCatPool() {
 // ===== ドメイン練習開始 =====
 function startPractice(domainIndex) {
   const diffFilter = parseInt(document.getElementById('difficulty-filter').value);
-  let pool = allQuestions.filter(q => q.domainIndex === domainIndex);
+  let pool = getActiveQuestions().filter(q => q.domainIndex === domainIndex);
   if (diffFilter > 0) pool = pool.filter(q => q.difficulty === diffFilter);
   if (pool.length === 0) { alert('該当する問題がありません。'); return; }
 
@@ -761,7 +817,8 @@ function startPractice(domainIndex) {
 
   showScreen('question');
   document.body.classList.add('mode-practice');
-  document.getElementById('sidebar-mode-label').textContent = `練習: D${domainMeta[domainIndex].domain}`;
+  const versionLabel = isNewQuestionVersion() ? '（新問題版）' : '';
+  document.getElementById('sidebar-mode-label').textContent = `練習: D${domainMeta[domainIndex].domain}${versionLabel}`;
   document.getElementById('q-total').textContent = pool.length;
   document.getElementById('timer-block').classList.add('hidden');
   document.getElementById('score-block').classList.add('hidden');
