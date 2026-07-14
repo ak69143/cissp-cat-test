@@ -72,7 +72,7 @@ function getTodaysQuestion() {
 
   const allQuestions = [];
   for (let i = 1; i <= 8; i++) {
-    const res = UrlFetchApp.fetch(GITHUB_RAW_BASE + 'domain' + i + '.json');
+    const res = UrlFetchApp.fetch(GITHUB_RAW_BASE + 'fix-domain' + i + '.json');
     const data = JSON.parse(res.getContentText());
     data.questions.forEach(q => allQuestions.push(Object.assign({}, q, { domainName: data.domainName })));
   }

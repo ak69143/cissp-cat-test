@@ -23,10 +23,10 @@ if (holidayJp.isHoliday(todayJst)) {
   process.exit(0);
 }
 
-// domain1.json〜domain8.json から全問題ロード
+// fix-domain1.json〜fix-domain8.json から全問題ロード
 const allQuestions = [];
 for (let i = 1; i <= 8; i++) {
-  const raw = JSON.parse(fs.readFileSync(`questions/domain${i}.json`, 'utf8'));
+  const raw = JSON.parse(fs.readFileSync(`questions/fix-domain${i}.json`, 'utf8'));
   raw.questions.forEach(q => allQuestions.push({ ...q, domainName: raw.domainName }));
 }
 
